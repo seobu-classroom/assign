@@ -68,6 +68,7 @@
     <div class="box" id="roleSelector">
         <h3>사용자 역할 선택</h3>
         <p>💡 <strong>참고:</strong> 이 시스템은 브라우저에 데이터를 저장합니다. 팀원들과 공유하려면 웹서버에 배포하세요.</p>
+        <p style="color: #666; font-size: 14px;">🔒 관리자 모드는 비밀번호가 필요합니다.</p>
         <div class="input-row">
             <button class="btn-primary" onclick="setRole('admin')">👨‍💼 관리자 모드</button>
             <button class="btn-success" onclick="setRole('user')">👤 일반 사용자 모드</button>
@@ -223,7 +224,19 @@
         updateRequestBadge();
     }
     
+    // 관리자 비밀번호 (원하는 비밀번호로 변경하세요)
+    const ADMIN_PASSWORD = "admin1234";
+    
     function setRole(role) {
+        // 관리자 모드 선택 시 비밀번호 확인
+        if(role === 'admin') {
+            const password = prompt('관리자 비밀번호를 입력하세요:');
+            if(password !== ADMIN_PASSWORD) {
+                alert('비밀번호가 틀렸습니다.');
+                return;
+            }
+        }
+        
         currentRole = role;
         document.getElementById('roleSelector').style.display = 'none';
         document.getElementById('mainScreen').style.display = 'block';
