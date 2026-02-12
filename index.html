@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>강의실 배정 시스템 (공유)</title>
+    <style>
+        body { font-family: 'Malgun Gothic', '맑은 고딕', sans-serif; background-color: #f0f2f5; padding: 20px; color: #333; }
+        .box { background: white; padding: 20px; border-radius: 8px; border: 1px solid #ccc; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .input-row { margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+        label { font-weight: bold; }
+        input, select, textarea { padding: 8px; border: 1px solid #aaa; border-radius: 4px; }
+        button { cursor: pointer; padding: 10px 20px; border: none; border-radius: 5px; font-weight: bold; color: white; }
+        .btn-primary { background-color: #007bff; }
+        .btn-primary:hover { background-color: #0056b3; }
+        .btn-success { background-color: #28a745; }
+        .btn-success:hover { background-color: #218838; }
+        .btn-danger { background-color: #dc3545; }
+        .btn-danger:hover { background-color: #c82333; }
+        .btn-warning { background-color: #ffc107; color: #333; }
+        .btn-warning:hover { background-color: #e0a800; }
+        
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ddd; }
+        .tab { padding: 10px 20px; cursor: pointer; border: none; background: none; font-size: 16px; font-weight: bold; color: #666; border-bottom: 3px solid transparent; }
+        .tab.active { color: #007bff; border-bottom-color: #007bff; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        .table-wrap { overflow-x: auto; background: white; border: 1px solid #999; margin-top: 20px; }
+        table { width: 100%; min-width: 1000px; border-collapse: collapse; table-layout: fixed; }
+        th, td { border: 1px solid #999; padding: 8px; vertical-align: top; font-size: 12px; }
+        th { background-color: #e9ecef; text-align: center; height: 40px; border-bottom: 2px solid #555; }
+        .room-cell { width: 100px; background-color: #dee2e6; text-align: center; font-weight: bold; vertical-align: middle; }
+        
+        .card { background-color: #e3f2fd; border: 1px solid #2196f3; padding: 6px; margin-bottom: 6px; border-radius: 3px; position: relative; font-size: 12px; }
+        .card.conflict { background-color: #ffebee; border-color: #f44336; }
+        .del-btn { position: absolute; top: 3px; right: 3px; background: red; color: white; width: 18px; height: 18px; font-size: 11px; border-radius: 50%; border: none; cursor: pointer; }
+        
+        .request-item { background: #f8f9fa; border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 5px; }
+        .request-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .request-status { padding: 5px 10px; border-radius: 15px; font-size: 12px; font-weight: bold; }
+        .status-pending { background: #ffc107; color: #333; }
+        .status-approved { background: #28a745; color: white; }
+        .status-rejected { background: #dc3545; color: white; }
+        .request-info { font-size: 14px; line-height: 1.6; color: #666; }
+        .request-actions { margin-top: 10px; display: flex; gap: 10px; }
+        
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; }
+        .modal.active { display: flex; justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 30px; border-radius: 10px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-close { background: none; border: none; font-size: 28px; cursor: pointer; color: #999; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        
+        .badge { background: #dc3545; color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px; margin-left: 5px; }
+        .checkbox-group { display: flex; gap: 15px; flex-wrap: wrap; padding: 10px; background: #f8f9fa; border-radius: 5px; }
+        .sync-status { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; margin-left: 10px; }
+        .sync-status.synced { background: #d4edda; color: #155724; }
+        .sync-status.syncing { background: #fff3cd; color: #856404; }
+        .sync-status.error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h2 style="margin-top: 0;">📅 강의실 배정 시스템 (공유) <span id="syncStatus" class="sync-status synced">✓ 저장됨</span></h2>
+    
+    <div class="box" id="roleSelector">
+        <h3>사용자 역할 선택</h3>
+        <p>💡 <strong>참고:</strong> 이 시스템은 브라우저에 데이터를 저장합니다. 팀원들과 공유하려면 웹서버에 배포하세요.</p>
+        <div class="input-row">
+            <button class="btn-primary" onclick="setRole('admin')">👨‍💼 관리자 모드</button>
+            <button class="btn-success" onclick="setRole('user')">👤 일반 사용자 모드</button>
+        </div>
+    </div>
+    
+    <div id="mainScreen" style="display: none;">
+        <div class="box">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <strong>현재 모드:</strong> 
+                    <span id="currentRole" style="padding: 5px 15px; border-radius: 15px; background: #007bff; color: white;"></span>
+                </div>
+                <div>
+                    <button class="btn-warning" onclick="changeRole()">역할 변경</button>
+                    <button class="btn-primary" onclick="refreshData()" style="background: #6c757d;">🔄 새로고침</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('schedule')">📋 배정표</button>
+            <button class="tab" id="requestTabBtn" onclick="showTab('request')">📝 사용요청 <span id="requestBadge" class="badge" style="display: none;">0</span></button>
+        </div>
+        
+        <div id="scheduleTab" class="tab-content active">
+            <div id="adminPanel" class="box" style="display: none;">
+                <h3>일정 직접 등록 (관리자 전용)</h3>
+                <div class="input-row">
+                    <label>기간:</label>
+                    <input type="date" id="startDate" value="2026-04-13">
+                    <span>~</span>
+                    <input type="date" id="endDate" value="2026-06-18">
+                </div>
+                <div class="input-row checkbox-group">
+                    <label>요일:</label>
+                    <label><input type="checkbox" name="chkDay" value="1" checked> 월</label>
+                    <label><input type="checkbox" name="chkDay" value="2" checked> 화</label>
+                    <label><input type="checkbox" name="chkDay" value="3" checked> 수</label>
+                    <label><input type="checkbox" name="chkDay" value="4" checked> 목</label>
+                    <label><input type="checkbox" name="chkDay" value="5" checked> 금</label>
+                    <label><input type="checkbox" name="chkDay" value="6"> 토</label>
+                </div>
+                <div class="input-row">
+                    <select id="roomSelect"></select>
+                    <input type="time" id="startTime" value="13:30">
+                    <span>~</span>
+                    <input type="time" id="endTime" value="17:30">
+                    <input type="text" id="courseName" placeholder="과정명 (필수)">
+                    <input type="text" id="instructorName" placeholder="강사명">
+                    <button class="btn-primary" onclick="addSchedule()">+ 등록</button>
+                </div>
+            </div>
+            
+            <div id="userPanel" class="box" style="display: none;">
+                <button class="btn-success" onclick="openRequestModal()" style="font-size: 16px; padding: 12px 24px;">📝 강의실 사용 요청하기</button>
+            </div>
+            
+            <div class="box">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <label>조회 연도/월:</label>
+                        <input type="number" id="viewYear" value="2026" style="width: 70px;" onchange="renderSchedule()">
+                        <select id="viewMonth" onchange="renderSchedule()">
+                            <option value="1">1월</option><option value="2">2월</option><option value="3">3월</option>
+                            <option value="4" selected>4월</option><option value="5">5월</option><option value="6">6월</option>
+                            <option value="7">7월</option><option value="8">8월</option><option value="9">9월</option>
+                            <option value="10">10월</option><option value="11">11월</option><option value="12">12월</option>
+                        </select>
+                    </div>
+                    <div>
+                        <span>총 <strong id="totalCount">0</strong>개 일정</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="table-wrap">
+                <table>
+                    <thead id="scheduleHead"></thead>
+                    <tbody id="scheduleBody"></tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div id="requestTab" class="tab-content">
+            <div class="box">
+                <h3 id="requestTabTitle">강의실 사용 요청 관리</h3>
+                <div id="requestList"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="requestModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>강의실 사용 요청</h3>
+                <div class="modal-close" onclick="closeRequestModal()">&times;</div>
+            </div>
+            <div class="form-group">
+                <label>요청자 이름 *</label>
+                <input type="text" id="reqRequesterName" placeholder="홍길동">
+            </div>
+            <div class="form-group">
+                <label>강의실 *</label>
+                <select id="reqRoom"></select>
+            </div>
+            <div class="form-group">
+                <label>날짜 *</label>
+                <input type="date" id="reqDate">
+            </div>
+            <div class="form-group">
+                <label>시작 시간 *</label>
+                <input type="time" id="reqStartTime" value="09:00">
+            </div>
+            <div class="form-group">
+                <label>종료 시간 *</label>
+                <input type="time" id="reqEndTime" value="18:00">
+            </div>
+            <div class="form-group">
+                <label>과정명 *</label>
+                <input type="text" id="reqCourseName" placeholder="예: Python 기초">
+            </div>
+            <div class="form-group">
+                <label>강사명</label>
+                <input type="text" id="reqInstructorName" placeholder="선택사항">
+            </div>
+            <div class="form-group">
+                <label>사용 목적</label>
+                <textarea id="reqPurpose" rows="3" placeholder="선택사항"></textarea>
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button class="btn-danger" onclick="closeRequestModal()">취소</button>
+                <button class="btn-success" onclick="submitRequest()">제출</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    let schedules = [];
+    let requests = [];
+    let idCounter = 1;
+    let currentRole = null;
+    const rooms = ["B101", "101호", "102호", "201호", "202호", "203호", "204호", "205호", "206호", "207호", "208호", "209호", "301호", "302호", "303호", "스튜디오", "강당", "상담실"];
+    
+    async function init() {
+        populateRoomSelects();
+        await loadFromCloud();
+        updateRequestBadge();
+    }
+    
+    function setRole(role) {
+        currentRole = role;
+        document.getElementById('roleSelector').style.display = 'none';
+        document.getElementById('mainScreen').style.display = 'block';
+        
+        const roleText = role === 'admin' ? '👨‍💼 관리자' : '👤 일반 사용자';
+        document.getElementById('currentRole').textContent = roleText;
+        
+        document.getElementById('adminPanel').style.display = role === 'admin' ? 'block' : 'none';
+        document.getElementById('userPanel').style.display = role === 'user' ? 'block' : 'none';
+        
+        updateRequestBadge();
+        renderSchedule();
+        renderRequests();
+    }
+    
+    function changeRole() {
+        document.getElementById('roleSelector').style.display = 'block';
+        document.getElementById('mainScreen').style.display = 'none';
+        currentRole = null;
+    }
+    
+    function populateRoomSelects() {
+        const select1 = document.getElementById('roomSelect');
+        const select2 = document.getElementById('reqRoom');
+        
+        rooms.forEach(room => {
+            select1.innerHTML += `<option value="${room}">${room}</option>`;
+            select2.innerHTML += `<option value="${room}">${room}</option>`;
+        });
+    }
+    
+    function showTab(tabName) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        if(tabName === 'schedule') {
+            document.querySelectorAll('.tab')[0].classList.add('active');
+            document.getElementById('scheduleTab').classList.add('active');
+        } else if(tabName === 'request') {
+            document.querySelectorAll('.tab')[1].classList.add('active');
+            document.getElementById('requestTab').classList.add('active');
+        }
+    }
+    
+    // 해당 월의 요일별 날짜 목록 가져오기
+    function getDates(year, month) {
+        const result = {};
+        const lastDay = new Date(year, month, 0).getDate();
+        
+        for(let i = 1; i <= lastDay; i++) {
+            const day = new Date(year, month - 1, i).getDay();
+            if(day >= 1 && day <= 6) {
+                if(!result[day]) result[day] = [];
+                result[day].push(i);
+            }
+        }
+        return result;
+    }
+    
+    // 일정 렌더링
+    function renderSchedule() {
+        const year = parseInt(document.getElementById('viewYear').value);
+        const month = parseInt(document.getElementById('viewMonth').value);
+        
+        const thead = document.getElementById('scheduleHead');
+        const tbody = document.getElementById('scheduleBody');
+        
+        const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+        const datesMap = getDates(year, month);
+        
+        // 헤더
+        let headHtml = '<tr><th class="room-cell">강의실</th>';
+        for(let d = 1; d <= 6; d++) {
+            const dates = datesMap[d] || [];
+            headHtml += `<th>${dayNames[d]}<br><small>(${dates.join(' ')})</small></th>`;
+        }
+        headHtml += '</tr>';
+        thead.innerHTML = headHtml;
+        
+        // 본문
+        tbody.innerHTML = '';
+        rooms.forEach(room => {
+            const tr = document.createElement('tr');
+            
+            const tdRoom = document.createElement('td');
+            tdRoom.className = 'room-cell';
+            tdRoom.textContent = room;
+            tr.appendChild(tdRoom);
+            
+            for(let d = 1; d <= 6; d++) {
+                const td = document.createElement('td');
+                
+                const daySchedules = schedules.filter(s => 
+                    s.y === year && s.m === month && s.r === room && s.d === d
+                );
+                
+                daySchedules.sort((a, b) => a.st.localeCompare(b.st));
+                
+                daySchedules.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    
+                    let html = `<strong>${item.st}~${item.et}</strong><br>${item.cn}`;
+                    if(item.tn) html += `<br>${item.tn}`;
+                    html += `<br><small>📅 ${item.dates.join(',')}일</small>`;
+                    
+                    if(currentRole === 'admin') {
+                        html += `<button class="del-btn" onclick="deleteSchedule(${item.id})">×</button>`;
+                    }
+                    
+                    card.innerHTML = html;
+                    td.appendChild(card);
+                });
+                
+                tr.appendChild(td);
+            }
+            
+            tbody.appendChild(tr);
+        });
+        
+        document.getElementById('totalCount').textContent = schedules.length;
+    }
+    
+    // 관리자: 직접 일정 등록
+    async function addSchedule() {
+        const startDate = new Date(document.getElementById('startDate').value);
+        const endDate = new Date(document.getElementById('endDate').value);
+        const room = document.getElementById('roomSelect').value;
+        const startTime = document.getElementById('startTime').value;
+        const endTime = document.getElementById('endTime').value;
+        const courseName = document.getElementById('courseName').value.trim();
+        const instructorName = document.getElementById('instructorName').value.trim();
+        
+        if(!courseName) {
+            alert('과정명을 입력하세요.');
+            return;
+        }
+        
+        const days = Array.from(document.querySelectorAll('input[name="chkDay"]:checked'))
+            .map(cb => parseInt(cb.value));
+        
+        if(days.length === 0) {
+            alert('요일을 선택하세요.');
+            return;
+        }
+        
+        // 선택된 요일에 해당하는 날짜 수집
+        const datesByDay = {};
+        for(let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+            const dayOfWeek = d.getDay();
+            if(days.includes(dayOfWeek)) {
+                if(!datesByDay[dayOfWeek]) datesByDay[dayOfWeek] = [];
+                datesByDay[dayOfWeek].push(d.getDate());
+            }
+        }
+        
+        // 요일별로 일정 추가
+        for(const [day, dates] of Object.entries(datesByDay)) {
+            schedules.push({
+                id: idCounter++,
+                y: startDate.getFullYear(),
+                m: startDate.getMonth() + 1,
+                d: parseInt(day),
+                r: room,
+                st: startTime,
+                et: endTime,
+                cn: courseName,
+                tn: instructorName,
+                dates: dates
+            });
+        }
+        
+        await saveToCloud();
+        alert('등록되었습니다.');
+        renderSchedule();
+    }
+    
+    async function deleteSchedule(id) {
+        if(!confirm('이 일정을 삭제하시겠습니까?')) return;
+        schedules = schedules.filter(s => s.id !== id);
+        await saveToCloud();
+        renderSchedule();
+    }
+    
+    function openRequestModal() {
+        document.getElementById('requestModal').classList.add('active');
+        document.getElementById('reqDate').value = new Date().toISOString().split('T')[0];
+    }
+    
+    function closeRequestModal() {
+        document.getElementById('requestModal').classList.remove('active');
+    }
+    
+    async function submitRequest() {
+        const requesterName = document.getElementById('reqRequesterName').value.trim();
+        const room = document.getElementById('reqRoom').value;
+        const date = document.getElementById('reqDate').value;
+        const startTime = document.getElementById('reqStartTime').value;
+        const endTime = document.getElementById('reqEndTime').value;
+        const courseName = document.getElementById('reqCourseName').value.trim();
+        const instructorName = document.getElementById('reqInstructorName').value.trim();
+        const purpose = document.getElementById('reqPurpose').value.trim();
+        
+        if(!requesterName || !date || !courseName) {
+            alert('필수 항목을 모두 입력하세요.');
+            return;
+        }
+        
+        const newRequest = {
+            id: idCounter++,
+            requester_name: requesterName,
+            room: room,
+            date: date,
+            start_time: startTime,
+            end_time: endTime,
+            course_name: courseName,
+            instructor_name: instructorName,
+            purpose: purpose,
+            status: 'pending',
+            created_at: new Date().toISOString()
+        };
+        
+        requests.push(newRequest);
+        await saveToCloud();
+        
+        alert('요청이 제출되었습니다.');
+        closeRequestModal();
+        
+        document.getElementById('reqRequesterName').value = '';
+        document.getElementById('reqCourseName').value = '';
+        document.getElementById('reqInstructorName').value = '';
+        document.getElementById('reqPurpose').value = '';
+        
+        updateRequestBadge();
+        renderRequests();
+    }
+    
+    function renderRequests() {
+        const container = document.getElementById('requestList');
+        const isAdmin = currentRole === 'admin';
+        
+        if(requests.length === 0) {
+            container.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">요청이 없습니다.</p>';
+            return;
+        }
+        
+        container.innerHTML = requests.map(req => {
+            const statusClass = 'status-' + req.status;
+            const statusText = req.status === 'pending' ? '대기중' : 
+                              req.status === 'approved' ? '승인' : '반려';
+            
+            return `
+                <div class="request-item">
+                    <div class="request-header">
+                        <strong>${req.requester_name}</strong>
+                        <span class="${statusClass} request-status">${statusText}</span>
+                    </div>
+                    <div class="request-info">
+                        <strong>강의실:</strong> ${req.room}<br>
+                        <strong>날짜:</strong> ${req.date}<br>
+                        <strong>시간:</strong> ${req.start_time} ~ ${req.end_time}<br>
+                        <strong>과정명:</strong> ${req.course_name}<br>
+                        ${req.instructor_name ? `<strong>강사:</strong> ${req.instructor_name}<br>` : ''}
+                        ${req.purpose ? `<strong>목적:</strong> ${req.purpose}<br>` : ''}
+                        ${req.reject_reason ? `<strong style="color: #dc3545;">반려사유:</strong> ${req.reject_reason}<br>` : ''}
+                    </div>
+                    ${req.status === 'pending' && isAdmin ? `
+                        <div class="request-actions">
+                            <button class="btn-success" onclick="approveRequest(${req.id})">✓ 승인</button>
+                            <button class="btn-danger" onclick="rejectRequest(${req.id})">✗ 반려</button>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }).join('');
+    }
+    
+    async function approveRequest(id) {
+        if(!confirm('이 요청을 승인하시겠습니까?')) return;
+        
+        const request = requests.find(r => r.id === id);
+        if(!request) return;
+        
+        request.status = 'approved';
+        
+        const dateObj = new Date(request.date);
+        const dayOfWeek = dateObj.getDay();
+        
+        schedules.push({
+            id: idCounter++,
+            y: dateObj.getFullYear(),
+            m: dateObj.getMonth() + 1,
+            d: dayOfWeek,
+            r: request.room,
+            st: request.start_time,
+            et: request.end_time,
+            cn: request.course_name,
+            tn: request.instructor_name || '',
+            dates: [dateObj.getDate()]
+        });
+        
+        await saveToCloud();
+        alert('승인되었습니다. 배정표에 자동으로 추가되었습니다.');
+        
+        updateRequestBadge();
+        renderRequests();
+        renderSchedule();
+    }
+    
+    async function rejectRequest(id) {
+        const reason = prompt('반려 사유를 입력하세요:');
+        if(!reason) return;
+        
+        const request = requests.find(r => r.id === id);
+        if(!request) return;
+        
+        request.status = 'rejected';
+        request.reject_reason = reason;
+        
+        await saveToCloud();
+        alert('반려되었습니다.');
+        
+        updateRequestBadge();
+        renderRequests();
+    }
+    
+    function updateRequestBadge() {
+        const pendingCount = requests.filter(r => r.status === 'pending').length;
+        const badge = document.getElementById('requestBadge');
+        
+        if(pendingCount > 0 && currentRole === 'admin') {
+            badge.textContent = pendingCount;
+            badge.style.display = 'inline';
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+    
+    function setSyncStatus(status) {
+        const statusEl = document.getElementById('syncStatus');
+        statusEl.className = 'sync-status ' + status;
+        
+        if(status === 'synced') {
+            statusEl.textContent = '✓ 저장됨';
+        } else if(status === 'syncing') {
+            statusEl.textContent = '⟳ 저장 중...';
+        } else if(status === 'error') {
+            statusEl.textContent = '✗ 오류';
+        }
+    }
+    
+    async function saveToCloud() {
+        try {
+            setSyncStatus('syncing');
+            
+            const data = {
+                schedules: schedules,
+                requests: requests,
+                idCounter: idCounter,
+                lastUpdated: new Date().toISOString()
+            };
+            
+            localStorage.setItem('classroom_data', JSON.stringify(data));
+            setSyncStatus('synced');
+        } catch(error) {
+            console.error('저장 오류:', error);
+            setSyncStatus('error');
+            alert('데이터 저장 중 오류가 발생했습니다: ' + error.message);
+        }
+    }
+    
+    async function loadFromCloud() {
+        try {
+            setSyncStatus('syncing');
+            const savedData = localStorage.getItem('classroom_data');
+            
+            if(savedData) {
+                const data = JSON.parse(savedData);
+                schedules = data.schedules || [];
+                requests = data.requests || [];
+                idCounter = data.idCounter || 1;
+            }
+            
+            setSyncStatus('synced');
+            renderSchedule();
+            renderRequests();
+        } catch(error) {
+            console.error('로드 오류:', error);
+            setSyncStatus('synced');
+        }
+    }
+    
+    async function refreshData() {
+        await loadFromCloud();
+        updateRequestBadge();
+        alert('데이터를 새로고침했습니다.');
+    }
+    
+    init();
+</script>
+</body>
+</html>
