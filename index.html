@@ -338,8 +338,9 @@
                     
                     // 관리자는 카드 더블클릭으로 같은 과정명 일괄 삭제
                     if(currentRole === 'admin') {
+                        const courseName = item.cn;
                         card.ondblclick = function() {
-                            deleteAllByCourse('${item.cn.replace(/'/g, "\\'")}');
+                            deleteAllByCourse(courseName);
                         };
                         card.title = '더블클릭: 같은 과정 모두 삭제';
                         card.style.cursor = 'pointer';
