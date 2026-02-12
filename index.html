@@ -381,8 +381,8 @@
             return;
         }
         
-        // 선택된 요일에 해당하는 날짜 수집 및 중복 체크
-        const datesByDay = {};
+        // 선택된 요일에 해당하는 날짜 수집 및 중복 체크 (년월일로 그룹화)
+        const datesByYearMonthDay = {}; // {year: {month: {day: [dates]}}}
         const conflicts = [];
         
         for(let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
@@ -392,8 +392,11 @@
                 const month = d.getMonth() + 1;
                 const date = d.getDate();
                 
-                if(!datesByDay[dayOfWeek]) datesByDay[dayOfWeek] = [];
-                datesByDay[dayOfWeek].push(date);
+                // 연도-월-요일 별로 날짜 저장
+                if(!datesByYearMonthDay[year]) datesByYearMonthDay[year] = {};
+                if(!datesByYearMonthDay[year][month]) datesByYearMonthDay[year][month] = {};
+                if(!datesByYearMonthDay[year][month][dayOfWeek]) datesByYearMonthDay[year][month][dayOfWeek] = [];
+                datesByYearMonthDay[year][month][dayOfWeek].push(date);
                 
                 // 해당 날짜의 같은 강의실 일정 찾기
                 const existingSchedules = schedules.filter(s => 
@@ -431,20 +434,24 @@
             }
         }
         
-        // 요일별로 일정 추가
-        for(const [day, dates] of Object.entries(datesByDay)) {
-            schedules.push({
-                id: idCounter++,
-                y: startDate.getFullYear(),
-                m: startDate.getMonth() + 1,
-                d: parseInt(day),
-                r: room,
-                st: startTime,
-                et: endTime,
-                cn: courseName,
-                tn: instructorName,
-                dates: dates
-            });
+        // 연도-월-요일별로 일정 추가
+        for(const [year, monthData] of Object.entries(datesByYearMonthDay)) {
+            for(const [month, dayData] of Object.entries(monthData)) {
+                for(const [day, dates] of Object.entries(dayData)) {
+                    schedules.push({
+                        id: idCounter++,
+                        y: parseInt(year),
+                        m: parseInt(month),
+                        d: parseInt(day),
+                        r: room,
+                        st: startTime,
+                        et: endTime,
+                        cn: courseName,
+                        tn: instructorName,
+                        dates: dates
+                    });
+                }
+            }
         }
         
         await saveToCloud();
