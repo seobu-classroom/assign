@@ -121,6 +121,22 @@
                     <input type="text" id="instructorName" placeholder="강사명">
                     <button class="btn-primary" onclick="addSchedule()">+ 등록</button>
                 </div>
+                
+                <hr style="margin: 20px 0; border: none; border-top: 1px solid #ddd;">
+                
+                <h4 style="margin-bottom: 10px;">📤 CSV 파일 일괄 업로드</h4>
+                <div class="input-row">
+                    <input type="file" id="csvFile" accept=".csv" style="padding: 5px;">
+                    <button class="btn-success" onclick="uploadCSV()">📁 CSV 업로드</button>
+                    <button class="btn-warning" onclick="downloadSampleCSV()" style="background: #17a2b8;">📥 샘플 다운로드</button>
+                </div>
+                <div style="margin-top: 10px; padding: 10px; background: #e7f3ff; border-radius: 5px; font-size: 12px;">
+                    <strong>CSV 파일 형식:</strong><br>
+                    강좌명,강의실,시작일,종료일,요일,시작시간,종료시간,강사명<br>
+                    <span style="color: #666;">예: 엑셀기초,207호,2026-04-20,2026-05-18,월화수목금,13:00,17:00,김철수</span><br>
+                    <span style="color: #666;">요일: 월화수목금토 또는 월,화,수 형식</span>
+                </div>
+                
                 <div style="margin-top: 10px; padding: 10px; background: #fff3cd; border-radius: 5px; font-size: 13px;">
                     💡 <strong>일정 삭제 방법:</strong><br>
                     • <strong>개별 삭제:</strong> 일정 카드의 × 버튼 클릭<br>
@@ -776,6 +792,170 @@
         await loadFromCloud();
         updateRequestBadge();
         alert('데이터를 새로고침했습니다.');
+    }
+    
+    // CSV 샘플 다운로드
+    function downloadSampleCSV() {
+        const sampleData = `강좌명,강의실,시작일,종료일,요일,시작시간,종료시간,강사명
+엑셀기초,207호,2026-04-20,2026-05-18,월화수목금,13:00,17:00,김철수
+파워포인트기초,207호,2026-06-01,2026-06-29,월수금,13:00,17:00,이영희
+Python입문,301호,2026-04-15,2026-06-10,화목,09:00,12:00,박민수`;
+        
+        const blob = new Blob(['\uFEFF' + sampleData], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = '강의실배정_샘플.csv';
+        link.click();
+    }
+    
+    // 요일 문자열을 숫자 배열로 변환
+    function parseDays(dayString) {
+        const dayMap = {
+            '월': 1, '화': 2, '수': 3, '목': 4, '금': 5, '토': 6
+        };
+        
+        // 쉼표 제거
+        dayString = dayString.replace(/,/g, '');
+        
+        const days = [];
+        for(let char of dayString) {
+            if(dayMap[char]) {
+                days.push(dayMap[char]);
+            }
+        }
+        
+        return days;
+    }
+    
+    // CSV 업로드 및 파싱
+    async function uploadCSV() {
+        const fileInput = document.getElementById('csvFile');
+        const file = fileInput.files[0];
+        
+        if(!file) {
+            alert('CSV 파일을 선택하세요.');
+            return;
+        }
+        
+        const reader = new FileReader();
+        
+        reader.onload = async function(e) {
+            try {
+                const text = e.target.result;
+                const lines = text.split('\n').filter(line => line.trim());
+                
+                if(lines.length < 2) {
+                    alert('CSV 파일에 데이터가 없습니다.');
+                    return;
+                }
+                
+                let successCount = 0;
+                let errorCount = 0;
+                const errors = [];
+                
+                // 첫 줄은 헤더이므로 스킵
+                for(let i = 1; i < lines.length; i++) {
+                    try {
+                        const line = lines[i].trim();
+                        if(!line) continue;
+                        
+                        // CSV 파싱 (쉼표로 분리, 따옴표 고려)
+                        const values = line.split(',').map(v => v.trim().replace(/^["']|["']$/g, ''));
+                        
+                        if(values.length < 8) {
+                            errors.push(`${i}행: 필드가 부족합니다 (${values.length}/8)`);
+                            errorCount++;
+                            continue;
+                        }
+                        
+                        const [courseName, room, startDateStr, endDateStr, dayStr, startTime, endTime, instructorName] = values;
+                        
+                        // 날짜 형식 변환 (YYYY-MM-DD)
+                        const startDate = new Date(startDateStr);
+                        const endDate = new Date(endDateStr);
+                        
+                        if(isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+                            errors.push(`${i}행: 날짜 형식 오류 (YYYY-MM-DD 형식으로 입력하세요)`);
+                            errorCount++;
+                            continue;
+                        }
+                        
+                        // 요일 파싱
+                        const days = parseDays(dayStr);
+                        
+                        if(days.length === 0) {
+                            errors.push(`${i}행: 요일 정보가 올바르지 않습니다 (${dayStr})`);
+                            errorCount++;
+                            continue;
+                        }
+                        
+                        // 선택된 요일에 해당하는 날짜 수집
+                        const datesByYearMonthDay = {};
+                        
+                        for(let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+                            const dayOfWeek = d.getDay();
+                            if(days.includes(dayOfWeek)) {
+                                const year = d.getFullYear();
+                                const month = d.getMonth() + 1;
+                                const date = d.getDate();
+                                
+                                if(!datesByYearMonthDay[year]) datesByYearMonthDay[year] = {};
+                                if(!datesByYearMonthDay[year][month]) datesByYearMonthDay[year][month] = {};
+                                if(!datesByYearMonthDay[year][month][dayOfWeek]) datesByYearMonthDay[year][month][dayOfWeek] = [];
+                                datesByYearMonthDay[year][month][dayOfWeek].push(date);
+                            }
+                        }
+                        
+                        // 연도-월-요일별로 일정 추가
+                        for(const [year, monthData] of Object.entries(datesByYearMonthDay)) {
+                            for(const [month, dayData] of Object.entries(monthData)) {
+                                for(const [day, dates] of Object.entries(dayData)) {
+                                    schedules.push({
+                                        id: idCounter++,
+                                        y: parseInt(year),
+                                        m: parseInt(month),
+                                        d: parseInt(day),
+                                        r: room,
+                                        st: startTime,
+                                        et: endTime,
+                                        cn: courseName,
+                                        tn: instructorName,
+                                        dates: dates
+                                    });
+                                }
+                            }
+                        }
+                        
+                        successCount++;
+                        
+                    } catch(err) {
+                        errors.push(`${i}행: ${err.message}`);
+                        errorCount++;
+                    }
+                }
+                
+                await saveToCloud();
+                renderSchedule();
+                
+                let message = `✅ 업로드 완료!\n\n성공: ${successCount}개\n실패: ${errorCount}개`;
+                
+                if(errors.length > 0 && errors.length <= 5) {
+                    message += '\n\n오류 내용:\n' + errors.join('\n');
+                } else if(errors.length > 5) {
+                    message += '\n\n오류 내용 (처음 5개만 표시):\n' + errors.slice(0, 5).join('\n');
+                }
+                
+                alert(message);
+                
+                // 파일 입력 초기화
+                fileInput.value = '';
+                
+            } catch(err) {
+                alert('CSV 파일 처리 중 오류가 발생했습니다: ' + err.message);
+            }
+        };
+        
+        reader.readAsText(file, 'UTF-8');
     }
     
     init();
