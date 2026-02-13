@@ -69,6 +69,7 @@
         <h3>사용자 역할 선택</h3>
         <p>💡 <strong>참고:</strong> 이 시스템은 브라우저에 데이터를 저장합니다. 팀원들과 공유하려면 웹서버에 배포하세요.</p>
         <p style="color: #666; font-size: 14px;">🔒 관리자 모드는 비밀번호가 필요합니다.</p>
+        <p style="color: #666; font-size: 14px;">🔔 관리자는 새 요청 시 브라우저 알림을 받습니다.</p>
         <div class="input-row">
             <button class="btn-primary" onclick="setRole('admin')">👨‍💼 관리자 모드</button>
             <button class="btn-success" onclick="setRole('user')">👤 일반 사용자 모드</button>
@@ -238,6 +239,87 @@
         populateRoomSelects();
         await loadFromCloud();
         updateRequestBadge();
+        
+        // 브라우저 알림 권한 요청
+        if(Notification.permission === 'default') {
+            Notification.requestPermission();
+        }
+        
+        // 관리자 모드일 때만 주기적 체크 시작
+        if(currentRole === 'admin') {
+            startNotificationCheck();
+        }
+    }
+    
+    let notificationCheckInterval = null;
+    let lastRequestCount = 0;
+    
+    // 알림 체크 시작
+    function startNotificationCheck() {
+        // 이미 실행 중이면 중단
+        if(notificationCheckInterval) {
+            clearInterval(notificationCheckInterval);
+        }
+        
+        // 현재 대기 중인 요청 개수 저장
+        lastRequestCount = requests.filter(r => r.status === 'pending').length;
+        
+        // 30초마다 체크
+        notificationCheckInterval = setInterval(checkForNewRequests, 30000);
+    }
+    
+    // 알림 체크 중지
+    function stopNotificationCheck() {
+        if(notificationCheckInterval) {
+            clearInterval(notificationCheckInterval);
+            notificationCheckInterval = null;
+        }
+    }
+    
+    // 새 요청 확인
+    async function checkForNewRequests() {
+        // localStorage에서 최신 데이터 불러오기
+        const savedData = localStorage.getItem('classroom_data');
+        if(!savedData) return;
+        
+        const data = JSON.parse(savedData);
+        const currentRequests = data.requests || [];
+        const pendingCount = currentRequests.filter(r => r.status === 'pending').length;
+        
+        // 새 요청이 있으면 알림
+        if(pendingCount > lastRequestCount) {
+            const newCount = pendingCount - lastRequestCount;
+            showNotification(`🔔 새로운 강의실 사용 요청 ${newCount}건`, 
+                           '사용요청 탭에서 확인하세요.');
+            
+            // 데이터 새로고침
+            await loadFromCloud();
+            updateRequestBadge();
+        }
+        
+        lastRequestCount = pendingCount;
+    }
+    
+    // 브라우저 알림 표시
+    function showNotification(title, message) {
+        if(Notification.permission === 'granted') {
+            const notification = new Notification(title, {
+                body: message,
+                icon: '📅',
+                badge: '🔔',
+                requireInteraction: true // 사용자가 직접 닫을 때까지 유지
+            });
+            
+            // 알림 클릭시 사용요청 탭으로 이동
+            notification.onclick = function() {
+                window.focus();
+                showTab('request');
+                notification.close();
+            };
+            
+            // 5초 후 자동으로 닫기 (requireInteraction이 지원되지 않는 브라우저용)
+            setTimeout(() => notification.close(), 5000);
+        }
     }
     
     // 관리자 비밀번호 (원하는 비밀번호로 변경하세요)
@@ -266,12 +348,22 @@
         updateRequestBadge();
         renderSchedule();
         renderRequests();
+        
+        // 관리자 모드일 때 알림 체크 시작
+        if(role === 'admin') {
+            startNotificationCheck();
+        } else {
+            stopNotificationCheck();
+        }
     }
     
     function changeRole() {
         document.getElementById('roleSelector').style.display = 'block';
         document.getElementById('mainScreen').style.display = 'none';
         currentRole = null;
+        
+        // 알림 체크 중지
+        stopNotificationCheck();
     }
     
     function populateRoomSelects() {
@@ -580,6 +672,9 @@
         
         requests.push(newRequest);
         await saveToCloud();
+        
+        // 알림 저장 (관리자가 나중에 로그인했을 때 확인 가능)
+        localStorage.setItem('classroom_new_request_flag', 'true');
         
         alert('요청이 제출되었습니다.');
         closeRequestModal();
