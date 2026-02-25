@@ -72,6 +72,10 @@
             <button class="btn-primary" onclick="setRole('admin')">👨‍💼 관리자 모드</button>
             <button class="btn-success" onclick="setRole('user')">👤 일반 사용자 모드</button>
         </div>
+        <div style="margin-top: 15px; padding: 12px; background: #fff3cd; border-radius: 5px; font-size: 13px; border-left: 4px solid #ffc107;">
+            🔐 <strong>관리자 모드는 비밀번호가 필요합니다</strong><br>
+            <small style="color: #666;">기본 비밀번호: <code style="background: #f5f5f5; padding: 2px 6px; border-radius: 3px;">admin1234</code> (코드에서 변경 가능)</small>
+        </div>
     </div>
     
     <div id="mainScreen" style="display: none;">
@@ -240,6 +244,24 @@
     }
     
     function setRole(role) {
+        // 관리자 모드 선택 시 비밀번호 확인
+        if(role === 'admin') {
+            const password = prompt('관리자 비밀번호를 입력하세요:');
+            
+            // 비밀번호 확인 (기본값: admin1234)
+            // 여기서 비밀번호를 변경할 수 있습니다
+            const correctPassword = 'admin1234';
+            
+            if(password !== correctPassword) {
+                if(password !== null) { // 취소 누른 경우가 아니면
+                    alert('❌ 비밀번호가 올바르지 않습니다.');
+                }
+                return; // 로그인 실패
+            }
+            
+            alert('✓ 관리자 인증 성공!');
+        }
+        
         currentRole = role;
         document.getElementById('roleSelector').style.display = 'none';
         document.getElementById('mainScreen').style.display = 'block';
