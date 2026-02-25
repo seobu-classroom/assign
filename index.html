@@ -135,8 +135,9 @@
                         <button class="btn-warning" onclick="downloadCSVTemplate()">📥 양식 다운로드</button>
                     </div>
                     <div style="margin-top: 10px; padding: 10px; background: #e7f3ff; border-radius: 5px; font-size: 12px;">
-                        <strong>CSV 형식:</strong> 강의실, 시작날짜(YYYY-MM-DD), 종료날짜(YYYY-MM-DD), 시작시간(HH:MM), 종료시간(HH:MM), 과정명, 강사명<br>
-                        <strong>예시:</strong> B101,2026-04-13,2026-06-18,13:30,17:30,웹개발과정,김강사
+                        <strong>CSV 형식:</strong> 강의실, 시작날짜, 종료날짜, 요일, 시작시간, 종료시간, 과정명, 강사명<br>
+                        <strong>예시:</strong> B101,2026-04-13,2026-06-18,월수금,13:30,17:30,웹개발과정,김강사<br>
+                        <strong>요일 형식:</strong> 월화수목금토 또는 1,3,5 (1=월, 2=화, 3=수, 4=목, 5=금, 6=토)
                     </div>
                 </div>
                 
@@ -250,7 +251,7 @@
             
             // 비밀번호 확인 (기본값: admin1234)
             // 여기서 비밀번호를 변경할 수 있습니다
-            const correctPassword = 'seobu1234';
+            const correctPassword = 'admin1234';
             
             if(password !== correctPassword) {
                 if(password !== null) { // 취소 누른 경우가 아니면
@@ -798,10 +799,11 @@
     
     // CSV 양식 다운로드
     function downloadCSVTemplate() {
-        const csvContent = "강의실,시작날짜,종료날짜,시작시간,종료시간,과정명,강사명\n" +
-                          "B101,2026-04-13,2026-06-18,13:30,17:30,웹개발과정,김강사\n" +
-                          "101호,2026-04-15,2026-05-20,09:00,12:00,엑셀기초,이강사\n" +
-                          "201호,2026-05-01,2026-05-31,14:00,18:00,파이썬입문,박강사";
+        const csvContent = "강의실,시작날짜,종료날짜,요일,시작시간,종료시간,과정명,강사명\n" +
+                          "B101,2026-04-13,2026-06-18,월수금,13:30,17:30,웹개발과정,김강사\n" +
+                          "101호,2026-04-15,2026-05-20,화목,09:00,12:00,엑셀기초,이강사\n" +
+                          "201호,2026-05-01,2026-05-31,월화수목금,14:00,18:00,파이썬입문,박강사\n" +
+                          "301호,2026-06-01,2026-06-30,토,10:00,13:00,주말특강,최강사";
         
         const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
@@ -832,11 +834,42 @@
                 const newSchedules = [];
                 const conflicts = [];
                 
+                // 요일 문자를 숫자로 변환하는 함수
+                function parseDays(dayStr) {
+                    const dayMap = {
+                        '월': 1, '화': 2, '수': 3, '목': 4, '금': 5, '토': 6,
+                        'mon': 1, 'tue': 2, 'wed': 3, 'thu': 4, 'fri': 5, 'sat': 6
+                    };
+                    
+                    const days = [];
+                    const normalized = dayStr.toLowerCase().trim();
+                    
+                    // "월수금" 형식
+                    for(let i = 0; i < normalized.length; i++) {
+                        const char = normalized[i];
+                        if(dayMap[char]) {
+                            days.push(dayMap[char]);
+                        }
+                    }
+                    
+                    // "1,3,5" 형식
+                    if(days.length === 0 && /^[1-6,\s]+$/.test(normalized)) {
+                        normalized.split(',').forEach(d => {
+                            const num = parseInt(d.trim());
+                            if(num >= 1 && num <= 6) {
+                                days.push(num);
+                            }
+                        });
+                    }
+                    
+                    return days.length > 0 ? days : [1, 2, 3, 4, 5]; // 기본값: 월~금
+                }
+                
                 for(let line of lines) {
                     const parts = line.split(',').map(p => p.trim());
-                    if(parts.length < 6) continue;
+                    if(parts.length < 7) continue;
                     
-                    const [room, startDateStr, endDateStr, startTime, endTime, courseName, instructorName = ''] = parts;
+                    const [room, startDateStr, endDateStr, dayStr, startTime, endTime, courseName, instructorName = ''] = parts;
                     
                     const startDate = new Date(startDateStr);
                     const endDate = new Date(endDateStr);
@@ -846,10 +879,119 @@
                         continue;
                     }
                     
-                    // 해당 기간의 모든 날짜에 대해 중복 체크
+                    // 요일 파싱
+                    const selectedDays = parseDays(dayStr);
+                    
+                    // 해당 기간의 선택된 요일에 대해서만 처리
                     for(let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
                         const dayOfWeek = d.getDay();
-                        if(dayOfWeek === 0) continue; // 일요일 제외
+                        
+                        // 선택된 요일이 아니면 스킵
+                        if(!selectedDays.includes(dayOfWeek)) continue;
+                        
+                        const year = d.getFullYear();
+                        const month = d.getMonth() + 1;
+                        const date = d.getDate();
+                        
+                        // 중복 체크
+                        const existingSchedules = schedules.filter(s => 
+                            s.y === year && 
+                            s.m === month && 
+                            s.r === room && 
+                            s.d === dayOfWeek &&
+                            s.dates.includes(date)
+                        );
+                        
+                        for(let existing of existingSchedules) {
+                            if(timeOverlap(startTime, endTime, existing.st, existing.et)) {
+                                const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
+                                conflicts.push({
+                                    date: dateStr,
+                                    room: room,
+                                    time: `${existing.st}~${existing.et}`,
+                                    course: existing.cn,
+                                    newCourse: courseName
+                                });
+                            }
+                        }
+                        
+                        // 새 일정 추가 (요일별로 그룹핑)
+                        const schedIndex = newSchedules.findIndex(s => 
+                            s.y === year && 
+                            s.m === month && 
+                            s.d === dayOfWeek && 
+                            s.r === room &&
+                            s.st === startTime &&
+                            s.et === endTime &&
+                            s.cn === courseName
+                        );
+                        
+                        if(schedIndex >= 0) {
+                            // 같은 조건의 일정이 있으면 날짜만 추가
+                            if(!newSchedules[schedIndex].dates.includes(date)) {
+                                newSchedules[schedIndex].dates.push(date);
+                            }
+                        } else {
+                            // 새로운 일정 생성
+                            newSchedules.push({
+                                id: idCounter++,
+                                y: year,
+                                m: month,
+                                d: dayOfWeek,
+                                r: room,
+                                st: startTime,
+                                et: endTime,
+                                cn: courseName,
+                                tn: instructorName,
+                                dates: [date]
+                            });
+                        }
+                    }
+                }
+                
+                // 중복이 있으면 경고
+                if(conflicts.length > 0) {
+                    let msg = '⚠️ 다음 일정과 중복됩니다:\n\n';
+                    conflicts.slice(0, 10).forEach(c => {
+                        msg += `📅 ${c.date} ${c.room} ${c.time}\n`;
+                        msg += `   기존: ${c.course}\n`;
+                        msg += `   신규: ${c.newCourse}\n\n`;
+                    });
+                    
+                    if(conflicts.length > 10) {
+                        msg += `... 외 ${conflicts.length - 10}개 중복\n\n`;
+                    }
+                    
+                    msg += `총 ${conflicts.length}개의 중복이 발견되었습니다.\n그래도 업로드하시겠습니까?`;
+                    
+                    if(!confirm(msg)) {
+                        fileInput.value = '';
+                        return;
+                    }
+                }
+                
+                // 일정 추가
+                schedules.push(...newSchedules);
+                
+                await saveToCloud();
+                
+                if(conflicts.length > 0) {
+                    alert(`⚠️ ${conflicts.length}개의 중복 경고가 있었지만 ${newSchedules.length}개 일정이 업로드되었습니다.`);
+                } else {
+                    alert(`✓ ${newSchedules.length}개 일정이 업로드되었습니다.`);
+                }
+                
+                fileInput.value = '';
+                renderSchedule();
+                
+            } catch(error) {
+                alert('CSV 파일 처리 중 오류가 발생했습니다: ' + error.message);
+                console.error(error);
+            }
+        };
+        
+        reader.readAsText(file, 'UTF-8');
+    }
                         
                         const year = d.getFullYear();
                         const month = d.getMonth() + 1;
