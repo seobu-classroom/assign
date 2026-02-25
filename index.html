@@ -68,8 +68,6 @@
     <div class="box" id="roleSelector">
         <h3>사용자 역할 선택</h3>
         <p>💡 <strong>참고:</strong> 이 시스템은 브라우저에 데이터를 저장합니다. 팀원들과 공유하려면 웹서버에 배포하세요.</p>
-        <p style="color: #666; font-size: 14px;">🔒 관리자 모드는 비밀번호가 필요합니다.</p>
-        <p style="color: #666; font-size: 14px;">🔔 관리자는 새 요청 시 브라우저 알림을 받습니다.</p>
         <div class="input-row">
             <button class="btn-primary" onclick="setRole('admin')">👨‍💼 관리자 모드</button>
             <button class="btn-success" onclick="setRole('user')">👤 일반 사용자 모드</button>
@@ -125,17 +123,17 @@
                 
                 <hr style="margin: 20px 0; border: none; border-top: 1px solid #ddd;">
                 
-                <h4 style="margin-bottom: 10px;">📤 CSV 파일 일괄 업로드</h4>
-                <div class="input-row">
-                    <input type="file" id="csvFile" accept=".csv" style="padding: 5px;">
-                    <button class="btn-success" onclick="uploadCSV()">📁 CSV 업로드</button>
-                    <button class="btn-warning" onclick="downloadSampleCSV()" style="background: #17a2b8;">📥 샘플 다운로드</button>
-                </div>
-                <div style="margin-top: 10px; padding: 10px; background: #e7f3ff; border-radius: 5px; font-size: 12px;">
-                    <strong>CSV 파일 형식:</strong><br>
-                    강좌명,강의실,시작일,종료일,요일,시작시간,종료시간,강사명<br>
-                    <span style="color: #666;">예: 엑셀기초,207호,2026-04-20,2026-05-18,월화수목금,13:00,17:00,김철수</span><br>
-                    <span style="color: #666;">요일: 월화수목금토 또는 월,화,수 형식</span>
+                <div style="margin-top: 15px;">
+                    <h4 style="margin-bottom: 10px;">📤 CSV 파일로 일괄 등록</h4>
+                    <div class="input-row">
+                        <input type="file" id="csvFile" accept=".csv" style="flex: 1;">
+                        <button class="btn-success" onclick="uploadCSV()">📤 CSV 업로드</button>
+                        <button class="btn-warning" onclick="downloadCSVTemplate()">📥 양식 다운로드</button>
+                    </div>
+                    <div style="margin-top: 10px; padding: 10px; background: #e7f3ff; border-radius: 5px; font-size: 12px;">
+                        <strong>CSV 형식:</strong> 강의실, 시작날짜(YYYY-MM-DD), 종료날짜(YYYY-MM-DD), 시작시간(HH:MM), 종료시간(HH:MM), 과정명, 강사명<br>
+                        <strong>예시:</strong> B101,2026-04-13,2026-06-18,13:30,17:30,웹개발과정,김강사
+                    </div>
                 </div>
                 
                 <div style="margin-top: 10px; padding: 10px; background: #fff3cd; border-radius: 5px; font-size: 13px;">
@@ -239,102 +237,9 @@
         populateRoomSelects();
         await loadFromCloud();
         updateRequestBadge();
-        
-        // 브라우저 알림 권한 요청
-        if(Notification.permission === 'default') {
-            Notification.requestPermission();
-        }
-        
-        // 관리자 모드일 때만 주기적 체크 시작
-        if(currentRole === 'admin') {
-            startNotificationCheck();
-        }
     }
-    
-    let notificationCheckInterval = null;
-    let lastRequestCount = 0;
-    
-    // 알림 체크 시작
-    function startNotificationCheck() {
-        // 이미 실행 중이면 중단
-        if(notificationCheckInterval) {
-            clearInterval(notificationCheckInterval);
-        }
-        
-        // 현재 대기 중인 요청 개수 저장
-        lastRequestCount = requests.filter(r => r.status === 'pending').length;
-        
-        // 30초마다 체크
-        notificationCheckInterval = setInterval(checkForNewRequests, 30000);
-    }
-    
-    // 알림 체크 중지
-    function stopNotificationCheck() {
-        if(notificationCheckInterval) {
-            clearInterval(notificationCheckInterval);
-            notificationCheckInterval = null;
-        }
-    }
-    
-    // 새 요청 확인
-    async function checkForNewRequests() {
-        // localStorage에서 최신 데이터 불러오기
-        const savedData = localStorage.getItem('classroom_data');
-        if(!savedData) return;
-        
-        const data = JSON.parse(savedData);
-        const currentRequests = data.requests || [];
-        const pendingCount = currentRequests.filter(r => r.status === 'pending').length;
-        
-        // 새 요청이 있으면 알림
-        if(pendingCount > lastRequestCount) {
-            const newCount = pendingCount - lastRequestCount;
-            showNotification(`🔔 새로운 강의실 사용 요청 ${newCount}건`, 
-                           '사용요청 탭에서 확인하세요.');
-            
-            // 데이터 새로고침
-            await loadFromCloud();
-            updateRequestBadge();
-        }
-        
-        lastRequestCount = pendingCount;
-    }
-    
-    // 브라우저 알림 표시
-    function showNotification(title, message) {
-        if(Notification.permission === 'granted') {
-            const notification = new Notification(title, {
-                body: message,
-                icon: '📅',
-                badge: '🔔',
-                requireInteraction: true // 사용자가 직접 닫을 때까지 유지
-            });
-            
-            // 알림 클릭시 사용요청 탭으로 이동
-            notification.onclick = function() {
-                window.focus();
-                showTab('request');
-                notification.close();
-            };
-            
-            // 5초 후 자동으로 닫기 (requireInteraction이 지원되지 않는 브라우저용)
-            setTimeout(() => notification.close(), 5000);
-        }
-    }
-    
-    // 관리자 비밀번호 (원하는 비밀번호로 변경하세요)
-    const ADMIN_PASSWORD = "admin1234";
     
     function setRole(role) {
-        // 관리자 모드 선택 시 비밀번호 확인
-        if(role === 'admin') {
-            const password = prompt('관리자 비밀번호를 입력하세요:');
-            if(password !== ADMIN_PASSWORD) {
-                alert('비밀번호가 틀렸습니다.');
-                return;
-            }
-        }
-        
         currentRole = role;
         document.getElementById('roleSelector').style.display = 'none';
         document.getElementById('mainScreen').style.display = 'block';
@@ -348,22 +253,12 @@
         updateRequestBadge();
         renderSchedule();
         renderRequests();
-        
-        // 관리자 모드일 때 알림 체크 시작
-        if(role === 'admin') {
-            startNotificationCheck();
-        } else {
-            stopNotificationCheck();
-        }
     }
     
     function changeRole() {
         document.getElementById('roleSelector').style.display = 'block';
         document.getElementById('mainScreen').style.display = 'none';
         currentRole = null;
-        
-        // 알림 체크 중지
-        stopNotificationCheck();
     }
     
     function populateRoomSelects() {
@@ -502,8 +397,8 @@
             return;
         }
         
-        // 선택된 요일에 해당하는 날짜 수집 및 중복 체크 (년월일로 그룹화)
-        const datesByYearMonthDay = {}; // {year: {month: {day: [dates]}}}
+        // 선택된 요일에 해당하는 날짜 수집 및 중복 체크
+        const datesByDay = {};
         const conflicts = [];
         
         for(let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
@@ -513,11 +408,8 @@
                 const month = d.getMonth() + 1;
                 const date = d.getDate();
                 
-                // 연도-월-요일 별로 날짜 저장
-                if(!datesByYearMonthDay[year]) datesByYearMonthDay[year] = {};
-                if(!datesByYearMonthDay[year][month]) datesByYearMonthDay[year][month] = {};
-                if(!datesByYearMonthDay[year][month][dayOfWeek]) datesByYearMonthDay[year][month][dayOfWeek] = [];
-                datesByYearMonthDay[year][month][dayOfWeek].push(date);
+                if(!datesByDay[dayOfWeek]) datesByDay[dayOfWeek] = [];
+                datesByDay[dayOfWeek].push(date);
                 
                 // 해당 날짜의 같은 강의실 일정 찾기
                 const existingSchedules = schedules.filter(s => 
@@ -555,24 +447,20 @@
             }
         }
         
-        // 연도-월-요일별로 일정 추가
-        for(const [year, monthData] of Object.entries(datesByYearMonthDay)) {
-            for(const [month, dayData] of Object.entries(monthData)) {
-                for(const [day, dates] of Object.entries(dayData)) {
-                    schedules.push({
-                        id: idCounter++,
-                        y: parseInt(year),
-                        m: parseInt(month),
-                        d: parseInt(day),
-                        r: room,
-                        st: startTime,
-                        et: endTime,
-                        cn: courseName,
-                        tn: instructorName,
-                        dates: dates
-                    });
-                }
-            }
+        // 요일별로 일정 추가
+        for(const [day, dates] of Object.entries(datesByDay)) {
+            schedules.push({
+                id: idCounter++,
+                y: startDate.getFullYear(),
+                m: startDate.getMonth() + 1,
+                d: parseInt(day),
+                r: room,
+                st: startTime,
+                et: endTime,
+                cn: courseName,
+                tn: instructorName,
+                dates: dates
+            });
         }
         
         await saveToCloud();
@@ -672,9 +560,6 @@
         
         requests.push(newRequest);
         await saveToCloud();
-        
-        // 알림 저장 (관리자가 나중에 로그인했을 때 확인 가능)
-        localStorage.setItem('classroom_new_request_flag', 'true');
         
         alert('요청이 제출되었습니다.');
         closeRequestModal();
@@ -889,164 +774,159 @@
         alert('데이터를 새로고침했습니다.');
     }
     
-    // CSV 샘플 다운로드
-    function downloadSampleCSV() {
-        const sampleData = `강좌명,강의실,시작일,종료일,요일,시작시간,종료시간,강사명
-엑셀기초,207호,2026-04-20,2026-05-18,월화수목금,13:00,17:00,김철수
-파워포인트기초,207호,2026-06-01,2026-06-29,월수금,13:00,17:00,이영희
-Python입문,301호,2026-04-15,2026-06-10,화목,09:00,12:00,박민수`;
+    // CSV 양식 다운로드
+    function downloadCSVTemplate() {
+        const csvContent = "강의실,시작날짜,종료날짜,시작시간,종료시간,과정명,강사명\n" +
+                          "B101,2026-04-13,2026-06-18,13:30,17:30,웹개발과정,김강사\n" +
+                          "101호,2026-04-15,2026-05-20,09:00,12:00,엑셀기초,이강사\n" +
+                          "201호,2026-05-01,2026-05-31,14:00,18:00,파이썬입문,박강사";
         
-        const blob = new Blob(['\uFEFF' + sampleData], { type: 'text/csv;charset=utf-8;' });
+        const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.download = '강의실배정_샘플.csv';
+        link.download = '강의실배정_양식.csv';
         link.click();
     }
     
-    // 요일 문자열을 숫자 배열로 변환
-    function parseDays(dayString) {
-        const dayMap = {
-            '월': 1, '화': 2, '수': 3, '목': 4, '금': 5, '토': 6
-        };
-        
-        // 쉼표 제거
-        dayString = dayString.replace(/,/g, '');
-        
-        const days = [];
-        for(let char of dayString) {
-            if(dayMap[char]) {
-                days.push(dayMap[char]);
-            }
-        }
-        
-        return days;
-    }
-    
-    // CSV 업로드 및 파싱
+    // CSV 업로드 및 중복 체크
     async function uploadCSV() {
         const fileInput = document.getElementById('csvFile');
         const file = fileInput.files[0];
         
         if(!file) {
-            alert('CSV 파일을 선택하세요.');
+            alert('파일을 선택하세요.');
             return;
         }
         
         const reader = new FileReader();
-        
         reader.onload = async function(e) {
             try {
                 const text = e.target.result;
                 const lines = text.split('\n').filter(line => line.trim());
                 
-                if(lines.length < 2) {
-                    alert('CSV 파일에 데이터가 없습니다.');
-                    return;
-                }
+                // 헤더 제거
+                lines.shift();
                 
-                let successCount = 0;
-                let errorCount = 0;
-                const errors = [];
+                const newSchedules = [];
+                const conflicts = [];
                 
-                // 첫 줄은 헤더이므로 스킵
-                for(let i = 1; i < lines.length; i++) {
-                    try {
-                        const line = lines[i].trim();
-                        if(!line) continue;
+                for(let line of lines) {
+                    const parts = line.split(',').map(p => p.trim());
+                    if(parts.length < 6) continue;
+                    
+                    const [room, startDateStr, endDateStr, startTime, endTime, courseName, instructorName = ''] = parts;
+                    
+                    const startDate = new Date(startDateStr);
+                    const endDate = new Date(endDateStr);
+                    
+                    if(isNaN(startDate) || isNaN(endDate)) {
+                        alert(`날짜 형식 오류: ${line}`);
+                        continue;
+                    }
+                    
+                    // 해당 기간의 모든 날짜에 대해 중복 체크
+                    for(let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+                        const dayOfWeek = d.getDay();
+                        if(dayOfWeek === 0) continue; // 일요일 제외
                         
-                        // CSV 파싱 (쉼표로 분리, 따옴표 고려)
-                        const values = line.split(',').map(v => v.trim().replace(/^["']|["']$/g, ''));
+                        const year = d.getFullYear();
+                        const month = d.getMonth() + 1;
+                        const date = d.getDate();
                         
-                        if(values.length < 8) {
-                            errors.push(`${i}행: 필드가 부족합니다 (${values.length}/8)`);
-                            errorCount++;
-                            continue;
-                        }
+                        // 중복 체크
+                        const existingSchedules = schedules.filter(s => 
+                            s.y === year && 
+                            s.m === month && 
+                            s.r === room && 
+                            s.d === dayOfWeek &&
+                            s.dates.includes(date)
+                        );
                         
-                        const [courseName, room, startDateStr, endDateStr, dayStr, startTime, endTime, instructorName] = values;
-                        
-                        // 날짜 형식 변환 (YYYY-MM-DD)
-                        const startDate = new Date(startDateStr);
-                        const endDate = new Date(endDateStr);
-                        
-                        if(isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-                            errors.push(`${i}행: 날짜 형식 오류 (YYYY-MM-DD 형식으로 입력하세요)`);
-                            errorCount++;
-                            continue;
-                        }
-                        
-                        // 요일 파싱
-                        const days = parseDays(dayStr);
-                        
-                        if(days.length === 0) {
-                            errors.push(`${i}행: 요일 정보가 올바르지 않습니다 (${dayStr})`);
-                            errorCount++;
-                            continue;
-                        }
-                        
-                        // 선택된 요일에 해당하는 날짜 수집
-                        const datesByYearMonthDay = {};
-                        
-                        for(let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-                            const dayOfWeek = d.getDay();
-                            if(days.includes(dayOfWeek)) {
-                                const year = d.getFullYear();
-                                const month = d.getMonth() + 1;
-                                const date = d.getDate();
-                                
-                                if(!datesByYearMonthDay[year]) datesByYearMonthDay[year] = {};
-                                if(!datesByYearMonthDay[year][month]) datesByYearMonthDay[year][month] = {};
-                                if(!datesByYearMonthDay[year][month][dayOfWeek]) datesByYearMonthDay[year][month][dayOfWeek] = [];
-                                datesByYearMonthDay[year][month][dayOfWeek].push(date);
+                        for(let existing of existingSchedules) {
+                            if(timeOverlap(startTime, endTime, existing.st, existing.et)) {
+                                const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
+                                conflicts.push({
+                                    date: dateStr,
+                                    room: room,
+                                    time: `${existing.st}~${existing.et}`,
+                                    course: existing.cn,
+                                    newCourse: courseName
+                                });
                             }
                         }
                         
-                        // 연도-월-요일별로 일정 추가
-                        for(const [year, monthData] of Object.entries(datesByYearMonthDay)) {
-                            for(const [month, dayData] of Object.entries(monthData)) {
-                                for(const [day, dates] of Object.entries(dayData)) {
-                                    schedules.push({
-                                        id: idCounter++,
-                                        y: parseInt(year),
-                                        m: parseInt(month),
-                                        d: parseInt(day),
-                                        r: room,
-                                        st: startTime,
-                                        et: endTime,
-                                        cn: courseName,
-                                        tn: instructorName,
-                                        dates: dates
-                                    });
-                                }
+                        // 새 일정 추가 (요일별로 그룹핑)
+                        const schedIndex = newSchedules.findIndex(s => 
+                            s.y === year && 
+                            s.m === month && 
+                            s.d === dayOfWeek && 
+                            s.r === room &&
+                            s.st === startTime &&
+                            s.et === endTime &&
+                            s.cn === courseName
+                        );
+                        
+                        if(schedIndex >= 0) {
+                            // 같은 조건의 일정이 있으면 날짜만 추가
+                            if(!newSchedules[schedIndex].dates.includes(date)) {
+                                newSchedules[schedIndex].dates.push(date);
                             }
+                        } else {
+                            // 새로운 일정 생성
+                            newSchedules.push({
+                                id: idCounter++,
+                                y: year,
+                                m: month,
+                                d: dayOfWeek,
+                                r: room,
+                                st: startTime,
+                                et: endTime,
+                                cn: courseName,
+                                tn: instructorName,
+                                dates: [date]
+                            });
                         }
-                        
-                        successCount++;
-                        
-                    } catch(err) {
-                        errors.push(`${i}행: ${err.message}`);
-                        errorCount++;
                     }
                 }
                 
-                await saveToCloud();
-                renderSchedule();
-                
-                let message = `✅ 업로드 완료!\n\n성공: ${successCount}개\n실패: ${errorCount}개`;
-                
-                if(errors.length > 0 && errors.length <= 5) {
-                    message += '\n\n오류 내용:\n' + errors.join('\n');
-                } else if(errors.length > 5) {
-                    message += '\n\n오류 내용 (처음 5개만 표시):\n' + errors.slice(0, 5).join('\n');
+                // 중복이 있으면 경고
+                if(conflicts.length > 0) {
+                    let msg = '⚠️ 다음 일정과 중복됩니다:\n\n';
+                    conflicts.slice(0, 10).forEach(c => {
+                        msg += `📅 ${c.date} ${c.room} ${c.time}\n`;
+                        msg += `   기존: ${c.course}\n`;
+                        msg += `   신규: ${c.newCourse}\n\n`;
+                    });
+                    
+                    if(conflicts.length > 10) {
+                        msg += `... 외 ${conflicts.length - 10}개 중복\n\n`;
+                    }
+                    
+                    msg += `총 ${conflicts.length}개의 중복이 발견되었습니다.\n그래도 업로드하시겠습니까?`;
+                    
+                    if(!confirm(msg)) {
+                        fileInput.value = '';
+                        return;
+                    }
                 }
                 
-                alert(message);
+                // 일정 추가
+                schedules.push(...newSchedules);
                 
-                // 파일 입력 초기화
+                await saveToCloud();
+                
+                if(conflicts.length > 0) {
+                    alert(`⚠️ ${conflicts.length}개의 중복 경고가 있었지만 ${newSchedules.length}개 일정이 업로드되었습니다.`);
+                } else {
+                    alert(`✓ ${newSchedules.length}개 일정이 업로드되었습니다.`);
+                }
+                
                 fileInput.value = '';
+                renderSchedule();
                 
-            } catch(err) {
-                alert('CSV 파일 처리 중 오류가 발생했습니다: ' + err.message);
+            } catch(error) {
+                alert('CSV 파일 처리 중 오류가 발생했습니다: ' + error.message);
+                console.error(error);
             }
         };
         
