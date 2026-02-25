@@ -168,11 +168,13 @@
                     <input type="file" id="csvFile" accept=".csv" style="padding: 5px;">
                     <button class="btn-success" onclick="uploadCSV()">📁 CSV 업로드</button>
                     <button class="btn-warning" onclick="downloadSampleCSV()" style="background: #17a2b8;">📥 샘플 다운로드</button>
+                    <button class="btn-danger" onclick="clearAllSchedules()" style="background: #dc3545;">🗑️ 전체 초기화</button>
                 </div>
                 <div style="margin-top: 10px; padding: 10px; background: #e7f3ff; border-radius: 5px; font-size: 12px;">
                     <strong>CSV 파일 형식:</strong><br>
                     강좌명,강의실,시작일,종료일,요일,시작시간,종료시간,강사명,사업구분<br>
                     <span style="color: #666;">예: 엑셀기초,207호,2026-04-20,2026-05-18,월화수목금,13:00,17:00,김철수,직업교육</span><br>
+                    <span style="color: #666;">날짜: 2026-04-20, 2026/04/20, 04-20-2026 등 다양한 형식 지원</span><br>
                     <span style="color: #666;">요일: 월화수목금토 또는 월,화,수 형식</span><br>
                     <span style="color: #666;">사업구분: 직업교육/생활문화/직훈/내일배움카드 (생략시 직업교육)</span>
                 </div>
@@ -180,7 +182,8 @@
                 <div style="margin-top: 10px; padding: 10px; background: #fff3cd; border-radius: 5px; font-size: 13px;">
                     💡 <strong>일정 삭제 방법:</strong><br>
                     • <strong>개별 삭제:</strong> 일정 카드의 × 버튼 클릭<br>
-                    • <strong>일괄 삭제:</strong> 일정 카드를 더블클릭하면 같은 과정명의 모든 일정 삭제
+                    • <strong>일괄 삭제:</strong> 일정 카드를 더블클릭하면 같은 과정명의 모든 일정 삭제<br>
+                    • <strong>전체 초기화:</strong> 🗑️ 전체 초기화 버튼으로 모든 일정 삭제
                 </div>
             </div>
             
@@ -938,6 +941,22 @@
         alert('데이터를 새로고침했습니다.');
     }
     
+    // 전체 데이터 초기화
+    async function clearAllSchedules() {
+        if(!confirm('⚠️ 경고: 모든 일정을 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다!')) {
+            return;
+        }
+        
+        if(!confirm('정말로 삭제하시겠습니까?\n\n현재 ' + schedules.length + '개의 일정이 모두 삭제됩니다.')) {
+            return;
+        }
+        
+        schedules = [];
+        await saveToCloud();
+        renderSchedule();
+        alert('✓ 모든 일정이 삭제되었습니다.');
+    }
+    
     // CSV 샘플 다운로드
     function downloadSampleCSV() {
         const sampleData = `강좌명,강의실,시작일,종료일,요일,시작시간,종료시간,강사명,사업구분
@@ -982,6 +1001,16 @@ Python입문,301호,2026-04-15,2026-06-10,화목,09:00,12:00,박민수,직훈
             return;
         }
         
+        // 기존 데이터가 있으면 중복 경고
+        if(schedules.length > 0) {
+            const confirmMsg = `⚠️ 현재 ${schedules.length}개의 일정이 등록되어 있습니다.\n\nCSV 업로드 방식을 선택하세요:\n\n• "확인" → 기존 데이터에 추가\n• "취소" → 업로드 중단 (전체 초기화 후 다시 시도)`;
+            
+            if(!confirm(confirmMsg)) {
+                fileInput.value = '';
+                return;
+            }
+        }
+        
         const reader = new FileReader();
         
         reader.onload = async function(e) {
@@ -997,6 +1026,7 @@ Python입문,301호,2026-04-15,2026-06-10,화목,09:00,12:00,박민수,직훈
                 let successCount = 0;
                 let errorCount = 0;
                 const errors = [];
+                const duplicates = []; // 중복 과정 추적
                 
                 // 첫 줄은 헤더이므로 스킵
                 for(let i = 1; i < lines.length; i++) {
@@ -1015,12 +1045,52 @@ Python입문,301호,2026-04-15,2026-06-10,화목,09:00,12:00,박민수,직훈
                         
                         const [courseName, room, startDateStr, endDateStr, dayStr, startTime, endTime, instructorName, businessType = '직업교육'] = values;
                         
-                        // 날짜 형식 변환 (YYYY-MM-DD)
-                        const startDate = new Date(startDateStr);
-                        const endDate = new Date(endDateStr);
+                        // 다양한 날짜 형식 지원 함수
+                        function parseFlexibleDate(dateStr) {
+                            if(!dateStr) return null;
+                            
+                            // 공백 제거
+                            dateStr = dateStr.trim();
+                            
+                            // 1. YYYY-MM-DD, YYYY/MM/DD, YYYY.MM.DD 형식
+                            let match = dateStr.match(/^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})$/);
+                            if(match) {
+                                const [, year, month, day] = match;
+                                return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+                            }
+                            
+                            // 2. MM-DD-YYYY, MM/DD/YYYY, MM.DD.YYYY 형식
+                            match = dateStr.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{4})$/);
+                            if(match) {
+                                const [, month, day, year] = match;
+                                return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+                            }
+                            
+                            // 3. DD-MM-YYYY (유럽식) - 월이 12보다 크면 유럽식으로 판단
+                            match = dateStr.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{4})$/);
+                            if(match) {
+                                const [, first, second, year] = match;
+                                if(parseInt(first) > 12) {
+                                    // 확실히 일-월-년 형식
+                                    return new Date(parseInt(year), parseInt(second) - 1, parseInt(first));
+                                }
+                            }
+                            
+                            // 4. 기본 Date 파싱 시도
+                            const date = new Date(dateStr);
+                            if(!isNaN(date.getTime())) {
+                                return date;
+                            }
+                            
+                            return null;
+                        }
                         
-                        if(isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-                            errors.push(`${i}행: 날짜 형식 오류 (YYYY-MM-DD 형식으로 입력하세요)`);
+                        // 날짜 파싱
+                        const startDate = parseFlexibleDate(startDateStr);
+                        const endDate = parseFlexibleDate(endDateStr);
+                        
+                        if(!startDate || !endDate || isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+                            errors.push(`${i}행: 날짜 형식 오류 - 시작일: "${startDateStr}", 종료일: "${endDateStr}"`);
                             errorCount++;
                             continue;
                         }
@@ -1032,6 +1102,15 @@ Python입문,301호,2026-04-15,2026-06-10,화목,09:00,12:00,박민수,직훈
                             errors.push(`${i}행: 요일 정보가 올바르지 않습니다 (${dayStr})`);
                             errorCount++;
                             continue;
+                        }
+                        
+                        // 중복 과정명 체크
+                        const existingSameCourse = schedules.find(s => 
+                            s.cn === courseName && s.r === room
+                        );
+                        
+                        if(existingSameCourse) {
+                            duplicates.push(`${i}행: "${courseName}" (${room}) - 이미 등록된 과정`);
                         }
                         
                         // 선택된 요일에 해당하는 날짜 수집
@@ -1084,6 +1163,16 @@ Python입문,301호,2026-04-15,2026-06-10,화목,09:00,12:00,박민수,직훈
                 renderSchedule();
                 
                 let message = `✅ 업로드 완료!\n\n성공: ${successCount}개\n실패: ${errorCount}개`;
+                
+                if(duplicates.length > 0) {
+                    message += `\n⚠️ 중복 경고: ${duplicates.length}개`;
+                    if(duplicates.length <= 3) {
+                        message += '\n\n중복 내용:\n' + duplicates.join('\n');
+                    } else {
+                        message += '\n\n중복 내용 (처음 3개만 표시):\n' + duplicates.slice(0, 3).join('\n');
+                        message += `\n... 외 ${duplicates.length - 3}개`;
+                    }
+                }
                 
                 if(errors.length > 0 && errors.length <= 5) {
                     message += '\n\n오류 내용:\n' + errors.join('\n');
