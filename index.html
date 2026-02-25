@@ -174,9 +174,10 @@
                     <strong>CSV 파일 형식:</strong><br>
                     강좌명,강의실,시작일,종료일,요일,시작시간,종료시간,강사명,사업구분<br>
                     <span style="color: #666;">예: 엑셀기초,207호,2026-04-20,2026-05-18,월화수목금,13:00,17:00,김철수,직업교육</span><br>
-                    <span style="color: #666;">날짜: 2026-04-20, 2026/04/20, 04-20-2026 등 다양한 형식 지원</span><br>
-                    <span style="color: #666;">요일: 월화수목금토 또는 월,화,수 형식</span><br>
-                    <span style="color: #666;">사업구분: 직업교육/생활문화/직훈/내일배움카드 (생략시 직업교육)</span>
+                    <span style="color: #666;">📅 날짜: 2026-04-20, 2026/04/20, 04-20-2026 등 다양한 형식 지원</span><br>
+                    <span style="color: #666;">🕐 시간: 13:00, 1300, 13:00:00 모두 가능</span><br>
+                    <span style="color: #666;">📆 요일: 월화수목금, 월,화,수, 12345 모두 가능</span><br>
+                    <span style="color: #666;">🏢 사업구분: 직업교육/생활문화/직훈/내일배움카드 (생략시 직업교육)</span>
                 </div>
                 
                 <div style="margin-top: 10px; padding: 10px; background: #fff3cd; border-radius: 5px; font-size: 13px;">
@@ -974,13 +975,30 @@ Python입문,301호,2026-04-15,2026-06-10,화목,09:00,12:00,박민수,직훈
     
     // 요일 문자열을 숫자 배열로 변환
     function parseDays(dayString) {
+        if(!dayString) return [];
+        
         const dayMap = {
-            '월': 1, '화': 2, '수': 3, '목': 4, '금': 5, '토': 6
+            '월': 1, '화': 2, '수': 3, '목': 4, '금': 5, '토': 6,
+            '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6
         };
         
-        // 쉼표 제거
-        dayString = dayString.replace(/,/g, '');
+        // 공백 제거
+        dayString = dayString.trim();
         
+        // 쉼표로 구분된 경우
+        if(dayString.includes(',')) {
+            const parts = dayString.split(',');
+            const days = [];
+            for(let part of parts) {
+                part = part.trim();
+                if(dayMap[part]) {
+                    days.push(dayMap[part]);
+                }
+            }
+            return [...new Set(days)]; // 중복 제거
+        }
+        
+        // 붙여쓴 경우 (월화수목금, 123456)
         const days = [];
         for(let char of dayString) {
             if(dayMap[char]) {
@@ -988,7 +1006,38 @@ Python입문,301호,2026-04-15,2026-06-10,화목,09:00,12:00,박민수,직훈
             }
         }
         
-        return days;
+        return [...new Set(days)]; // 중복 제거
+    }
+    
+    // 시간 형식 자동 변환 (1000 → 10:00, 10:00:00 → 10:00)
+    function parseTime(timeStr) {
+        if(!timeStr) return '';
+        
+        timeStr = timeStr.trim();
+        
+        // 이미 HH:MM 형식
+        if(/^\d{1,2}:\d{2}$/.test(timeStr)) {
+            return timeStr;
+        }
+        
+        // HH:MM:SS 형식 → HH:MM
+        if(/^\d{1,2}:\d{2}:\d{2}$/.test(timeStr)) {
+            return timeStr.substring(0, 5);
+        }
+        
+        // HHMM 형식 (1000, 1330 등)
+        if(/^\d{3,4}$/.test(timeStr)) {
+            if(timeStr.length === 3) {
+                // 930 → 09:30
+                return '0' + timeStr[0] + ':' + timeStr.substring(1);
+            } else {
+                // 1000 → 10:00
+                return timeStr.substring(0, 2) + ':' + timeStr.substring(2);
+            }
+        }
+        
+        // 그 외 형식은 그대로 반환
+        return timeStr;
     }
     
     // CSV 업로드 및 파싱
@@ -1043,7 +1092,11 @@ Python입문,301호,2026-04-15,2026-06-10,화목,09:00,12:00,박민수,직훈
                             continue;
                         }
                         
-                        const [courseName, room, startDateStr, endDateStr, dayStr, startTime, endTime, instructorName, businessType = '직업교육'] = values;
+                        let [courseName, room, startDateStr, endDateStr, dayStr, startTime, endTime, instructorName, businessType = '직업교육'] = values;
+                        
+                        // 시간 형식 자동 변환
+                        startTime = parseTime(startTime);
+                        endTime = parseTime(endTime);
                         
                         // 다양한 날짜 형식 지원 함수
                         function parseFlexibleDate(dateStr) {
