@@ -34,18 +34,6 @@
         
         .card { background-color: #e3f2fd; border: 1px solid #2196f3; padding: 6px; margin-bottom: 6px; border-radius: 3px; position: relative; font-size: 12px; }
         .card.conflict { background-color: #ffebee; border-color: #f44336; }
-        
-        /* 사업별 색상 */
-        .card.type-직업교육 { background-color: #e3f2fd; border-color: #2196f3; }
-        .card.type-생활문화 { background-color: #e8f5e9; border-color: #4caf50; }
-        .card.type-직훈 { background-color: #fff3e0; border-color: #ff9800; }
-        .card.type-내일배움카드 { background-color: #f3e5f5; border-color: #9c27b0; }
-        
-        /* 범례 */
-        .legend { display: flex; gap: 15px; flex-wrap: wrap; padding: 10px; background: #f8f9fa; border-radius: 5px; margin-bottom: 15px; font-size: 13px; }
-        .legend-item { display: flex; align-items: center; gap: 5px; }
-        .legend-color { width: 20px; height: 20px; border-radius: 3px; border: 2px solid; }
-        
         .del-btn { position: absolute; top: 3px; right: 3px; background: red; color: white; width: 18px; height: 18px; font-size: 11px; border-radius: 50%; border: none; cursor: pointer; }
         
         .request-item { background: #f8f9fa; border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 5px; }
@@ -72,6 +60,13 @@
         .sync-status.synced { background: #d4edda; color: #155724; }
         .sync-status.syncing { background: #fff3cd; color: #856404; }
         .sync-status.error { background: #f8d7da; color: #721c24; }
+        
+        /* 빈 강의실 확인 */
+        .btn-info { background-color: #17a2b8; color: white; }
+        .btn-info:hover { background-color: #138496; }
+        .available-room { background: #d4edda; border: 2px solid #28a745; padding: 10px; margin: 5px; border-radius: 5px; display: inline-block; min-width: 80px; text-align: center; font-weight: bold; }
+        .occupied-room { background: #f8d7da; border: 2px solid #dc3545; padding: 10px; margin: 5px; border-radius: 5px; display: inline-block; min-width: 80px; text-align: center; color: #666; }
+        .room-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; }
     </style>
 </head>
 <body>
@@ -80,8 +75,6 @@
     <div class="box" id="roleSelector">
         <h3>사용자 역할 선택</h3>
         <p>💡 <strong>참고:</strong> 이 시스템은 브라우저에 데이터를 저장합니다. 팀원들과 공유하려면 웹서버에 배포하세요.</p>
-        <p style="color: #666; font-size: 14px;">🔒 관리자 모드는 비밀번호가 필요합니다.</p>
-        <p style="color: #666; font-size: 14px;">🔔 관리자는 새 요청 시 브라우저 알림을 받습니다.</p>
         <div class="input-row">
             <button class="btn-primary" onclick="setRole('admin')">👨‍💼 관리자 모드</button>
             <button class="btn-success" onclick="setRole('user')">👤 일반 사용자 모드</button>
@@ -105,6 +98,7 @@
         <div class="tabs">
             <button class="tab active" onclick="showTab('schedule')">📋 배정표</button>
             <button class="tab" id="requestTabBtn" onclick="showTab('request')">📝 사용요청 <span id="requestBadge" class="badge" style="display: none;">0</span></button>
+            <button class="tab" onclick="showTab('availability')">🔍 빈 강의실</button>
         </div>
         
         <div id="scheduleTab" class="tab-content active">
@@ -132,59 +126,7 @@
                     <input type="time" id="endTime" value="17:30">
                     <input type="text" id="courseName" placeholder="과정명 (필수)">
                     <input type="text" id="instructorName" placeholder="강사명">
-                    <select id="businessType">
-                        <option value="직업교육">직업교육</option>
-                        <option value="생활문화">생활문화</option>
-                        <option value="직훈">직훈</option>
-                        <option value="내일배움카드">내일배움카드</option>
-                    </select>
                     <button class="btn-primary" onclick="addSchedule()">+ 등록</button>
-                </div>
-                
-                <!-- 범례 -->
-                <div class="legend">
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #e3f2fd; border-color: #2196f3;"></div>
-                        <span>직업교육</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #e8f5e9; border-color: #4caf50;"></div>
-                        <span>생활문화</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #fff3e0; border-color: #ff9800;"></div>
-                        <span>직훈</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #f3e5f5; border-color: #9c27b0;"></div>
-                        <span>내일배움카드</span>
-                    </div>
-                </div>
-                
-                <hr style="margin: 20px 0; border: none; border-top: 1px solid #ddd;">
-                
-                <h4 style="margin-bottom: 10px;">📤 CSV 파일 일괄 업로드</h4>
-                <div class="input-row">
-                    <input type="file" id="csvFile" accept=".csv" style="padding: 5px;">
-                    <button class="btn-success" onclick="uploadCSV()">📁 CSV 업로드</button>
-                    <button class="btn-warning" onclick="downloadSampleCSV()" style="background: #17a2b8;">📥 샘플 다운로드</button>
-                    <button class="btn-danger" onclick="clearAllSchedules()" style="background: #dc3545;">🗑️ 전체 초기화</button>
-                </div>
-                <div style="margin-top: 10px; padding: 10px; background: #e7f3ff; border-radius: 5px; font-size: 12px;">
-                    <strong>CSV 파일 형식:</strong><br>
-                    강좌명,강의실,시작일,종료일,요일,시작시간,종료시간,강사명,사업구분<br>
-                    <span style="color: #666;">예: 엑셀기초,207호,2026-04-20,2026-05-18,월화수목금,13:00,17:00,김철수,직업교육</span><br>
-                    <span style="color: #666;">📅 날짜: 2026-04-20, 2026/04/20, 04-20-2026 등 다양한 형식 지원</span><br>
-                    <span style="color: #666;">🕐 시간: 13:00, 1300, 13:00:00 모두 가능</span><br>
-                    <span style="color: #666;">📆 요일: 월화수목금, 월,화,수, 12345 모두 가능</span><br>
-                    <span style="color: #666;">🏢 사업구분: 직업교육/생활문화/직훈/내일배움카드 (생략시 직업교육)</span>
-                </div>
-                
-                <div style="margin-top: 10px; padding: 10px; background: #fff3cd; border-radius: 5px; font-size: 13px;">
-                    💡 <strong>일정 삭제 방법:</strong><br>
-                    • <strong>개별 삭제:</strong> 일정 카드의 × 버튼 클릭<br>
-                    • <strong>일괄 삭제:</strong> 일정 카드를 더블클릭하면 같은 과정명의 모든 일정 삭제<br>
-                    • <strong>전체 초기화:</strong> 🗑️ 전체 초기화 버튼으로 모든 일정 삭제
                 </div>
             </div>
             
@@ -222,6 +164,25 @@
             <div class="box">
                 <h3 id="requestTabTitle">강의실 사용 요청 관리</h3>
                 <div id="requestList"></div>
+            </div>
+        </div>
+        
+        <div id="availabilityTab" class="tab-content">
+            <div class="box">
+                <h3>🔍 빈 강의실 확인</h3>
+                <p style="color: #666; font-size: 14px;">특정 날짜와 시간에 사용 가능한 강의실을 확인하세요.</p>
+                
+                <div class="input-row">
+                    <label>날짜:</label>
+                    <input type="date" id="checkDate">
+                    <label>시작 시간:</label>
+                    <input type="time" id="checkStartTime" value="09:00">
+                    <label>종료 시간:</label>
+                    <input type="time" id="checkEndTime" value="18:00">
+                    <button class="btn-info" onclick="checkAvailability()">🔍 확인</button>
+                </div>
+                
+                <div id="availabilityResult"></div>
             </div>
         </div>
     </div>
@@ -283,101 +244,11 @@
         await loadFromCloud();
         updateRequestBadge();
         
-        // 브라우저 알림 권한 요청
-        if(Notification.permission === 'default') {
-            Notification.requestPermission();
-        }
-        
-        // 관리자 모드일 때만 주기적 체크 시작
-        if(currentRole === 'admin') {
-            startNotificationCheck();
-        }
+        // 빈 강의실 확인 기본 날짜를 오늘로 설정
+        document.getElementById('checkDate').value = new Date().toISOString().split('T')[0];
     }
-    
-    let notificationCheckInterval = null;
-    let lastRequestCount = 0;
-    
-    // 알림 체크 시작
-    function startNotificationCheck() {
-        // 이미 실행 중이면 중단
-        if(notificationCheckInterval) {
-            clearInterval(notificationCheckInterval);
-        }
-        
-        // 현재 대기 중인 요청 개수 저장
-        lastRequestCount = requests.filter(r => r.status === 'pending').length;
-        
-        // 30초마다 체크
-        notificationCheckInterval = setInterval(checkForNewRequests, 30000);
-    }
-    
-    // 알림 체크 중지
-    function stopNotificationCheck() {
-        if(notificationCheckInterval) {
-            clearInterval(notificationCheckInterval);
-            notificationCheckInterval = null;
-        }
-    }
-    
-    // 새 요청 확인
-    async function checkForNewRequests() {
-        // localStorage에서 최신 데이터 불러오기
-        const savedData = localStorage.getItem('classroom_data');
-        if(!savedData) return;
-        
-        const data = JSON.parse(savedData);
-        const currentRequests = data.requests || [];
-        const pendingCount = currentRequests.filter(r => r.status === 'pending').length;
-        
-        // 새 요청이 있으면 알림
-        if(pendingCount > lastRequestCount) {
-            const newCount = pendingCount - lastRequestCount;
-            showNotification(`🔔 새로운 강의실 사용 요청 ${newCount}건`, 
-                           '사용요청 탭에서 확인하세요.');
-            
-            // 데이터 새로고침
-            await loadFromCloud();
-            updateRequestBadge();
-        }
-        
-        lastRequestCount = pendingCount;
-    }
-    
-    // 브라우저 알림 표시
-    function showNotification(title, message) {
-        if(Notification.permission === 'granted') {
-            const notification = new Notification(title, {
-                body: message,
-                icon: '📅',
-                badge: '🔔',
-                requireInteraction: true // 사용자가 직접 닫을 때까지 유지
-            });
-            
-            // 알림 클릭시 사용요청 탭으로 이동
-            notification.onclick = function() {
-                window.focus();
-                showTab('request');
-                notification.close();
-            };
-            
-            // 5초 후 자동으로 닫기 (requireInteraction이 지원되지 않는 브라우저용)
-            setTimeout(() => notification.close(), 5000);
-        }
-    }
-    
-    // 관리자 비밀번호 (원하는 비밀번호로 변경하세요)
-    const ADMIN_PASSWORD = "admin1234";
     
     function setRole(role) {
-        // 관리자 모드 선택 시 비밀번호 확인
-        if(role === 'admin') {
-            const password = prompt('관리자 비밀번호를 입력하세요:');
-            if(password !== ADMIN_PASSWORD) {
-                alert('비밀번호가 틀렸습니다.');
-                return;
-            }
-        }
-        
         currentRole = role;
         document.getElementById('roleSelector').style.display = 'none';
         document.getElementById('mainScreen').style.display = 'block';
@@ -391,22 +262,12 @@
         updateRequestBadge();
         renderSchedule();
         renderRequests();
-        
-        // 관리자 모드일 때 알림 체크 시작
-        if(role === 'admin') {
-            startNotificationCheck();
-        } else {
-            stopNotificationCheck();
-        }
     }
     
     function changeRole() {
         document.getElementById('roleSelector').style.display = 'block';
         document.getElementById('mainScreen').style.display = 'none';
         currentRole = null;
-        
-        // 알림 체크 중지
-        stopNotificationCheck();
     }
     
     function populateRoomSelects() {
@@ -429,6 +290,9 @@
         } else if(tabName === 'request') {
             document.querySelectorAll('.tab')[1].classList.add('active');
             document.getElementById('requestTab').classList.add('active');
+        } else if(tabName === 'availability') {
+            document.querySelectorAll('.tab')[2].classList.add('active');
+            document.getElementById('availabilityTab').classList.add('active');
         }
     }
     
@@ -490,13 +354,6 @@
                     const card = document.createElement('div');
                     card.className = 'card';
                     
-                    // 사업구분에 따른 색상 클래스 추가
-                    if(item.bt) {
-                        card.classList.add('type-' + item.bt);
-                    } else {
-                        card.classList.add('type-직업교육'); // 기본값
-                    }
-                    
                     let html = `<strong>${item.st}~${item.et}</strong><br>${item.cn}`;
                     if(item.tn) html += `<br>${item.tn}`;
                     html += `<br><small>📅 ${item.dates.join(',')}일</small>`;
@@ -506,17 +363,6 @@
                     }
                     
                     card.innerHTML = html;
-                    
-                    // 관리자는 카드 더블클릭으로 같은 과정명 일괄 삭제
-                    if(currentRole === 'admin') {
-                        const courseName = item.cn;
-                        card.ondblclick = function() {
-                            deleteAllByCourse(courseName);
-                        };
-                        card.title = '더블클릭: 같은 과정 모두 삭제';
-                        card.style.cursor = 'pointer';
-                    }
-                    
                     td.appendChild(card);
                 });
                 
@@ -538,7 +384,6 @@
         const endTime = document.getElementById('endTime').value;
         const courseName = document.getElementById('courseName').value.trim();
         const instructorName = document.getElementById('instructorName').value.trim();
-        const businessType = document.getElementById('businessType').value;
         
         if(!courseName) {
             alert('과정명을 입력하세요.');
@@ -553,134 +398,41 @@
             return;
         }
         
-        // 선택된 요일에 해당하는 날짜 수집 및 중복 체크 (년월일로 그룹화)
-        const datesByYearMonthDay = {}; // {year: {month: {day: [dates]}}}
-        const conflicts = [];
-        
+        // 선택된 요일에 해당하는 날짜 수집
+        const datesByDay = {};
         for(let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
             const dayOfWeek = d.getDay();
             if(days.includes(dayOfWeek)) {
-                const year = d.getFullYear();
-                const month = d.getMonth() + 1;
-                const date = d.getDate();
-                
-                // 연도-월-요일 별로 날짜 저장
-                if(!datesByYearMonthDay[year]) datesByYearMonthDay[year] = {};
-                if(!datesByYearMonthDay[year][month]) datesByYearMonthDay[year][month] = {};
-                if(!datesByYearMonthDay[year][month][dayOfWeek]) datesByYearMonthDay[year][month][dayOfWeek] = [];
-                datesByYearMonthDay[year][month][dayOfWeek].push(date);
-                
-                // 해당 날짜의 같은 강의실 일정 찾기
-                const existingSchedules = schedules.filter(s => 
-                    s.y === year && 
-                    s.m === month && 
-                    s.r === room && 
-                    s.d === dayOfWeek &&
-                    s.dates.includes(date)
-                );
-                
-                // 시간 중복 체크
-                for(let existing of existingSchedules) {
-                    if(timeOverlap(startTime, endTime, existing.st, existing.et)) {
-                        const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
-                        conflicts.push({
-                            date: dateStr,
-                            time: `${existing.st}~${existing.et}`,
-                            course: existing.cn
-                        });
-                    }
-                }
+                if(!datesByDay[dayOfWeek]) datesByDay[dayOfWeek] = [];
+                datesByDay[dayOfWeek].push(d.getDate());
             }
         }
         
-        // 중복이 있으면 경고
-        if(conflicts.length > 0) {
-            let msg = '⚠️ 다음 일정과 시간이 중복됩니다:\n\n';
-            conflicts.forEach(c => {
-                msg += `📅 ${c.date} ${c.time} - ${c.course}\n`;
+        // 요일별로 일정 추가
+        for(const [day, dates] of Object.entries(datesByDay)) {
+            schedules.push({
+                id: idCounter++,
+                y: startDate.getFullYear(),
+                m: startDate.getMonth() + 1,
+                d: parseInt(day),
+                r: room,
+                st: startTime,
+                et: endTime,
+                cn: courseName,
+                tn: instructorName,
+                dates: dates
             });
-            msg += `\n총 ${conflicts.length}개의 중복이 발견되었습니다.\n그래도 등록하시겠습니까?`;
-            
-            if(!confirm(msg)) {
-                return;
-            }
-        }
-        
-        // 연도-월-요일별로 일정 추가
-        for(const [year, monthData] of Object.entries(datesByYearMonthDay)) {
-            for(const [month, dayData] of Object.entries(monthData)) {
-                for(const [day, dates] of Object.entries(dayData)) {
-                    schedules.push({
-                        id: idCounter++,
-                        y: parseInt(year),
-                        m: parseInt(month),
-                        d: parseInt(day),
-                        r: room,
-                        st: startTime,
-                        et: endTime,
-                        cn: courseName,
-                        tn: instructorName,
-                        bt: businessType,
-                        dates: dates
-                    });
-                }
-            }
         }
         
         await saveToCloud();
-        
-        if(conflicts.length > 0) {
-            alert(`⚠️ ${conflicts.length}개의 중복 경고가 있었지만 일정이 등록되었습니다.`);
-        } else {
-            alert('✓ 일정이 등록되었습니다.');
-        }
-        
-        document.getElementById('courseName').value = '';
-        document.getElementById('instructorName').value = '';
-        
+        alert('등록되었습니다.');
         renderSchedule();
-    }
-    
-    // 시간 중복 체크 함수
-    function timeOverlap(start1, end1, start2, end2) {
-        return start1 < end2 && end1 > start2;
     }
     
     async function deleteSchedule(id) {
         if(!confirm('이 일정을 삭제하시겠습니까?')) return;
         schedules = schedules.filter(s => s.id !== id);
         await saveToCloud();
-        renderSchedule();
-    }
-    
-    // 같은 과정명의 모든 일정 삭제
-    async function deleteAllByCourse(courseName) {
-        // 같은 과정명의 일정 찾기
-        const sameCourseSched = schedules.filter(s => s.cn === courseName);
-        
-        if(sameCourseSched.length === 0) {
-            alert('해당 과정을 찾을 수 없습니다.');
-            return;
-        }
-        
-        // 날짜 정보 수집
-        const dateInfo = sameCourseSched.map(s => {
-            const dateStr = s.dates.map(d => `${s.m}/${d}`).join(', ');
-            return dateStr;
-        }).join(', ');
-        
-        const msg = `"${courseName}" 과정을 삭제합니다.\n\n` +
-                    `총 ${sameCourseSched.length}개 일정이 있습니다.\n` +
-                    `날짜: ${dateInfo}\n\n` +
-                    `모두 삭제하시겠습니까?`;
-        
-        if(!confirm(msg)) return;
-        
-        // 해당 과정명의 모든 일정 삭제
-        schedules = schedules.filter(s => s.cn !== courseName);
-        
-        await saveToCloud();
-        alert(`✓ "${courseName}" 과정 ${sameCourseSched.length}개 일정이 모두 삭제되었습니다.`);
         renderSchedule();
     }
     
@@ -724,9 +476,6 @@
         
         requests.push(newRequest);
         await saveToCloud();
-        
-        // 알림 저장 (관리자가 나중에 로그인했을 때 확인 가능)
-        localStorage.setItem('classroom_new_request_flag', 'true');
         
         alert('요청이 제출되었습니다.');
         closeRequestModal();
@@ -781,72 +530,31 @@
     }
     
     async function approveRequest(id) {
+        if(!confirm('이 요청을 승인하시겠습니까?')) return;
+        
         const request = requests.find(r => r.id === id);
         if(!request) return;
         
-        // 중복 체크
-        const dateObj = new Date(request.date);
-        const year = dateObj.getFullYear();
-        const month = dateObj.getMonth() + 1;
-        const date = dateObj.getDate();
-        const dayOfWeek = dateObj.getDay();
-        
-        const existingSchedules = schedules.filter(s => 
-            s.y === year && 
-            s.m === month && 
-            s.r === request.room && 
-            s.d === dayOfWeek &&
-            s.dates.includes(date)
-        );
-        
-        let conflicts = [];
-        for(let existing of existingSchedules) {
-            if(timeOverlap(request.start_time, request.end_time, existing.st, existing.et)) {
-                conflicts.push({
-                    time: `${existing.st}~${existing.et}`,
-                    course: existing.cn
-                });
-            }
-        }
-        
-        // 중복이 있으면 경고
-        if(conflicts.length > 0) {
-            let msg = '⚠️ 이 요청은 다음 일정과 시간이 중복됩니다:\n\n';
-            conflicts.forEach(c => {
-                msg += `${c.time} - ${c.course}\n`;
-            });
-            msg += '\n중복되는 일정이 있지만 승인하시겠습니까?';
-            
-            if(!confirm(msg)) {
-                return;
-            }
-        } else {
-            if(!confirm('이 요청을 승인하시겠습니까?')) return;
-        }
-        
         request.status = 'approved';
+        
+        const dateObj = new Date(request.date);
+        const dayOfWeek = dateObj.getDay();
         
         schedules.push({
             id: idCounter++,
-            y: year,
-            m: month,
+            y: dateObj.getFullYear(),
+            m: dateObj.getMonth() + 1,
             d: dayOfWeek,
             r: request.room,
             st: request.start_time,
             et: request.end_time,
             cn: request.course_name,
             tn: request.instructor_name || '',
-            bt: '직업교육', // 기본값
-            dates: [date]
+            dates: [dateObj.getDate()]
         });
         
         await saveToCloud();
-        
-        if(conflicts.length > 0) {
-            alert('⚠️ 중복 경고가 있었지만 승인되었습니다. 배정표에 추가되었습니다.');
-        } else {
-            alert('✓ 승인되었습니다. 배정표에 추가되었습니다.');
-        }
+        alert('승인되었습니다. 배정표에 자동으로 추가되었습니다.');
         
         updateRequestBadge();
         renderRequests();
@@ -942,308 +650,139 @@
         alert('데이터를 새로고침했습니다.');
     }
     
-    // 전체 데이터 초기화
-    async function clearAllSchedules() {
-        if(!confirm('⚠️ 경고: 모든 일정을 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다!')) {
+    // 빈 강의실 확인
+    function checkAvailability() {
+        const checkDateStr = document.getElementById('checkDate').value;
+        const checkStartTime = document.getElementById('checkStartTime').value;
+        const checkEndTime = document.getElementById('checkEndTime').value;
+        
+        if(!checkDateStr) {
+            alert('날짜를 선택하세요.');
             return;
         }
         
-        if(!confirm('정말로 삭제하시겠습니까?\n\n현재 ' + schedules.length + '개의 일정이 모두 삭제됩니다.')) {
+        const checkDate = new Date(checkDateStr);
+        const year = checkDate.getFullYear();
+        const month = checkDate.getMonth() + 1;
+        const date = checkDate.getDate();
+        const dayOfWeek = checkDate.getDay();
+        
+        if(dayOfWeek === 0) {
+            alert('일요일은 강의실을 사용하지 않습니다.');
             return;
         }
         
-        schedules = [];
-        await saveToCloud();
-        renderSchedule();
-        alert('✓ 모든 일정이 삭제되었습니다.');
-    }
-    
-    // CSV 샘플 다운로드
-    function downloadSampleCSV() {
-        const sampleData = `강좌명,강의실,시작일,종료일,요일,시작시간,종료시간,강사명,사업구분
-엑셀기초,207호,2026-04-20,2026-05-18,월화수목금,13:00,17:00,김철수,직업교육
-파워포인트기초,207호,2026-06-01,2026-06-29,월수금,13:00,17:00,이영희,생활문화
-Python입문,301호,2026-04-15,2026-06-10,화목,09:00,12:00,박민수,직훈
-데이터분석,B101,2026-05-01,2026-06-30,월화수목금,14:00,18:00,최강사,내일배움카드`;
+        const availableRooms = [];
+        const occupiedRooms = [];
         
-        const blob = new Blob(['\uFEFF' + sampleData], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = '강의실배정_샘플.csv';
-        link.click();
-    }
-    
-    // 요일 문자열을 숫자 배열로 변환
-    function parseDays(dayString) {
-        if(!dayString) return [];
-        
-        const dayMap = {
-            '월': 1, '화': 2, '수': 3, '목': 4, '금': 5, '토': 6,
-            '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6
-        };
-        
-        // 공백 제거
-        dayString = dayString.trim();
-        
-        // 쉼표로 구분된 경우
-        if(dayString.includes(',')) {
-            const parts = dayString.split(',');
-            const days = [];
-            for(let part of parts) {
-                part = part.trim();
-                if(dayMap[part]) {
-                    days.push(dayMap[part]);
-                }
-            }
-            return [...new Set(days)]; // 중복 제거
-        }
-        
-        // 붙여쓴 경우 (월화수목금, 123456)
-        const days = [];
-        for(let char of dayString) {
-            if(dayMap[char]) {
-                days.push(dayMap[char]);
-            }
-        }
-        
-        return [...new Set(days)]; // 중복 제거
-    }
-    
-    // 시간 형식 자동 변환 (1000 → 10:00, 10:00:00 → 10:00)
-    function parseTime(timeStr) {
-        if(!timeStr) return '';
-        
-        timeStr = timeStr.trim();
-        
-        // 이미 HH:MM 형식
-        if(/^\d{1,2}:\d{2}$/.test(timeStr)) {
-            return timeStr;
-        }
-        
-        // HH:MM:SS 형식 → HH:MM
-        if(/^\d{1,2}:\d{2}:\d{2}$/.test(timeStr)) {
-            return timeStr.substring(0, 5);
-        }
-        
-        // HHMM 형식 (1000, 1330 등)
-        if(/^\d{3,4}$/.test(timeStr)) {
-            if(timeStr.length === 3) {
-                // 930 → 09:30
-                return '0' + timeStr[0] + ':' + timeStr.substring(1);
-            } else {
-                // 1000 → 10:00
-                return timeStr.substring(0, 2) + ':' + timeStr.substring(2);
-            }
-        }
-        
-        // 그 외 형식은 그대로 반환
-        return timeStr;
-    }
-    
-    // CSV 업로드 및 파싱
-    async function uploadCSV() {
-        const fileInput = document.getElementById('csvFile');
-        const file = fileInput.files[0];
-        
-        if(!file) {
-            alert('CSV 파일을 선택하세요.');
-            return;
-        }
-        
-        // 기존 데이터가 있으면 중복 경고
-        if(schedules.length > 0) {
-            const confirmMsg = `⚠️ 현재 ${schedules.length}개의 일정이 등록되어 있습니다.\n\nCSV 업로드 방식을 선택하세요:\n\n• "확인" → 기존 데이터에 추가\n• "취소" → 업로드 중단 (전체 초기화 후 다시 시도)`;
+        // 각 강의실별로 확인
+        rooms.forEach(room => {
+            // 해당 날짜의 해당 강의실 일정 찾기
+            const roomSchedules = schedules.filter(s => 
+                s.y === year && 
+                s.m === month && 
+                s.r === room && 
+                s.d === dayOfWeek &&
+                s.dates.includes(date)
+            );
             
-            if(!confirm(confirmMsg)) {
-                fileInput.value = '';
-                return;
+            // 시간 겹침 확인
+            let isOccupied = false;
+            let occupiedTimes = [];
+            
+            for(let schedule of roomSchedules) {
+                if(timeOverlap(checkStartTime, checkEndTime, schedule.st, schedule.et)) {
+                    isOccupied = true;
+                    occupiedTimes.push({
+                        time: `${schedule.st}~${schedule.et}`,
+                        course: schedule.cn
+                    });
+                }
             }
+            
+            if(isOccupied) {
+                occupiedRooms.push({ room, times: occupiedTimes });
+            } else {
+                availableRooms.push(room);
+            }
+        });
+        
+        // 결과 표시
+        displayAvailabilityResult(checkDateStr, checkStartTime, checkEndTime, availableRooms, occupiedRooms);
+    }
+    
+    // 빈 강의실 확인 결과 표시
+    function displayAvailabilityResult(date, startTime, endTime, available, occupied) {
+        const container = document.getElementById('availabilityResult');
+        
+        const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+        const checkDate = new Date(date);
+        const dayName = dayNames[checkDate.getDay()];
+        
+        let html = `
+            <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+                <h4>📅 ${date} (${dayName}) ${startTime} ~ ${endTime}</h4>
+            </div>
+        `;
+        
+        // 사용 가능한 강의실
+        html += `
+            <div style="margin-top: 20px;">
+                <h4 style="color: #28a745;">✅ 사용 가능한 강의실 (${available.length}개)</h4>
+                <div class="room-grid">
+        `;
+        
+        if(available.length === 0) {
+            html += '<p style="color: #999; padding: 10px;">사용 가능한 강의실이 없습니다.</p>';
+        } else {
+            available.forEach(room => {
+                html += `<div class="available-room">${room}</div>`;
+            });
         }
         
-        const reader = new FileReader();
+        html += '</div></div>';
         
-        reader.onload = async function(e) {
-            try {
-                const text = e.target.result;
-                const lines = text.split('\n').filter(line => line.trim());
-                
-                if(lines.length < 2) {
-                    alert('CSV 파일에 데이터가 없습니다.');
-                    return;
-                }
-                
-                let successCount = 0;
-                let errorCount = 0;
-                const errors = [];
-                const duplicates = []; // 중복 과정 추적
-                
-                // 첫 줄은 헤더이므로 스킵
-                for(let i = 1; i < lines.length; i++) {
-                    try {
-                        const line = lines[i].trim();
-                        if(!line) continue;
-                        
-                        // CSV 파싱 (쉼표로 분리, 따옴표 고려)
-                        const values = line.split(',').map(v => v.trim().replace(/^["']|["']$/g, ''));
-                        
-                        if(values.length < 8) {
-                            errors.push(`${i}행: 필드가 부족합니다 (${values.length}/8 이상 필요)`);
-                            errorCount++;
-                            continue;
-                        }
-                        
-                        let [courseName, room, startDateStr, endDateStr, dayStr, startTime, endTime, instructorName, businessType = '직업교육'] = values;
-                        
-                        // 시간 형식 자동 변환
-                        startTime = parseTime(startTime);
-                        endTime = parseTime(endTime);
-                        
-                        // 다양한 날짜 형식 지원 함수
-                        function parseFlexibleDate(dateStr) {
-                            if(!dateStr) return null;
-                            
-                            // 공백 제거
-                            dateStr = dateStr.trim();
-                            
-                            // 1. YYYY-MM-DD, YYYY/MM/DD, YYYY.MM.DD 형식
-                            let match = dateStr.match(/^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})$/);
-                            if(match) {
-                                const [, year, month, day] = match;
-                                return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-                            }
-                            
-                            // 2. MM-DD-YYYY, MM/DD/YYYY, MM.DD.YYYY 형식
-                            match = dateStr.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{4})$/);
-                            if(match) {
-                                const [, month, day, year] = match;
-                                return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-                            }
-                            
-                            // 3. DD-MM-YYYY (유럽식) - 월이 12보다 크면 유럽식으로 판단
-                            match = dateStr.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{4})$/);
-                            if(match) {
-                                const [, first, second, year] = match;
-                                if(parseInt(first) > 12) {
-                                    // 확실히 일-월-년 형식
-                                    return new Date(parseInt(year), parseInt(second) - 1, parseInt(first));
-                                }
-                            }
-                            
-                            // 4. 기본 Date 파싱 시도
-                            const date = new Date(dateStr);
-                            if(!isNaN(date.getTime())) {
-                                return date;
-                            }
-                            
-                            return null;
-                        }
-                        
-                        // 날짜 파싱
-                        const startDate = parseFlexibleDate(startDateStr);
-                        const endDate = parseFlexibleDate(endDateStr);
-                        
-                        if(!startDate || !endDate || isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-                            errors.push(`${i}행: 날짜 형식 오류 - 시작일: "${startDateStr}", 종료일: "${endDateStr}"`);
-                            errorCount++;
-                            continue;
-                        }
-                        
-                        // 요일 파싱
-                        const days = parseDays(dayStr);
-                        
-                        if(days.length === 0) {
-                            errors.push(`${i}행: 요일 정보가 올바르지 않습니다 (${dayStr})`);
-                            errorCount++;
-                            continue;
-                        }
-                        
-                        // 중복 과정명 체크
-                        const existingSameCourse = schedules.find(s => 
-                            s.cn === courseName && s.r === room
-                        );
-                        
-                        if(existingSameCourse) {
-                            duplicates.push(`${i}행: "${courseName}" (${room}) - 이미 등록된 과정`);
-                        }
-                        
-                        // 선택된 요일에 해당하는 날짜 수집
-                        const datesByYearMonthDay = {};
-                        
-                        for(let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-                            const dayOfWeek = d.getDay();
-                            if(days.includes(dayOfWeek)) {
-                                const year = d.getFullYear();
-                                const month = d.getMonth() + 1;
-                                const date = d.getDate();
-                                
-                                if(!datesByYearMonthDay[year]) datesByYearMonthDay[year] = {};
-                                if(!datesByYearMonthDay[year][month]) datesByYearMonthDay[year][month] = {};
-                                if(!datesByYearMonthDay[year][month][dayOfWeek]) datesByYearMonthDay[year][month][dayOfWeek] = [];
-                                datesByYearMonthDay[year][month][dayOfWeek].push(date);
-                            }
-                        }
-                        
-                        // 연도-월-요일별로 일정 추가
-                        for(const [year, monthData] of Object.entries(datesByYearMonthDay)) {
-                            for(const [month, dayData] of Object.entries(monthData)) {
-                                for(const [day, dates] of Object.entries(dayData)) {
-                                    schedules.push({
-                                        id: idCounter++,
-                                        y: parseInt(year),
-                                        m: parseInt(month),
-                                        d: parseInt(day),
-                                        r: room,
-                                        st: startTime,
-                                        et: endTime,
-                                        cn: courseName,
-                                        tn: instructorName,
-                                        bt: businessType,
-                                        dates: dates
-                                    });
-                                }
-                            }
-                        }
-                        
-                        successCount++;
-                        
-                    } catch(err) {
-                        errors.push(`${i}행: ${err.message}`);
-                        errorCount++;
-                    }
-                }
-                
-                await saveToCloud();
-                renderSchedule();
-                
-                let message = `✅ 업로드 완료!\n\n성공: ${successCount}개\n실패: ${errorCount}개`;
-                
-                if(duplicates.length > 0) {
-                    message += `\n⚠️ 중복 경고: ${duplicates.length}개`;
-                    if(duplicates.length <= 3) {
-                        message += '\n\n중복 내용:\n' + duplicates.join('\n');
-                    } else {
-                        message += '\n\n중복 내용 (처음 3개만 표시):\n' + duplicates.slice(0, 3).join('\n');
-                        message += `\n... 외 ${duplicates.length - 3}개`;
-                    }
-                }
-                
-                if(errors.length > 0 && errors.length <= 5) {
-                    message += '\n\n오류 내용:\n' + errors.join('\n');
-                } else if(errors.length > 5) {
-                    message += '\n\n오류 내용 (처음 5개만 표시):\n' + errors.slice(0, 5).join('\n');
-                }
-                
-                alert(message);
-                
-                // 파일 입력 초기화
-                fileInput.value = '';
-                
-            } catch(err) {
-                alert('CSV 파일 처리 중 오류가 발생했습니다: ' + err.message);
-            }
-        };
+        // 사용 중인 강의실
+        html += `
+            <div style="margin-top: 20px;">
+                <h4 style="color: #dc3545;">❌ 사용 중인 강의실 (${occupied.length}개)</h4>
+                <div class="room-grid">
+        `;
         
-        reader.readAsText(file, 'UTF-8');
+        if(occupied.length === 0) {
+            html += '<p style="color: #999; padding: 10px;">사용 중인 강의실이 없습니다.</p>';
+        } else {
+            occupied.forEach(item => {
+                html += `
+                    <div class="occupied-room">
+                        <div style="font-weight: bold; margin-bottom: 5px;">${item.room}</div>
+                `;
+                item.times.forEach(t => {
+                    html += `<div style="font-size: 11px; margin-top: 3px;">${t.time}<br>${t.course}</div>`;
+                });
+                html += '</div>';
+            });
+        }
+        
+        html += '</div></div>';
+        
+        // 통계
+        const totalRooms = rooms.length;
+        const availablePercent = Math.round(available.length / totalRooms * 100);
+        const occupiedPercent = Math.round(occupied.length / totalRooms * 100);
+        
+        html += `
+            <div style="margin-top: 20px; padding: 15px; background: #e7f3ff; border-radius: 5px;">
+                <strong>📊 사용률 통계</strong><br>
+                <div style="margin-top: 10px;">
+                    전체 강의실: <strong>${totalRooms}개</strong><br>
+                    사용 가능: <strong style="color: #28a745;">${available.length}개 (${availablePercent}%)</strong><br>
+                    사용 중: <strong style="color: #dc3545;">${occupied.length}개 (${occupiedPercent}%)</strong>
+                </div>
+            </div>
+        `;
+        
+        container.innerHTML = html;
     }
     
     init();
