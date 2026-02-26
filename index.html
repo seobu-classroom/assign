@@ -21,6 +21,7 @@
         .btn-warning:hover { background: #e0a800; }
         .btn-info { background: #17a2b8; color: white; }
         .btn-info:hover { background: #138496; }
+        .btn-small { padding: 5px 10px; font-size: 12px; }
         
         .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ddd; flex-wrap: wrap; }
         .tab { padding: 10px 20px; cursor: pointer; border: none; background: none; font-size: 16px; font-weight: bold; color: #666; border-bottom: 3px solid transparent; }
@@ -39,6 +40,8 @@
         .card.type-생활문화 { background: #e8f5e9; border-color: #4caf50; }
         .card.type-직훈 { background: #fff3e0; border-color: #ff9800; }
         .card.type-내일배움카드 { background: #f3e5f5; border-color: #9c27b0; }
+        .card.type-관리팀 { background: #fce4ec; border-color: #e91e63; }
+        .card.type-취업팀 { background: #e0f2f1; border-color: #009688; }
         
         .legend { display: flex; gap: 15px; flex-wrap: wrap; padding: 10px; background: #f8f9fa; border-radius: 5px; margin-bottom: 15px; font-size: 13px; }
         .legend-item { display: flex; align-items: center; gap: 5px; }
@@ -69,12 +72,24 @@
         .sync-status.syncing { background: #fff3cd; color: #856404; }
         .sync-status.error { background: #f8d7da; color: #721c24; }
         
-        /* 빈 강의실 */
-        .available-room { background: #d4edda; border: 2px solid #28a745; padding: 10px; margin: 5px; border-radius: 5px; display: inline-block; min-width: 80px; text-align: center; font-weight: bold; }
-        .occupied-room { background: #f8d7da; border: 2px solid #dc3545; padding: 10px; margin: 5px; border-radius: 5px; display: inline-block; min-width: 80px; text-align: center; color: #666; }
-        .room-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; }
+        /* 빈 강의실 - 시간대별 표시 */
+        .room-card { background: white; border: 2px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
+        .room-card-header { font-size: 18px; font-weight: bold; margin-bottom: 10px; color: #333; }
+        .time-slots { display: flex; gap: 10px; flex-wrap: wrap; }
+        .time-slot { flex: 1; min-width: 150px; padding: 10px; border-radius: 5px; text-align: center; font-size: 13px; }
+        .time-slot.available { background: #d4edda; border: 2px solid #28a745; cursor: pointer; }
+        .time-slot.available:hover { background: #c3e6cb; }
+        .time-slot.occupied { background: #f8d7da; border: 2px solid #dc3545; }
+        .time-slot-title { font-weight: bold; margin-bottom: 5px; }
+        .time-slot-time { font-size: 11px; color: #666; margin-bottom: 5px; }
+        .time-slot-status { font-size: 12px; }
+        .occupied-course { font-size: 11px; color: #dc3545; margin-top: 3px; }
         
-        /* 월별 뷰 */
+        /* 시간대 선택 버튼 */
+        .time-preset { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        .time-preset button { flex: 1; min-width: 100px; }
+        
+        /* 월별 */
         .month-calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 15px; }
         .calendar-header { background: #6c757d; color: white; padding: 10px; text-align: center; font-weight: bold; font-size: 14px; }
         .calendar-day { background: white; border: 1px solid #ddd; padding: 10px; min-height: 80px; position: relative; font-size: 12px; }
@@ -151,6 +166,8 @@
                         <option value="생활문화">생활문화</option>
                         <option value="직훈">직훈</option>
                         <option value="내일배움카드">내일배움카드</option>
+                        <option value="관리팀">관리팀</option>
+                        <option value="취업팀">취업팀</option>
                     </select>
                     <button class="btn-primary" onclick="addSchedule()">+ 등록</button>
                 </div>
@@ -171,6 +188,14 @@
                     <div class="legend-item">
                         <div class="legend-color" style="background: #f3e5f5; border-color: #9c27b0;"></div>
                         <span>내일배움카드</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #fce4ec; border-color: #e91e63;"></div>
+                        <span>관리팀</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #e0f2f1; border-color: #009688;"></div>
+                        <span>취업팀</span>
                     </div>
                 </div>
                 
@@ -225,15 +250,25 @@
                 
                 <!-- 일별 보기 -->
                 <div id="dailyAvailability" style="display: block;">
-                    <p style="color: #666; font-size: 14px;">특정 날짜와 시간에 사용 가능한 강의실을 확인하세요.</p>
+                    <p style="color: #666; font-size: 14px;">날짜와 시간대를 선택하여 사용 가능한 강의실을 확인하세요.</p>
                     
                     <div class="input-row">
                         <label>날짜:</label>
                         <input type="date" id="checkDate">
+                    </div>
+                    
+                    <div class="time-preset">
+                        <button class="btn-info" onclick="setTimePreset('morning')">🌅 오전 (09:00~13:00)</button>
+                        <button class="btn-info" onclick="setTimePreset('afternoon')">☀️ 오후 (13:00~18:00)</button>
+                        <button class="btn-info" onclick="setTimePreset('evening')">🌙 저녁 (18:00~21:00)</button>
+                        <button class="btn-warning" onclick="setTimePreset('allday')">🕐 종일 (09:00~21:00)</button>
+                    </div>
+                    
+                    <div class="input-row">
                         <label>시작:</label>
                         <input type="time" id="checkStartTime" value="09:00">
                         <label>종료:</label>
-                        <input type="time" id="checkEndTime" value="18:00">
+                        <input type="time" id="checkEndTime" value="13:00">
                         <button class="btn-info" onclick="checkDailyAvailability()">🔍 확인</button>
                     </div>
                     
@@ -317,6 +352,13 @@ let idCounter = 1;
 let currentRole = null;
 const rooms = ["B101", "101호", "102호", "201호", "202호", "203호", "204호", "205호", "206호", "207호", "208호", "209호", "301호", "302호", "303호", "스튜디오", "강당", "상담실"];
 
+// 시간대 정의
+const timeSlots = {
+    morning: { start: '09:00', end: '13:00', label: '오전' },
+    afternoon: { start: '13:00', end: '18:00', label: '오후' },
+    evening: { start: '18:00', end: '21:00', label: '저녁' }
+};
+
 async function init() {
     populateRoomSelects();
     await loadFromCloud();
@@ -398,6 +440,25 @@ function showAvailabilityView(view) {
         dailyDiv.style.display = 'none';
         monthlyDiv.style.display = 'block';
         checkMonthlyAvailability();
+    }
+}
+
+function setTimePreset(preset) {
+    const startInput = document.getElementById('checkStartTime');
+    const endInput = document.getElementById('checkEndTime');
+    
+    if(preset === 'morning') {
+        startInput.value = '09:00';
+        endInput.value = '13:00';
+    } else if(preset === 'afternoon') {
+        startInput.value = '13:00';
+        endInput.value = '18:00';
+    } else if(preset === 'evening') {
+        startInput.value = '18:00';
+        endInput.value = '21:00';
+    } else if(preset === 'allday') {
+        startInput.value = '09:00';
+        endInput.value = '21:00';
     }
 }
 
@@ -581,9 +642,15 @@ async function deleteAllByCourse(courseName) {
     renderSchedule();
 }
 
-function openRequestModal() {
+function openRequestModal(room = null, date = null, startTime = null, endTime = null) {
     document.getElementById('requestModal').classList.add('active');
-    document.getElementById('reqDate').value = new Date().toISOString().split('T')[0];
+    
+    if(date) document.getElementById('reqDate').value = date;
+    else document.getElementById('reqDate').value = new Date().toISOString().split('T')[0];
+    
+    if(room) document.getElementById('reqRoom').value = room;
+    if(startTime) document.getElementById('reqStartTime').value = startTime;
+    if(endTime) document.getElementById('reqEndTime').value = endTime;
 }
 
 function closeRequestModal() {
@@ -771,11 +838,11 @@ async function refreshData() {
     alert('새로고침 완료');
 }
 
-// 일별 빈 강의실 확인
+// 일별 빈 강의실 확인 - 시간대별 표시
 function checkDailyAvailability() {
     const dateStr = document.getElementById('checkDate').value;
-    const startTime = document.getElementById('checkStartTime').value;
-    const endTime = document.getElementById('checkEndTime').value;
+    const searchStartTime = document.getElementById('checkStartTime').value;
+    const searchEndTime = document.getElementById('checkEndTime').value;
     
     if(!dateStr) { alert('날짜 선택!'); return; }
     
@@ -787,90 +854,148 @@ function checkDailyAvailability() {
     
     if(dayOfWeek === 0) { alert('일요일은 사용하지 않습니다.'); return; }
     
-    const available = [];
-    const occupied = [];
+    const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+    
+    let html = `
+        <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+            <h4>📅 ${dateStr} (${dayNames[dayOfWeek]}) - ${searchStartTime} ~ ${searchEndTime} 검색 결과</h4>
+        </div>
+    `;
+    
+    // 각 강의실별로 시간대 분석
+    rooms.forEach(room => {
+        const roomSchedules = schedules.filter(s => 
+            s.y === year && s.m === month && s.r === room && s.d === dayOfWeek && s.dates.includes(day)
+        );
+        
+        // 검색 시간대에 사용 중인지 확인
+        let isOccupiedInSearch = false;
+        let searchOccupiedInfo = null;
+        
+        for(let schedule of roomSchedules) {
+            if(timeOverlap(searchStartTime, searchEndTime, schedule.st, schedule.et)) {
+                isOccupiedInSearch = true;
+                searchOccupiedInfo = schedule;
+                break;
+            }
+        }
+        
+        // 시간대별 상태 확인
+        const slotStatus = {};
+        for(let [slotKey, slot] of Object.entries(timeSlots)) {
+            let occupied = false;
+            let occupiedInfo = null;
+            
+            for(let schedule of roomSchedules) {
+                if(timeOverlap(slot.start, slot.end, schedule.st, schedule.et)) {
+                    occupied = true;
+                    occupiedInfo = schedule;
+                    break;
+                }
+            }
+            
+            slotStatus[slotKey] = { occupied, info: occupiedInfo };
+        }
+        
+        // 강의실 카드 생성
+        html += `
+            <div class="room-card">
+                <div class="room-card-header">
+                    ${room} 
+                    ${isOccupiedInSearch ? 
+                        '<span style="color: #dc3545; font-size: 14px;">(검색 시간대 사용 중)</span>' : 
+                        '<span style="color: #28a745; font-size: 14px;">(검색 시간대 사용 가능 ✓)</span>'}
+                </div>
+                <div class="time-slots">
+        `;
+        
+        // 각 시간대 표시
+        for(let [slotKey, slot] of Object.entries(timeSlots)) {
+            const status = slotStatus[slotKey];
+            const isAvailable = !status.occupied;
+            const slotClass = isAvailable ? 'available' : 'occupied';
+            
+            html += `
+                <div class="time-slot ${slotClass}" ${isAvailable ? `onclick="openRequestModal('${room}', '${dateStr}', '${slot.start}', '${slot.end}')"` : ''}>
+                    <div class="time-slot-title">${slot.label}</div>
+                    <div class="time-slot-time">${slot.start} ~ ${slot.end}</div>
+                    <div class="time-slot-status">
+                        ${isAvailable ? '✅ 사용 가능' : '❌ 사용 중'}
+                    </div>
+            `;
+            
+            if(!isAvailable && status.info) {
+                html += `
+                    <div class="occupied-course">${status.info.cn}</div>
+                    <div class="occupied-course">${status.info.st}~${status.info.et}</div>
+                `;
+            }
+            
+            if(isAvailable) {
+                html += '<div style="font-size: 11px; color: #28a745; margin-top: 5px;">클릭하여 신청 →</div>';
+            }
+            
+            html += '</div>';
+        }
+        
+        html += '</div></div>';
+    });
+    
+    // 요약 통계
+    let totalAvailableInSearch = 0;
+    let totalAvailableMorning = 0;
+    let totalAvailableAfternoon = 0;
+    let totalAvailableEvening = 0;
     
     rooms.forEach(room => {
         const roomSchedules = schedules.filter(s => 
             s.y === year && s.m === month && s.r === room && s.d === dayOfWeek && s.dates.includes(day)
         );
         
-        let isOccupied = false;
-        let occupiedTimes = [];
-        
+        // 검색 시간대
+        let occupied = false;
         for(let schedule of roomSchedules) {
-            if(timeOverlap(startTime, endTime, schedule.st, schedule.et)) {
-                isOccupied = true;
-                occupiedTimes.push({time: `${schedule.st}~${schedule.et}`, course: schedule.cn});
+            if(timeOverlap(searchStartTime, searchEndTime, schedule.st, schedule.et)) {
+                occupied = true;
+                break;
             }
         }
+        if(!occupied) totalAvailableInSearch++;
         
-        if(isOccupied) {
-            occupied.push({room, times: occupiedTimes});
-        } else {
-            available.push(room);
+        // 시간대별
+        for(let [slotKey, slot] of Object.entries(timeSlots)) {
+            let slotOccupied = false;
+            for(let schedule of roomSchedules) {
+                if(timeOverlap(slot.start, slot.end, schedule.st, schedule.et)) {
+                    slotOccupied = true;
+                    break;
+                }
+            }
+            if(!slotOccupied) {
+                if(slotKey === 'morning') totalAvailableMorning++;
+                else if(slotKey === 'afternoon') totalAvailableAfternoon++;
+                else if(slotKey === 'evening') totalAvailableEvening++;
+            }
         }
     });
     
-    displayDailyResult(dateStr, startTime, endTime, available, occupied);
-}
-
-function displayDailyResult(date, startTime, endTime, available, occupied) {
-    const container = document.getElementById('dailyResult');
-    const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
-    const d = new Date(date);
-    const dayName = dayNames[d.getDay()];
-    
-    let html = `
-        <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
-            <h4>📅 ${date} (${dayName}) ${startTime} ~ ${endTime}</h4>
-        </div>
-        
-        <div style="margin-top: 20px;">
-            <h4 style="color: #28a745;">✅ 사용 가능 (${available.length}개)</h4>
-            <div class="room-grid">
-    `;
-    
-    if(available.length === 0) {
-        html += '<p style="color: #999; padding: 10px;">사용 가능한 강의실이 없습니다.</p>';
-    } else {
-        available.forEach(room => html += `<div class="available-room">${room}</div>`);
-    }
-    
-    html += `</div></div>
-        
-        <div style="margin-top: 20px;">
-            <h4 style="color: #dc3545;">❌ 사용 중 (${occupied.length}개)</h4>
-            <div class="room-grid">
-    `;
-    
-    if(occupied.length === 0) {
-        html += '<p style="color: #999; padding: 10px;">사용 중인 강의실이 없습니다.</p>';
-    } else {
-        occupied.forEach(item => {
-            html += `<div class="occupied-room"><div style="font-weight: bold; margin-bottom: 5px;">${item.room}</div>`;
-            item.times.forEach(t => html += `<div style="font-size: 11px; margin-top: 3px;">${t.time}<br>${t.course}</div>`);
-            html += '</div>';
-        });
-    }
-    
-    const totalRooms = rooms.length;
-    const availablePercent = Math.round(available.length / totalRooms * 100);
-    const occupiedPercent = Math.round(occupied.length / totalRooms * 100);
-    
-    html += `</div></div>
-        
+    html += `
         <div style="margin-top: 20px; padding: 15px; background: #e7f3ff; border-radius: 5px;">
-            <strong>📊 통계</strong><br>
+            <strong>📊 사용 가능 통계</strong><br>
             <div style="margin-top: 10px;">
-                전체: <strong>${totalRooms}개</strong><br>
-                사용 가능: <strong style="color: #28a745;">${available.length}개 (${availablePercent}%)</strong><br>
-                사용 중: <strong style="color: #dc3545;">${occupied.length}개 (${occupiedPercent}%)</strong>
+                검색 시간대 (${searchStartTime}~${searchEndTime}): <strong style="color: #28a745;">${totalAvailableInSearch}개</strong> / ${rooms.length}개<br>
+                🌅 오전: <strong style="color: #28a745;">${totalAvailableMorning}개</strong> / ${rooms.length}개<br>
+                ☀️ 오후: <strong style="color: #28a745;">${totalAvailableAfternoon}개</strong> / ${rooms.length}개<br>
+                🌙 저녁: <strong style="color: #28a745;">${totalAvailableEvening}개</strong> / ${rooms.length}개
             </div>
         </div>
+        
+        <div style="margin-top: 15px; padding: 15px; background: #fff3cd; border-radius: 5px; font-size: 13px;">
+            💡 <strong>Tip:</strong> 초록색 시간대를 클릭하면 해당 시간으로 바로 신청할 수 있습니다!
+        </div>
     `;
     
-    container.innerHTML = html;
+    document.getElementById('dailyResult').innerHTML = html;
 }
 
 // 월별 빈 강의실 확인
@@ -918,8 +1043,7 @@ function checkMonthlyAvailability() {
         html += `<div class="${className}">`;
         html += `<div class="day-number">${day}</div>`;
         
-        if(dayOfWeek !== 0) { // 일요일 제외
-            // 해당 날짜의 강의실 사용 확인
+        if(dayOfWeek !== 0) {
             let usedCount = 0;
             
             rooms.forEach(room => {
@@ -951,7 +1075,6 @@ function checkMonthlyAvailability() {
         html += '</div>';
     }
     
-    // 빈 칸 (다음 달)
     const totalCells = startDayOfWeek + daysInMonth;
     const remainingCells = 7 - (totalCells % 7);
     if(remainingCells < 7) {
@@ -965,9 +1088,9 @@ function checkMonthlyAvailability() {
         <div style="margin-top: 20px; padding: 15px; background: #fff3cd; border-radius: 5px; font-size: 13px;">
             <strong>📊 범례</strong><br>
             <div style="margin-top: 10px;">
-                <span class="usage-high">■ 빨강 (70%+)</span> - 강의실 사용률 높음<br>
+                <span class="usage-high">■ 빨강 (70%+)</span> - 강의실 사용률 높음 (혼잡)<br>
                 <span class="usage-medium">■ 주황 (40-69%)</span> - 강의실 사용률 보통<br>
-                <span class="usage-low">■ 초록 (~39%)</span> - 강의실 사용률 낮음 (여유로움)
+                <span class="usage-low">■ 초록 (~39%)</span> - 강의실 사용률 낮음 (여유)
             </div>
         </div>
     `;
