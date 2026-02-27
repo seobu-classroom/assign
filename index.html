@@ -1,10 +1,1053 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>강의실 배정 시스템</title>
+    <style>
+        * { box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px; 
+            color: #333; 
+            margin: 0;
+            min-height: 100vh;
+        }
+        
+        .box { 
+            background: white; 
+            padding: 25px; 
+            border-radius: 15px; 
+            margin-bottom: 20px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .input-row { 
+            margin-bottom: 15px; 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 10px; 
+            align-items: center; 
+        }
+        
+        label { font-weight: 600; color: #555; }
+        
+        input, select, textarea { 
+            padding: 10px 15px; 
+            border: 2px solid #e0e0e0; 
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        input:focus, select:focus, textarea:focus { 
+            outline: none; 
+            border-color: #667eea; 
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        button { 
+            cursor: pointer; 
+            padding: 12px 24px; 
+            border: none; 
+            border-radius: 10px; 
+            font-weight: 600; 
+            color: white; 
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        button:active {
+            transform: scale(0.95);
+        }
+        
+        .btn-primary { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .btn-primary:hover { 
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .btn-success { 
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+        .btn-success:hover { 
+            box-shadow: 0 6px 20px rgba(56, 239, 125, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .btn-danger { 
+            background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
+        }
+        .btn-danger:hover { 
+            box-shadow: 0 6px 20px rgba(238, 9, 121, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .btn-warning { 
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+        .btn-warning:hover { 
+            box-shadow: 0 6px 20px rgba(240, 147, 251, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .btn-info { 
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        .btn-info:hover { 
+            box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .tabs { 
+            display: flex; 
+            gap: 10px; 
+            margin-bottom: 20px; 
+            border-bottom: 3px solid rgba(255,255,255,0.3); 
+            flex-wrap: wrap;
+            background: white;
+            padding: 10px;
+            border-radius: 15px 15px 0 0;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .tab { 
+            padding: 12px 24px; 
+            cursor: pointer; 
+            border: none; 
+            background: none; 
+            font-size: 15px; 
+            font-weight: 600; 
+            color: #888; 
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            border-radius: 8px;
+        }
+        
+        .tab:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+        
+        .tab.active { 
+            color: #667eea; 
+            background: rgba(102, 126, 234, 0.15);
+            border-bottom-color: #667eea;
+        }
+        
+        .tab-content { display: none; }
+        .tab-content.active { 
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        .table-wrap { 
+            overflow-x: auto; 
+            background: white; 
+            border-radius: 15px; 
+            margin-top: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        table { 
+            width: 100%; 
+            min-width: 1000px; 
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        th, td { 
+            border: 1px solid #e0e0e0; 
+            padding: 12px; 
+            vertical-align: top; 
+            font-size: 13px; 
+        }
+        
+        th { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center; 
+            height: 50px;
+            font-weight: 600;
+        }
+        
+        th:first-child {
+            border-radius: 15px 0 0 0;
+        }
+        
+        th:last-child {
+            border-radius: 0 15px 0 0;
+        }
+        
+        .room-cell { 
+            width: 100px; 
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            text-align: center; 
+            font-weight: 600; 
+            vertical-align: middle;
+            color: #555;
+        }
+        
+        .card { 
+            padding: 10px; 
+            margin-bottom: 8px; 
+            border-radius: 10px; 
+            position: relative; 
+            font-size: 12px;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        /* 확장된 사업 구분 색상 */
+        .card.type-직업교육 { 
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-left-color: #2196f3;
+        }
+        .card.type-여성미래 { 
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            border-left-color: #e91e63;
+        }
+        .card.type-양천구사업 { 
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+            border-left-color: #9c27b0;
+        }
+        .card.type-생활문화 { 
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-left-color: #4caf50;
+        }
+        .card.type-생활체육 { 
+            background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%);
+            border-left-color: #009688;
+        }
+        .card.type-내일배움카드 { 
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-left-color: #ff9800;
+        }
+        .card.type-직훈 { 
+            background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+            border-left-color: #fbc02d;
+        }
+        .card.type-고부가 { 
+            background: linear-gradient(135deg, #e8eaf6 0%, #c5cae9 100%);
+            border-left-color: #5c6bc0;
+        }
+        .card.type-취업팀 { 
+            background: linear-gradient(135deg, #e1f5fe 0%, #b3e5fc 100%);
+            border-left-color: #03a9f4;
+        }
+        .card.type-관리팀 { 
+            background: linear-gradient(135deg, #f1f8e9 0%, #dcedc8 100%);
+            border-left-color: #8bc34a;
+        }
+        .card.type-대관 { 
+            background: linear-gradient(135deg, #efebe9 0%, #d7ccc8 100%);
+            border-left-color: #795548;
+        }
+        
+        .legend { 
+            display: flex; 
+            gap: 15px; 
+            flex-wrap: wrap; 
+            padding: 15px; 
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 12px; 
+            margin-bottom: 20px; 
+            font-size: 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .legend-item { 
+            display: flex; 
+            align-items: center; 
+            gap: 6px;
+            padding: 5px 10px;
+            background: white;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        
+        .legend-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+        }
+        
+        .legend-color { 
+            width: 20px; 
+            height: 20px; 
+            border-radius: 50%; 
+            border: 3px solid;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .del-btn { 
+            position: absolute; 
+            top: 5px; 
+            right: 5px; 
+            background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
+            color: white; 
+            width: 24px; 
+            height: 24px; 
+            font-size: 14px; 
+            border-radius: 50%; 
+            border: none; 
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .del-btn:hover {
+            transform: scale(1.2) rotate(90deg);
+            box-shadow: 0 4px 10px rgba(238, 9, 121, 0.4);
+        }
+        
+        .request-item { 
+            background: linear-gradient(135deg, #ffffff 0%, #f5f7fa 100%);
+            border: 2px solid #e0e0e0; 
+            padding: 20px; 
+            margin-bottom: 15px; 
+            border-radius: 15px;
+            transition: all 0.3s;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .request-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+        
+        .request-status { 
+            padding: 6px 15px; 
+            border-radius: 20px; 
+            font-size: 13px; 
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .status-pending { 
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            color: #2d3436;
+        }
+        .status-approved { 
+            background: linear-gradient(135deg, #55efc4 0%, #00b894 100%);
+            color: white;
+        }
+        .status-rejected { 
+            background: linear-gradient(135deg, #ff7675 0%, #d63031 100%);
+            color: white;
+        }
+        
+        .modal { 
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+        }
+        
+        .modal.active { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        .modal-content { 
+            background: white; 
+            padding: 35px; 
+            border-radius: 20px; 
+            max-width: 600px; 
+            width: 90%; 
+            max-height: 80vh; 
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .modal-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .modal-close { 
+            background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
+            border: none; 
+            font-size: 24px; 
+            cursor: pointer; 
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        
+        .modal-close:hover {
+            transform: rotate(90deg) scale(1.1);
+        }
+        
+        .form-group { margin-bottom: 20px; }
+        .form-group label { 
+            display: block; 
+            margin-bottom: 8px; 
+            font-weight: 600;
+            color: #555;
+        }
+        .form-group input, .form-group select, .form-group textarea { 
+            width: 100%; 
+            padding: 12px 15px; 
+            border: 2px solid #e0e0e0; 
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .badge { 
+            background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
+            color: white; 
+            padding: 3px 10px; 
+            border-radius: 12px; 
+            font-size: 12px; 
+            margin-left: 8px;
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(238, 9, 121, 0.3);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .checkbox-group { 
+            display: flex; 
+            gap: 15px; 
+            flex-wrap: wrap; 
+            padding: 15px; 
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 12px;
+        }
+        
+        .checkbox-group label {
+            background: white;
+            padding: 8px 15px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .checkbox-group label:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+        }
+        
+        .sync-status { 
+            display: inline-block; 
+            padding: 6px 15px; 
+            border-radius: 20px; 
+            font-size: 13px; 
+            margin-left: 10px;
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .sync-status.synced { 
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            color: #155724;
+        }
+        .sync-status.syncing { 
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            color: #856404;
+            animation: pulse 1s infinite;
+        }
+        .sync-status.error { 
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            color: #721c24;
+        }
+        
+        /* 빈 강의실 카드 */
+        .room-card { 
+            background: linear-gradient(135deg, #ffffff 0%, #f5f7fa 100%);
+            border: 2px solid #e0e0e0; 
+            border-radius: 15px; 
+            padding: 20px; 
+            margin-bottom: 20px;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .room-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .room-card-header { 
+            font-size: 20px; 
+            font-weight: 700; 
+            margin-bottom: 15px; 
+            color: #333;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .time-slots { 
+            display: flex; 
+            gap: 15px; 
+            flex-wrap: wrap; 
+        }
+        
+        .time-slot { 
+            flex: 1; 
+            min-width: 150px; 
+            padding: 15px; 
+            border-radius: 12px; 
+            text-align: center; 
+            font-size: 14px;
+            transition: all 0.3s;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .time-slot.available { 
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border: 3px solid #28a745;
+            cursor: pointer;
+        }
+        
+        .time-slot.available:hover { 
+            transform: scale(1.05) translateY(-5px);
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+        }
+        
+        .time-slot.occupied { 
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            border: 3px solid #dc3545;
+        }
+        
+        .time-slot-title { 
+            font-weight: 700; 
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        
+        .time-slot-time { 
+            font-size: 12px; 
+            color: #666; 
+            margin-bottom: 8px; 
+        }
+        
+        .time-slot-status { 
+            font-size: 13px; 
+            font-weight: 600;
+        }
+        
+        .occupied-course { 
+            font-size: 11px; 
+            color: #dc3545; 
+            margin-top: 5px;
+            font-weight: 500;
+        }
+        
+        .time-preset { 
+            display: flex; 
+            gap: 10px; 
+            margin-bottom: 20px; 
+            flex-wrap: wrap; 
+        }
+        
+        .time-preset button { 
+            flex: 1; 
+            min-width: 150px;
+        }
+        
+        /* 월별 달력 */
+        .month-calendar { 
+            display: grid; 
+            grid-template-columns: repeat(7, 1fr); 
+            gap: 8px; 
+            margin-top: 20px; 
+        }
+        
+        .calendar-header { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; 
+            padding: 12px; 
+            text-align: center; 
+            font-weight: 700; 
+            font-size: 14px;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+        }
+        
+        .calendar-day { 
+            background: white; 
+            border: 2px solid #e0e0e0; 
+            padding: 12px; 
+            min-height: 90px; 
+            position: relative; 
+            font-size: 12px;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+        
+        .calendar-day:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+            z-index: 10;
+        }
+        
+        .calendar-day.other-month { 
+            background: #f8f9fa; 
+            color: #ccc; 
+        }
+        
+        .calendar-day.today { 
+            border: 3px solid #667eea; 
+            background: linear-gradient(135deg, #e7f3ff 0%, #d4e9ff 100%);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .day-number { 
+            font-weight: 700; 
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        
+        .day-usage { 
+            font-size: 11px; 
+            color: #666; 
+            margin-top: 8px;
+            padding: 5px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 5px;
+        }
+        
+        .usage-high { 
+            color: #dc3545; 
+            font-weight: 700;
+        }
+        .usage-medium { 
+            color: #ff9800;
+            font-weight: 600;
+        }
+        .usage-low { 
+            color: #28a745;
+            font-weight: 600;
+        }
+        
+        /* 헤더 타이틀 */
+        h2 {
+            color: white;
+            text-shadow: 0 3px 10px rgba(0,0,0,0.3);
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+        
+        h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+        
+        /* 프로그레스 바 추가 */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            transition: width 0.5s ease;
+            background: linear-gradient(90deg, #11998e 0%, #38ef7d 100%);
+        }
+        
+        .progress-fill.high {
+            background: linear-gradient(90deg, #ee0979 0%, #ff6a00 100%);
+        }
+        
+        .progress-fill.medium {
+            background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        /* 스크롤바 스타일 */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+    </style>
+</head>
+<body>
+    <h2>📅 강의실 배정 시스템 <span id="syncStatus" class="sync-status synced">✓ 저장됨</span></h2>
+    
+    <div class="box" id="roleSelector">
+        <h3>🔐 사용자 역할 선택</h3>
+        <div class="input-row">
+            <button class="btn-primary" onclick="window.setRole('admin')">👨‍💼 관리자 모드</button>
+            <button class="btn-success" onclick="window.setRole('user')">👤 일반 사용자 모드</button>
+        </div>
+        <div style="margin-top: 20px; padding: 15px; background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); border-radius: 12px; font-size: 14px; border-left: 4px solid #ffc107;">
+            🔐 <strong>관리자 비밀번호:</strong> <code style="background: rgba(255,255,255,0.7); padding: 4px 10px; border-radius: 6px; font-weight: 600;">admin1234</code>
+        </div>
+    </div>
+    
+    <div id="mainScreen" style="display: none;">
+        <div class="box">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                <div>
+                    <strong style="color: #666;">현재 모드:</strong> 
+                    <span id="currentRole" style="padding: 8px 20px; border-radius: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-weight: 600; box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);"></span>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn-warning" onclick="window.changeRole()">🔄 역할 변경</button>
+                    <button class="btn-info" onclick="window.refreshData()">♻️ 새로고침</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="window.showTab('schedule')">📋 배정표</button>
+            <button class="tab" id="requestTabBtn" onclick="window.showTab('request')">📝 사용요청 <span id="requestBadge" class="badge" style="display: none;">0</span></button>
+            <button class="tab" onclick="window.showTab('availability')">🔍 빈 강의실</button>
+        </div>
+        
+        <div id="scheduleTab" class="tab-content active">
+            <div id="adminPanel" class="box" style="display: none;">
+                <h3>✏️ 일정 직접 등록</h3>
+                <div class="input-row">
+                    <label>📅 기간:</label>
+                    <input type="date" id="startDate" value="2026-04-13">
+                    <span style="font-weight: bold; color: #667eea;">~</span>
+                    <input type="date" id="endDate" value="2026-06-18">
+                </div>
+                <div class="input-row checkbox-group">
+                    <label style="width: 100%; margin-bottom: 10px;">📆 요일 선택:</label>
+                    <label><input type="checkbox" name="chkDay" value="1" checked> 월</label>
+                    <label><input type="checkbox" name="chkDay" value="2" checked> 화</label>
+                    <label><input type="checkbox" name="chkDay" value="3" checked> 수</label>
+                    <label><input type="checkbox" name="chkDay" value="4" checked> 목</label>
+                    <label><input type="checkbox" name="chkDay" value="5" checked> 금</label>
+                    <label><input type="checkbox" name="chkDay" value="6"> 토</label>
+                </div>
+                <div class="input-row">
+                    <select id="roomSelect" style="min-width: 120px;"></select>
+                    <input type="time" id="startTime" value="13:30">
+                    <span style="font-weight: bold; color: #667eea;">~</span>
+                    <input type="time" id="endTime" value="17:30">
+                    <input type="text" id="courseName" placeholder="📚 과정명" style="min-width: 150px;">
+                    <input type="text" id="instructorName" placeholder="👨‍🏫 강사명">
+                    <select id="businessType" style="min-width: 130px;">
+                        <option value="직업교육">직업교육</option>
+                        <option value="여성미래">여성미래</option>
+                        <option value="양천구사업">양천구사업</option>
+                        <option value="생활문화">생활문화</option>
+                        <option value="생활체육">생활체육</option>
+                        <option value="내일배움카드">내일배움카드</option>
+                        <option value="직훈">직훈</option>
+                        <option value="고부가">고부가</option>
+                        <option value="취업팀">취업팀</option>
+                        <option value="관리팀">관리팀</option>
+                        <option value="대관">대관</option>
+                    </select>
+                    <button class="btn-primary" onclick="window.addSchedule()">➕ 등록</button>
+                </div>
+                
+                <hr style="margin: 25px 0; border: none; border-top: 2px dashed #e0e0e0;">
+                
+                <h4 style="margin-bottom: 15px; color: #667eea;">📤 CSV 파일 일괄 업로드</h4>
+                <div class="input-row">
+                    <input type="file" id="csvFile" accept=".csv" style="flex: 1; min-width: 200px;">
+                    <button class="btn-success" onclick="window.uploadCSV()">📁 CSV 업로드</button>
+                    <button class="btn-info" onclick="window.downloadSampleCSV()">📥 샘플 다운로드</button>
+                    <button class="btn-danger" onclick="window.clearAllSchedules()">🗑️ 전체 초기화</button>
+                </div>
+                <div style="margin-top: 15px; padding: 15px; background: linear-gradient(135deg, #e7f3ff 0%, #d4e9ff 100%); border-radius: 12px; font-size: 13px; border-left: 4px solid #4facfe;">
+                    <strong>📋 CSV 파일 형식:</strong><br>
+                    <code style="background: rgba(255,255,255,0.7); padding: 2px 6px; border-radius: 4px;">강좌명,강의실,시작일,종료일,요일,시작시간,종료시간,강사명,사업구분</code><br>
+                    <span style="color: #666;">📅 날짜: 2026-04-20, 2026/04/20, 04-20-2026 등 다양한 형식</span><br>
+                    <span style="color: #666;">🕐 시간: 13:00, 1300, 13:00:00 모두 가능</span><br>
+                    <span style="color: #666;">📆 요일: 월화수목금, 월,화,수, 12345 모두 가능</span>
+                </div>
+                
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-color: #2196f3;"></div>
+                        <span>직업교육</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%); border-color: #e91e63;"></div>
+                        <span>여성미래</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%); border-color: #9c27b0;"></div>
+                        <span>양천구사업</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border-color: #4caf50;"></div>
+                        <span>생활문화</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%); border-color: #009688;"></div>
+                        <span>생활체육</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); border-color: #ff9800;"></div>
+                        <span>내일배움카드</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%); border-color: #fbc02d;"></div>
+                        <span>직훈</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(135deg, #e8eaf6 0%, #c5cae9 100%); border-color: #5c6bc0;"></div>
+                        <span>고부가</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(135deg, #e1f5fe 0%, #b3e5fc 100%); border-color: #03a9f4;"></div>
+                        <span>취업팀</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(135deg, #f1f8e9 0%, #dcedc8 100%); border-color: #8bc34a;"></div>
+                        <span>관리팀</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(135deg, #efebe9 0%, #d7ccc8 100%); border-color: #795548;"></div>
+                        <span>대관</span>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 15px; padding: 15px; background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); border-radius: 12px; font-size: 13px; border-left: 4px solid #ffc107;">
+                    💡 <strong>일정 삭제:</strong> <br>
+                    • ❌ 버튼 클릭 - 개별 삭제<br>
+                    • 카드 더블클릭 - 같은 과정 일괄 삭제<br>
+                    • 🗑️ 전체 초기화 - 모든 일정 삭제
+                </div>
+            </div>
+            
+            <div id="userPanel" class="box" style="display: none;">
+                <button class="btn-success" onclick="window.openRequestModal()" style="font-size: 18px; padding: 15px 30px;">📝 강의실 사용 요청하기</button>
+            </div>
+            
+            <div class="box">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <label>📅 조회:</label>
+                        <input type="number" id="viewYear" value="2026" style="width: 80px;" onchange="window.renderSchedule()">
+                        <select id="viewMonth" onchange="window.renderSchedule()" style="min-width: 80px;">
+                            <option value="1">1월</option><option value="2">2월</option><option value="3">3월</option>
+                            <option value="4" selected>4월</option><option value="5">5월</option><option value="6">6월</option>
+                            <option value="7">7월</option><option value="8">8월</option><option value="9">9월</option>
+                            <option value="10">10월</option><option value="11">11월</option><option value="12">12월</option>
+                        </select>
+                    </div>
+                    <div style="font-size: 16px; font-weight: 600; color: #667eea;">
+                        총 <strong id="totalCount" style="font-size: 20px;">0</strong>개
+                    </div>
+                </div>
+            </div>
+            
+            <div class="table-wrap">
+                <table>
+                    <thead id="scheduleHead"></thead>
+                    <tbody id="scheduleBody"></tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div id="requestTab" class="tab-content">
+            <div class="box">
+                <h3 id="requestTabTitle">📝 강의실 사용 요청 관리</h3>
+                <div id="requestList"></div>
+            </div>
+        </div>
+        
+        <div id="availabilityTab" class="tab-content">
+            <div class="box">
+                <h3>🔍 빈 강의실 확인</h3>
+                
+                <div class="tabs" style="border-bottom: 2px solid #e0e0e0; margin-bottom: 20px;">
+                    <button class="tab active" onclick="window.showAvailabilityView('daily')" id="dailyViewTab">📅 일별 보기</button>
+                    <button class="tab" onclick="window.showAvailabilityView('monthly')" id="monthlyViewTab">📆 월별 보기</button>
+                </div>
+                
+                <div id="dailyAvailability" style="display: block;">
+                    <p style="color: #666; font-size: 15px; line-height: 1.6;">날짜와 시간대를 선택하여 사용 가능한 강의실을 확인하세요. 💫</p>
+                    
+                    <div class="input-row">
+                        <label>📅 날짜:</label>
+                        <input type="date" id="checkDate" style="min-width: 150px;">
+                    </div>
+                    
+                    <div class="time-preset">
+                        <button class="btn-info" onclick="window.setTimePreset('morning')">🌅 오전 (09:00~13:00)</button>
+                        <button class="btn-info" onclick="window.setTimePreset('afternoon')">☀️ 오후 (13:00~18:00)</button>
+                        <button class="btn-info" onclick="window.setTimePreset('evening')">🌙 저녁 (18:00~21:00)</button>
+                        <button class="btn-warning" onclick="window.setTimePreset('allday')">🕐 종일 (09:00~21:00)</button>
+                    </div>
+                    
+                    <div class="input-row">
+                        <label>⏰ 시간:</label>
+                        <input type="time" id="checkStartTime" value="09:00">
+                        <span style="font-weight: bold; color: #667eea;">~</span>
+                        <input type="time" id="checkEndTime" value="13:00">
+                        <button class="btn-primary" onclick="window.checkDailyAvailability()">🔍 확인하기</button>
+                    </div>
+                    
+                    <div id="dailyResult"></div>
+                </div>
+                
+                <div id="monthlyAvailability" style="display: none;">
+                    <p style="color: #666; font-size: 15px; line-height: 1.6;">한 달 전체의 강의실 사용 현황을 한눈에 확인하세요. 📊</p>
+                    
+                    <div class="input-row">
+                        <label>📅 조회:</label>
+                        <input type="number" id="monthViewYear" value="2026" style="width: 80px;" onchange="window.checkMonthlyAvailability()">
+                        <select id="monthViewMonth" onchange="window.checkMonthlyAvailability()" style="min-width: 80px;">
+                            <option value="1">1월</option><option value="2">2월</option><option value="3">3월</option>
+                            <option value="4" selected>4월</option><option value="5">5월</option><option value="6">6월</option>
+                            <option value="7">7월</option><option value="8">8월</option><option value="9">9월</option>
+                            <option value="10">10월</option><option value="11">11월</option><option value="12">12월</option>
+                        </select>
+                        <label>⏰ 시간대:</label>
+                        <input type="time" id="monthCheckStartTime" value="09:00">
+                        <span style="font-weight: bold; color: #667eea;">~</span>
+                        <input type="time" id="monthCheckEndTime" value="18:00">
+                        <button class="btn-primary" onclick="window.checkMonthlyAvailability()">🔍 확인하기</button>
+                    </div>
+                    
+                    <div id="monthlyResult"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="requestModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📝 강의실 사용 요청</h3>
+                <div class="modal-close" onclick="window.closeRequestModal()">×</div>
+            </div>
+            <div class="form-group">
+                <label>👤 요청자 이름 *</label>
+                <input type="text" id="reqRequesterName" placeholder="홍길동">
+            </div>
+            <div class="form-group">
+                <label>🏢 강의실 *</label>
+                <select id="reqRoom"></select>
+            </div>
+            <div class="form-group">
+                <label>📅 날짜 *</label>
+                <input type="date" id="reqDate">
+            </div>
+            <div class="form-group">
+                <label>⏰ 시작~종료 시간 *</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="time" id="reqStartTime" value="09:00">
+                    <input type="time" id="reqEndTime" value="18:00">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>📚 과정명 *</label>
+                <input type="text" id="reqCourseName" placeholder="Python 기초 과정">
+            </div>
+            <div class="form-group">
+                <label>👨‍🏫 강사명</label>
+                <input type="text" id="reqInstructorName" placeholder="선택사항">
+            </div>
+            <div class="form-group">
+                <label>📝 사용 목적</label>
+                <textarea id="reqPurpose" rows="3" placeholder="선택사항"></textarea>
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
+                <button class="btn-danger" onclick="window.closeRequestModal()">취소</button>
+                <button class="btn-success" onclick="window.submitRequest()">✅ 제출</button>
+            </div>
+        </div>
+    </div>
+
 <script type="module">
 // Firebase 모듈 임포트
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
 // ==========================================
-// 1. Firebase 설정 (Firebase 콘솔에서 복사한 본인의 값으로 교체하세요!)
+// 1. Firebase 설정
 // ==========================================
 const firebaseConfig = {
   apiKey: "AIzaSyCIgp5NuALmvUPDN5f7Oz31So-elqGDuZk",
@@ -681,3 +1724,5 @@ document.addEventListener("DOMContentLoaded", function() {
     window.init();
 });
 </script>
+</body>
+</html>
