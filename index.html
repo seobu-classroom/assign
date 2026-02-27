@@ -236,47 +236,68 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
         
+        /* 확장된 사업 구분 색상 */
         .card.type-직업교육 { 
             background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
             border-left-color: #2196f3;
+        }
+        .card.type-여성미래 { 
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            border-left-color: #e91e63;
+        }
+        .card.type-양천구사업 { 
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+            border-left-color: #9c27b0;
         }
         .card.type-생활문화 { 
             background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
             border-left-color: #4caf50;
         }
-        .card.type-직훈 { 
+        .card.type-생활체육 { 
+            background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%);
+            border-left-color: #009688;
+        }
+        .card.type-내일배움카드 { 
             background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
             border-left-color: #ff9800;
         }
-        .card.type-내일배움카드 { 
-            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
-            border-left-color: #9c27b0;
+        .card.type-직훈 { 
+            background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+            border-left-color: #fbc02d;
         }
-        .card.type-관리팀 { 
-            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
-            border-left-color: #e91e63;
+        .card.type-고부가 { 
+            background: linear-gradient(135deg, #e8eaf6 0%, #c5cae9 100%);
+            border-left-color: #5c6bc0;
         }
         .card.type-취업팀 { 
-            background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%);
-            border-left-color: #009688;
+            background: linear-gradient(135deg, #e1f5fe 0%, #b3e5fc 100%);
+            border-left-color: #03a9f4;
+        }
+        .card.type-관리팀 { 
+            background: linear-gradient(135deg, #f1f8e9 0%, #dcedc8 100%);
+            border-left-color: #8bc34a;
+        }
+        .card.type-대관 { 
+            background: linear-gradient(135deg, #efebe9 0%, #d7ccc8 100%);
+            border-left-color: #795548;
         }
         
         .legend { 
             display: flex; 
-            gap: 20px; 
+            gap: 15px; 
             flex-wrap: wrap; 
             padding: 15px; 
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             border-radius: 12px; 
             margin-bottom: 20px; 
-            font-size: 13px;
+            font-size: 12px;
             box-shadow: 0 3px 10px rgba(0,0,0,0.1);
         }
         
         .legend-item { 
             display: flex; 
             align-items: center; 
-            gap: 8px;
+            gap: 6px;
             padding: 5px 10px;
             background: white;
             border-radius: 8px;
@@ -289,8 +310,8 @@
         }
         
         .legend-color { 
-            width: 24px; 
-            height: 24px; 
+            width: 20px; 
+            height: 20px; 
             border-radius: 50%; 
             border: 3px solid;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
@@ -793,13 +814,35 @@
                     <input type="text" id="instructorName" placeholder="👨‍🏫 강사명">
                     <select id="businessType" style="min-width: 130px;">
                         <option value="직업교육">직업교육</option>
+                        <option value="여성미래">여성미래</option>
+                        <option value="양천구사업">양천구사업</option>
                         <option value="생활문화">생활문화</option>
-                        <option value="직훈">직훈</option>
+                        <option value="생활체육">생활체육</option>
                         <option value="내일배움카드">내일배움카드</option>
-                        <option value="관리팀">관리팀</option>
+                        <option value="직훈">직훈</option>
+                        <option value="고부가">고부가</option>
                         <option value="취업팀">취업팀</option>
+                        <option value="관리팀">관리팀</option>
+                        <option value="대관">대관</option>
                     </select>
                     <button class="btn-primary" onclick="addSchedule()">➕ 등록</button>
+                </div>
+                
+                <hr style="margin: 25px 0; border: none; border-top: 2px dashed #e0e0e0;">
+                
+                <h4 style="margin-bottom: 15px; color: #667eea;">📤 CSV 파일 일괄 업로드</h4>
+                <div class="input-row">
+                    <input type="file" id="csvFile" accept=".csv" style="flex: 1; min-width: 200px;">
+                    <button class="btn-success" onclick="uploadCSV()">📁 CSV 업로드</button>
+                    <button class="btn-info" onclick="downloadSampleCSV()">📥 샘플 다운로드</button>
+                    <button class="btn-danger" onclick="clearAllSchedules()">🗑️ 전체 초기화</button>
+                </div>
+                <div style="margin-top: 15px; padding: 15px; background: linear-gradient(135deg, #e7f3ff 0%, #d4e9ff 100%); border-radius: 12px; font-size: 13px; border-left: 4px solid #4facfe;">
+                    <strong>📋 CSV 파일 형식:</strong><br>
+                    <code style="background: rgba(255,255,255,0.7); padding: 2px 6px; border-radius: 4px;">강좌명,강의실,시작일,종료일,요일,시작시간,종료시간,강사명,사업구분</code><br>
+                    <span style="color: #666;">📅 날짜: 2026-04-20, 2026/04/20, 04-20-2026 등 다양한 형식</span><br>
+                    <span style="color: #666;">🕐 시간: 13:00, 1300, 13:00:00 모두 가능</span><br>
+                    <span style="color: #666;">📆 요일: 월화수목금, 월,화,수, 12345 모두 가능</span>
                 </div>
                 
                 <div class="legend">
@@ -808,31 +851,52 @@
                         <span>직업교육</span>
                     </div>
                     <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%); border-color: #e91e63;"></div>
+                        <span>여성미래</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%); border-color: #9c27b0;"></div>
+                        <span>양천구사업</span>
+                    </div>
+                    <div class="legend-item">
                         <div class="legend-color" style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border-color: #4caf50;"></div>
                         <span>생활문화</span>
                     </div>
                     <div class="legend-item">
-                        <div class="legend-color" style="background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); border-color: #ff9800;"></div>
-                        <span>직훈</span>
+                        <div class="legend-color" style="background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%); border-color: #009688;"></div>
+                        <span>생활체육</span>
                     </div>
                     <div class="legend-item">
-                        <div class="legend-color" style="background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%); border-color: #9c27b0;"></div>
+                        <div class="legend-color" style="background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); border-color: #ff9800;"></div>
                         <span>내일배움카드</span>
                     </div>
                     <div class="legend-item">
-                        <div class="legend-color" style="background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%); border-color: #e91e63;"></div>
+                        <div class="legend-color" style="background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%); border-color: #fbc02d;"></div>
+                        <span>직훈</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(135deg, #e8eaf6 0%, #c5cae9 100%); border-color: #5c6bc0;"></div>
+                        <span>고부가</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(135deg, #e1f5fe 0%, #b3e5fc 100%); border-color: #03a9f4;"></div>
+                        <span>취업팀</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(135deg, #f1f8e9 0%, #dcedc8 100%); border-color: #8bc34a;"></div>
                         <span>관리팀</span>
                     </div>
                     <div class="legend-item">
-                        <div class="legend-color" style="background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%); border-color: #009688;"></div>
-                        <span>취업팀</span>
+                        <div class="legend-color" style="background: linear-gradient(135deg, #efebe9 0%, #d7ccc8 100%); border-color: #795548;"></div>
+                        <span>대관</span>
                     </div>
                 </div>
                 
                 <div style="margin-top: 15px; padding: 15px; background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); border-radius: 12px; font-size: 13px; border-left: 4px solid #ffc107;">
                     💡 <strong>일정 삭제:</strong> <br>
                     • ❌ 버튼 클릭 - 개별 삭제<br>
-                    • 카드 더블클릭 - 같은 과정 일괄 삭제
+                    • 카드 더블클릭 - 같은 과정 일괄 삭제<br>
+                    • 🗑️ 전체 초기화 - 모든 일정 삭제
                 </div>
             </div>
             
@@ -1269,6 +1333,243 @@ async function deleteAllByCourse(courseName) {
     await saveToCloud();
     alert(`✅ ${same.length}개 일정이 삭제되었습니다!`);
     renderSchedule();
+}
+
+// CSV 관련 함수들
+function parseDays(dayString) {
+    if(!dayString) return [];
+    
+    const dayMap = {
+        '월': 1, '화': 2, '수': 3, '목': 4, '금': 5, '토': 6,
+        '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6
+    };
+    
+    dayString = dayString.trim();
+    
+    if(dayString.includes(',')) {
+        const parts = dayString.split(',');
+        const days = [];
+        for(let part of parts) {
+            part = part.trim();
+            if(dayMap[part]) days.push(dayMap[part]);
+        }
+        return [...new Set(days)];
+    }
+    
+    const days = [];
+    for(let char of dayString) {
+        if(dayMap[char]) days.push(dayMap[char]);
+    }
+    
+    return [...new Set(days)];
+}
+
+function parseTime(timeStr) {
+    if(!timeStr) return '';
+    timeStr = timeStr.trim();
+    
+    if(/^\d{1,2}:\d{2}$/.test(timeStr)) return timeStr;
+    if(/^\d{1,2}:\d{2}:\d{2}$/.test(timeStr)) return timeStr.substring(0, 5);
+    
+    if(/^\d{3,4}$/.test(timeStr)) {
+        if(timeStr.length === 3) {
+            return '0' + timeStr[0] + ':' + timeStr.substring(1);
+        } else {
+            return timeStr.substring(0, 2) + ':' + timeStr.substring(2);
+        }
+    }
+    
+    return timeStr;
+}
+
+function downloadSampleCSV() {
+    const sampleData = `강좌명,강의실,시작일,종료일,요일,시작시간,종료시간,강사명,사업구분
+엑셀기초,207호,2026-04-20,2026-05-18,월화수목금,13:00,17:00,김철수,직업교육
+파워포인트기초,207호,2026-06-01,2026-06-29,월수금,13:00,17:00,이영희,생활문화
+Python입문,301호,2026-04-15,2026-06-10,화목,09:00,12:00,박민수,직훈
+데이터분석,B101,2026-05-01,2026-06-30,월화수목금,14:00,18:00,최강사,내일배움카드`;
+    
+    const blob = new Blob(['\uFEFF' + sampleData], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = '강의실배정_샘플.csv';
+    link.click();
+}
+
+async function clearAllSchedules() {
+    if(!confirm('⚠️ 경고: 모든 일정을 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다!')) return;
+    if(!confirm('정말로 삭제하시겠습니까?\n\n현재 ' + schedules.length + '개의 일정이 모두 삭제됩니다.')) return;
+    
+    schedules = [];
+    await saveToCloud();
+    renderSchedule();
+    alert('✅ 모든 일정이 삭제되었습니다.');
+}
+
+async function uploadCSV() {
+    const fileInput = document.getElementById('csvFile');
+    const file = fileInput.files[0];
+    
+    if(!file) { alert('⚠️ CSV 파일을 선택하세요!'); return; }
+    
+    if(schedules.length > 0) {
+        const confirmMsg = `⚠️ 현재 ${schedules.length}개의 일정이 있습니다.\n\n"확인" → 기존 데이터에 추가\n"취소" → 업로드 중단`;
+        if(!confirm(confirmMsg)) {
+            fileInput.value = '';
+            return;
+        }
+    }
+    
+    const reader = new FileReader();
+    
+    reader.onload = async function(e) {
+        try {
+            const text = e.target.result;
+            const lines = text.split('\n').filter(line => line.trim());
+            
+            if(lines.length < 2) {
+                alert('⚠️ CSV 파일에 데이터가 없습니다!');
+                return;
+            }
+            
+            let successCount = 0;
+            let errorCount = 0;
+            const errors = [];
+            const duplicates = [];
+            
+            for(let i = 1; i < lines.length; i++) {
+                try {
+                    const line = lines[i].trim();
+                    if(!line) continue;
+                    
+                    const values = line.split(',').map(v => v.trim().replace(/^["']|["']$/g, ''));
+                    
+                    if(values.length < 8) {
+                        errors.push(`${i}행: 필드 부족 (${values.length}/8 이상 필요)`);
+                        errorCount++;
+                        continue;
+                    }
+                    
+                    let [courseName, room, startDateStr, endDateStr, dayStr, startTime, endTime, instructorName, businessType = '직업교육'] = values;
+                    
+                    startTime = parseTime(startTime);
+                    endTime = parseTime(endTime);
+                    
+                    function parseFlexibleDate(dateStr) {
+                        if(!dateStr) return null;
+                        dateStr = dateStr.trim();
+                        
+                        let match = dateStr.match(/^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})$/);
+                        if(match) {
+                            const [, year, month, day] = match;
+                            return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+                        }
+                        
+                        match = dateStr.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{4})$/);
+                        if(match) {
+                            const [, month, day, year] = match;
+                            return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+                        }
+                        
+                        const date = new Date(dateStr);
+                        if(!isNaN(date.getTime())) return date;
+                        
+                        return null;
+                    }
+                    
+                    const startDate = parseFlexibleDate(startDateStr);
+                    const endDate = parseFlexibleDate(endDateStr);
+                    
+                    if(!startDate || !endDate || isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+                        errors.push(`${i}행: 날짜 형식 오류 - "${startDateStr}", "${endDateStr}"`);
+                        errorCount++;
+                        continue;
+                    }
+                    
+                    const days = parseDays(dayStr);
+                    
+                    if(days.length === 0) {
+                        errors.push(`${i}행: 요일 오류 - "${dayStr}"`);
+                        errorCount++;
+                        continue;
+                    }
+                    
+                    const existingSameCourse = schedules.find(s => s.cn === courseName && s.r === room);
+                    if(existingSameCourse) {
+                        duplicates.push(`${i}행: "${courseName}" (${room}) - 이미 등록됨`);
+                    }
+                    
+                    const datesByYearMonthDay = {};
+                    
+                    for(let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+                        const dayOfWeek = d.getDay();
+                        if(days.includes(dayOfWeek)) {
+                            const year = d.getFullYear();
+                            const month = d.getMonth() + 1;
+                            const date = d.getDate();
+                            
+                            if(!datesByYearMonthDay[year]) datesByYearMonthDay[year] = {};
+                            if(!datesByYearMonthDay[year][month]) datesByYearMonthDay[year][month] = {};
+                            if(!datesByYearMonthDay[year][month][dayOfWeek]) datesByYearMonthDay[year][month][dayOfWeek] = [];
+                            datesByYearMonthDay[year][month][dayOfWeek].push(date);
+                        }
+                    }
+                    
+                    for(const [year, monthData] of Object.entries(datesByYearMonthDay)) {
+                        for(const [month, dayData] of Object.entries(monthData)) {
+                            for(const [day, dates] of Object.entries(dayData)) {
+                                schedules.push({
+                                    id: idCounter++,
+                                    y: parseInt(year),
+                                    m: parseInt(month),
+                                    d: parseInt(day),
+                                    r: room,
+                                    st: startTime,
+                                    et: endTime,
+                                    cn: courseName,
+                                    tn: instructorName,
+                                    bt: businessType,
+                                    dates: dates
+                                });
+                            }
+                        }
+                    }
+                    
+                    successCount++;
+                    
+                } catch(err) {
+                    errors.push(`${i}행: ${err.message}`);
+                    errorCount++;
+                }
+            }
+            
+            await saveToCloud();
+            renderSchedule();
+            
+            let message = `✅ 업로드 완료!\n\n성공: ${successCount}개\n실패: ${errorCount}개`;
+            
+            if(duplicates.length > 0) {
+                message += `\n⚠️ 중복: ${duplicates.length}개`;
+                if(duplicates.length <= 3) {
+                    message += '\n\n' + duplicates.join('\n');
+                }
+            }
+            
+            if(errors.length > 0 && errors.length <= 5) {
+                message += '\n\n오류:\n' + errors.join('\n');
+            } else if(errors.length > 5) {
+                message += '\n\n오류 (처음 5개):\n' + errors.slice(0, 5).join('\n');
+            }
+            
+            alert(message);
+            fileInput.value = '';
+            
+        } catch(err) {
+            alert('⚠️ CSV 파일 처리 중 오류: ' + err.message);
+        }
+    };
+    
+    reader.readAsText(file, 'UTF-8');
 }
 
 function openRequestModal(room = null, date = null, startTime = null, endTime = null) {
