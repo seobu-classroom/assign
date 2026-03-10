@@ -1457,7 +1457,7 @@ window.handleFileSelect = function(input) {
 window.setRole = function(role) {
     if(role === 'admin') {
         const pw = prompt('🔐 관리자 비밀번호:');
-        if(pw !== 'admin1234') { if(pw !== null) showToast('비밀번호가 올바르지 않습니다.','error'); return; }
+        if(pw !== 'seobu1234') { if(pw !== null) showToast('비밀번호가 올바르지 않습니다.','error'); return; }
         showToast('관리자 인증 성공!','success');
     }
     window.currentRole = role;
