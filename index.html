@@ -1170,7 +1170,7 @@
                 <span class="nav-icon">📋</span> 배정표
             </button>
             <button class="nav-item" id="nav-request" onclick="window.showTab('request')">
-                <span class="nav-icon">📝</span> 사용 요청
+                <span class="nav-icon">📝</span> 사용 요청 내역
                 <span id="navBadge" class="nav-badge" style="display:none;">0</span>
             </button>
             <button class="nav-item" id="nav-availability" onclick="window.showTab('availability')">
@@ -1549,13 +1549,17 @@
 const firebaseConfig = {
     apiKey: "AIzaSyCIgp5NuALmvUPDN5f7Oz31So-elqGDuZk",
     authDomain: "seobu-classroom.firebaseapp.com",
+    databaseURL: "https://seobu-classroom-default-rtdb.firebaseio.com",
     projectId: "seobu-classroom",
     storageBucket: "seobu-classroom.firebasestorage.app",
     messagingSenderId: "336179508315",
     appId: "1:336179508315:web:02eb5553d16b7342383b7e"
 };
 
-firebase.initializeApp(firebaseConfig);
+// Firebase 초기화 (중복 방지)
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
 const database = firebase.database();
 const dbRef = database.ref('classroom_data');
 
@@ -1640,49 +1644,82 @@ window.updateUndoRedo = function() {
     if(r) r.disabled = window.redoStack.length === 0;
 };
 
-// ── FIREBASE ──
-async function loadFromCloud() {
-    window.setSyncStatus('syncing');
-    try {
-        const snap = await dbRef.get();
+// ── Firebase 저장/실시간 동기화 (오프라인 캐시 겸용) ──
+var _realtimeListenerAttached = false;
+
+function attachRealtimeListener() {
+    if (_realtimeListenerAttached) return;
+    _realtimeListenerAttached = true;
+    dbRef.on('value', function(snap) {
         if(snap.exists()) {
             const d = snap.val();
             window.schedules = d.schedules || [];
-            window.requests = d.requests || [];
+            window.requests  = d.requests  || [];
             window.idCounter = d.idCounter || 1;
+            window.renderSchedule();
+            window.renderRequests();
+            window.updateRequestBadge();
+            window.updateStatistics();
+            window.setSyncStatus('synced');
+            // 로컬 캐시 저장 (오프라인 대비)
+            try { localStorage.setItem('seobu_cache', JSON.stringify({schedules:window.schedules,requests:window.requests,idCounter:window.idCounter})); } catch(e){}
         }
-        window.setSyncStatus('synced');
+    }, function(err) {
+        window.setSyncStatus('error');
+        console.error('실시간 리스너 오류:', err);
+    });
+}
+
+function loadFromCloud() {
+    if (window._offlineMode) {
+        // 오프라인: localStorage 캐시 사용
+        try {
+            const cached = localStorage.getItem('seobu_cache');
+            if (cached) {
+                const d = JSON.parse(cached);
+                window.schedules = d.schedules || [];
+                window.requests  = d.requests  || [];
+                window.idCounter = d.idCounter || 1;
+            }
+        } catch(e) {}
+        window.setSyncStatus('error');
         window.renderSchedule(); window.renderRequests(); window.updateStatistics();
-    } catch(e) { window.setSyncStatus('error'); }
-}
-
-async function saveToCloud() {
-    window.setSyncStatus('syncing');
-    try {
-        await dbRef.set({ schedules: window.schedules, requests: window.requests, idCounter: window.idCounter, lastUpdated: new Date().toISOString() });
-        window.setSyncStatus('synced');
-    } catch(e) { window.setSyncStatus('error'); window.showToast('저장 실패: ' + e.message, 'error'); }
-}
-
-dbRef.on('value', snap => {
-    if(snap.exists()) {
-        const d = snap.val();
-        window.schedules = d.schedules || [];
-        window.requests = d.requests || [];
-        window.idCounter = d.idCounter || 1;
-        window.renderSchedule(); window.renderRequests(); window.updateRequestBadge(); window.updateStatistics();
+        window.showToast('오프라인 상태 - 캐시 데이터를 표시합니다', 'error');
+        return;
     }
-});
+    window.setSyncStatus('syncing');
+    attachRealtimeListener(); // 실시간 리스너가 데이터 로드도 처리
+}
+
+function saveToCloud() {
+    if (window._offlineMode) {
+        try { localStorage.setItem('seobu_cache', JSON.stringify({schedules:window.schedules,requests:window.requests,idCounter:window.idCounter})); } catch(e){}
+        window.showToast('오프라인 - 로컬 저장됨 (연결 후 동기화 필요)', 'error');
+        return;
+    }
+    window.setSyncStatus('syncing');
+    dbRef.set({
+        schedules:   window.schedules,
+        requests:    window.requests,
+        idCounter:   window.idCounter,
+        lastUpdated: new Date().toISOString()
+    }).then(function() {
+        window.setSyncStatus('synced');
+    }).catch(function(e) {
+        window.setSyncStatus('error');
+        window.showToast('저장 실패: ' + e.message, 'error');
+    });
+}
 
 // ── INIT ──
-window.init = async function() {
+window.init = function() {
     const savedTheme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
     document.getElementById('themeToggle').classList.toggle('on', savedTheme === 'dark');
 
     window.populateRoomSelects();
     window.buildLegend();
-    await loadFromCloud();
+    loadFromCloud();
     document.getElementById('checkDate').value = new Date().toISOString().split('T')[0];
     document.getElementById('reqDate').value = new Date().toISOString().split('T')[0];
 
@@ -1728,7 +1765,7 @@ window.changeRole = function() {
 };
 
 // ── TABS ──
-const tabTitles = { schedule:'배정표', request:'사용 요청', availability:'빈 강의실', statistics:'통계' };
+const tabTitles = { schedule:'배정표', request:'사용 요청 내역', availability:'빈 강의실', statistics:'통계' };
 
 window.showTab = function(tab) {
     document.querySelectorAll('.tab-pane').forEach(p => p.style.display = 'none');
@@ -1847,7 +1884,7 @@ window.openEditModal = function(id) {
 
 window.closeEditModal = function() { document.getElementById('editModal').classList.remove('open'); window.currentEditingId = null; };
 
-window.saveEdit = async function() {
+window.saveEdit = function() {
     if(!window.currentEditingId) return;
     const s = window.schedules.find(x => x.id === window.currentEditingId); if(!s) return;
     window.saveState('일정 수정');
@@ -1863,7 +1900,7 @@ window.saveEdit = async function() {
     s.cn = document.getElementById('editCourseName').value.trim();
     s.tn = document.getElementById('editInstructorName').value.trim();
     s.bt = document.getElementById('editBusinessType').value;
-    await saveToCloud(); window.showToast('일정이 수정되었습니다'); window.closeEditModal();
+    saveToCloud(); window.showToast('일정이 수정되었습니다'); window.closeEditModal();
 };
 
 window.copySchedule = function(id) {
@@ -1876,7 +1913,7 @@ window.copySchedule = function(id) {
 // ── ADD SCHEDULE ──
 window.timeOverlap = (s1,e1,s2,e2) => s1 < e2 && e1 > s2;
 
-window.addSchedule = async function() {
+window.addSchedule = function() {
     const startDate = new Date(document.getElementById('startDate').value);
     const endDate = new Date(document.getElementById('endDate').value);
     const room = document.getElementById('roomSelect').value;
@@ -1913,25 +1950,25 @@ window.addSchedule = async function() {
     for(const [y, mData] of Object.entries(datesByYMD)) for(const [m, dData] of Object.entries(mData)) for(const [dow, dates] of Object.entries(dData)) {
         window.schedules.push({ id: window.idCounter++, y:parseInt(y), m:parseInt(m), d:parseInt(dow), r:room, st:startTime, et:endTime, cn:courseName, tn:instructorName, bt:businessType, dates });
     }
-    await saveToCloud();
+    saveToCloud();
     window.showToast(conflicts.length ? `⚠️ 중복 ${conflicts.length}개 있지만 등록됨` : '일정이 등록되었습니다');
     document.getElementById('courseName').value = ''; document.getElementById('instructorName').value = '';
 };
 
-window.deleteSchedule = async function(id) {
+window.deleteSchedule = function(id) {
     if(!confirm('🗑️ 이 일정을 삭제하시겠습니까?')) return;
     window.saveState('일정 삭제');
     window.schedules = window.schedules.filter(s => s.id !== id);
-    await saveToCloud(); window.showToast('일정이 삭제되었습니다');
+    saveToCloud(); window.showToast('일정이 삭제되었습니다');
 };
 
-window.deleteAllByCourse = async function(courseName) {
+window.deleteAllByCourse = function(courseName) {
     const same = window.schedules.filter(s => s.cn === courseName);
     if(!same.length) return;
     if(!confirm(`🗑️ "${courseName}" 과정 ${same.length}개를 모두 삭제하시겠습니까?`)) return;
     window.saveState('일괄 삭제');
     window.schedules = window.schedules.filter(s => s.cn !== courseName);
-    await saveToCloud(); window.showToast(`${same.length}개 일정이 삭제되었습니다`);
+    saveToCloud(); window.showToast(`${same.length}개 일정이 삭제되었습니다`);
 };
 
 // ── CSV / BACKUP ──
@@ -1944,14 +1981,14 @@ window.downloadSampleCSV = function() {
     const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='강의실배정_샘플.csv'; a.click();
 };
 
-window.clearAllSchedules = async function() {
+window.clearAllSchedules = function() {
     if(!confirm('⚠️ 모든 일정을 삭제하시겠습니까?')) return;
     if(!confirm(`현재 ${window.schedules.length}개 일정이 삭제됩니다. 계속하시겠습니까?`)) return;
     window.saveState('전체 초기화'); window.schedules = [];
-    await saveToCloud(); window.showToast('모든 일정이 삭제되었습니다');
+    saveToCloud(); window.showToast('모든 일정이 삭제되었습니다');
 };
 
-window.uploadCSV = async function() {
+window.uploadCSV = function() {
     const file = document.getElementById('csvFile').files[0];
     if(!file) { window.showToast('CSV 파일을 선택하세요', 'error'); return; }
     window.saveState('CSV 업로드');
@@ -1980,7 +2017,7 @@ window.uploadCSV = async function() {
                 ok++;
             } catch(err) { fail++; errs.push(`${i}행: ${err.message}`); }
         }
-        await saveToCloud();
+        saveToCloud();
         let msg = `업로드 완료 — 성공: ${ok}개, 실패: ${fail}개`;
         if(errs.length) { msg += '\n\n오류:\n'; errs.slice(0,5).forEach(e=>msg+=e+'\n'); if(errs.length>5) msg+=`... 외 ${errs.length-5}개`; alert(msg); }
         window.showToast(`CSV 업로드 완료: ${ok}개`);
@@ -2006,7 +2043,7 @@ window.restoreBackup = function() {
                 if(!b.schedules||!Array.isArray(b.schedules)) { window.showToast('잘못된 파일', 'error'); return; }
                 if(!confirm(`복원 시 현재 ${window.schedules.length}개 삭제 → 백업 ${b.schedules.length}개로 대체됩니다.\n계속하시겠습니까?`)) return;
                 window.saveState('백업 복원'); window.schedules=b.schedules; window.requests=b.requests||[]; window.idCounter=b.idCounter||1;
-                await saveToCloud(); window.showToast(`복원 완료 (${b.schedules.length}개)`);
+                saveToCloud(); window.showToast(`복원 완료 (${b.schedules.length}개)`);
             } catch(err) { window.showToast('파일 읽기 오류: '+err.message, 'error'); }
         };
         reader.readAsText(file);
@@ -2131,7 +2168,7 @@ window.loadBulkCsv = function(input) {
 };
 
 // ── 제출 ──
-window.submitRequest = async function() {
+window.submitRequest = function() {
     const rn = document.getElementById('reqRequesterName').value.trim();
     const cn = document.getElementById('reqCourseName').value.trim();
     const tn = document.getElementById('reqInstructorName').value.trim();
@@ -2177,7 +2214,7 @@ window.submitRequest = async function() {
         if(valid === 0) { window.showToast('날짜가 입력된 행이 없습니다', 'error'); return; }
     }
 
-    await saveToCloud();
+    saveToCloud();
     const tabLabel = {single:'단일', multi:'다회차', bulk:'일괄'}[tab];
     window.showToast(`${tabLabel} 요청이 제출되었습니다`);
     window.closeRequestModal();
@@ -2229,28 +2266,44 @@ window.renderRequests = function() {
         </div>`;
     });
 
-    // 그룹 요청 렌더
+    // 그룹 요청 렌더 - 강의실+시간대별로 날짜 묶어서 표시
     Object.entries(groups).sort((a,b)=>Number(a[0])-Number(b[0])).forEach(([gid, reqs]) => {
-        reqs.sort((a,b) => (a.session_no||a.bulk_idx||0)-(b.session_no||b.bulk_idx||0));
+        reqs.sort((a,b) => new Date(a.date) - new Date(b.date));
         const first = reqs[0];
-        const typeTag = first.req_type ? `<span style="font-size:10px;background:var(--info-light);color:var(--info);padding:2px 8px;border-radius:10px;font-weight:700;">${typeLabel[first.req_type]||''} ${reqs.length}건</span>` : '';
+        const typeTag = first.req_type ? `<span style="font-size:10px;background:var(--info-light);color:var(--info);padding:2px 8px;border-radius:10px;font-weight:700;">${typeLabel[first.req_type]||''} ${reqs.length}회차</span>` : '';
         const pendingReqs = reqs.filter(r=>r.status==='pending');
         const anyPending = pendingReqs.length > 0;
         const statuses = [...new Set(reqs.map(r=>r.status))];
         const groupStatus = statuses.length===1 ? statuses[0] : 'pending';
+
+        // 강의실+시간대별 날짜 묶음
+        const slotMap = {};
+        reqs.forEach(r => {
+            const key = r.room + '|' + r.start_time + '|' + r.end_time;
+            if(!slotMap[key]) slotMap[key] = { room:r.room, st:r.start_time, et:r.end_time, dates:[], status:'approved' };
+            const dt = new Date(r.date).getDate();
+            slotMap[key].dates.push(dt);
+            if(r.status === 'pending') slotMap[key].status = 'pending';
+            else if(r.status === 'rejected' && slotMap[key].status !== 'pending') slotMap[key].status = 'rejected';
+        });
+        const slotRows = Object.values(slotMap).map(slot =>
+            `<div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border-radius:6px;padding:8px 12px;font-size:12.5px;flex-wrap:wrap;gap:4px;">
+                <span>🏢 <strong>${slot.room}</strong> &nbsp;⏰ ${slot.st}~${slot.et} &nbsp;📅 <strong>${slot.dates.join(', ')}일</strong></span>
+                <span class="req-status status-${slot.status}" style="font-size:10px;padding:2px 8px;">${statusLabel[slot.status]}</span>
+            </div>`
+        ).join('');
+
         html += `<div class="req-item" style="border-left:3px solid var(--info);">
             <div class="req-header">
-                <div style="display:flex;align-items:center;gap:8px;"><strong>👤 ${first.requester_name}</strong>${typeTag}</div>
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                    <strong>👤 ${first.requester_name}</strong>${typeTag}
+                    ${first.business_type?`<span style="font-size:10px;background:var(--surface2);border:1px solid var(--border);padding:2px 8px;border-radius:10px;color:var(--text-secondary);">${first.business_type}</span>`:''}
+                </div>
                 <span class="req-status status-${groupStatus}">${statusLabel[groupStatus]}</span>
             </div>
-            <div style="font-size:13px;font-weight:600;margin:4px 0;">📚 ${first.course_name}${first.instructor_name?' · 👨‍🏫 '+first.instructor_name:''}</div>
-            <div style="margin-top:6px;display:flex;flex-direction:column;gap:4px;">
-                ${reqs.map(r=>`<div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border-radius:6px;padding:5px 10px;font-size:12px;">
-                    <span>${r.session_no?r.session_no+'회차 · ':r.bulk_idx?r.bulk_idx+'번 · ':''}🏢 ${r.room} &nbsp;📅 ${r.date} &nbsp;⏰ ${r.start_time}~${r.end_time}</span>
-                    <span class="req-status status-${r.status}" style="font-size:10px;padding:2px 8px;">${statusLabel[r.status]}</span>
-                </div>`).join('')}
-            </div>
-            ${first.purpose?`<div style="font-size:12px;color:var(--text-muted);margin-top:6px;">📝 ${first.purpose}</div>`:''}
+            <div style="font-size:13.5px;font-weight:700;margin:6px 0 8px;">📚 ${first.course_name}${first.instructor_name?' &nbsp;👨‍🏫 '+first.instructor_name:''}</div>
+            <div style="display:flex;flex-direction:column;gap:5px;">${slotRows}</div>
+            ${first.purpose?`<div style="font-size:12px;color:var(--text-muted);margin-top:8px;padding:6px 10px;background:var(--surface2);border-radius:6px;">📝 ${first.purpose}</div>`:''}
             ${anyPending&&window.currentRole==='admin'?`<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
                 <button class="btn btn-success btn-sm" onclick="window.approveGroupRequest(${gid})">✅ 전체 승인</button>
                 <button class="btn btn-danger btn-sm" onclick="window.rejectGroupRequest(${gid})">❌ 전체 반려</button>
@@ -2262,38 +2315,79 @@ window.renderRequests = function() {
     cont.innerHTML = html || '<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">요청이 없습니다</div></div>';
 };
 
-window.approveRequest = async function(id) {
+// ── 요청 승인 시 날짜 묶음 헬퍼 ──
+// 같은 강의실·요일·연월·시작·종료·과정명 → 하나의 스케줄로 dates[] 병합
+function mergeIntoSchedules(reqList) {
+    // key: room|year|month|dayOfWeek|startTime|endTime|courseName
+    const map = {};
+    reqList.forEach(req => {
+        const d = new Date(req.date);
+        const y = d.getFullYear(), m = d.getMonth()+1, dow = d.getDay(), dt = d.getDate();
+        const key = [req.room, y, m, dow, req.start_time, req.end_time, req.course_name].join('|');
+        if(!map[key]) {
+            map[key] = {
+                id: window.idCounter++,
+                y, m, d: dow,
+                r:  req.room,
+                st: req.start_time,
+                et: req.end_time,
+                cn: req.course_name,
+                tn: req.instructor_name || '',
+                bt: req.business_type  || '직업교육',
+                dates: []
+            };
+        }
+        if(!map[key].dates.includes(dt)) map[key].dates.push(dt);
+    });
+    // dates 오름차순 정렬 후 기존 스케줄에 병합 or 신규 추가
+    Object.values(map).forEach(newSched => {
+        newSched.dates.sort((a,b)=>a-b);
+        // 동일 강의실·요일·연월·시간·과정명의 기존 스케줄이 있으면 dates만 추가
+        const existing = window.schedules.find(s =>
+            s.r===newSched.r && s.y===newSched.y && s.m===newSched.m &&
+            s.d===newSched.d && s.st===newSched.st && s.et===newSched.et &&
+            s.cn===newSched.cn
+        );
+        if(existing) {
+            newSched.dates.forEach(dt => { if(!existing.dates.includes(dt)) existing.dates.push(dt); });
+            existing.dates.sort((a,b)=>a-b);
+        } else {
+            window.schedules.push(newSched);
+        }
+    });
+}
+
+window.approveRequest = function(id) {
     const req = window.requests.find(r=>r.id===id); if(!req) return;
-    window.saveState('요청 승인'); req.status='approved';
-    const d = new Date(req.date);
-    window.schedules.push({ id:window.idCounter++, y:d.getFullYear(), m:d.getMonth()+1, d:d.getDay(), r:req.room, st:req.start_time, et:req.end_time, cn:req.course_name, tn:req.instructor_name||'', bt:req.business_type||'직업교육', dates:[d.getDate()] });
-    await saveToCloud(); window.showToast('요청이 승인되었습니다');
+    window.saveState('요청 승인');
+    req.status = 'approved';
+    mergeIntoSchedules([req]);
+    saveToCloud();
+    window.showToast('요청이 승인되었습니다');
 };
 
-window.approveGroupRequest = async function(groupId) {
+window.approveGroupRequest = function(groupId) {
     const reqs = window.requests.filter(r=>r.group_id===Number(groupId)&&r.status==='pending');
     if(!reqs.length) return;
     window.saveState('그룹 요청 승인');
-    reqs.forEach(req => {
-        req.status='approved';
-        const d = new Date(req.date);
-        window.schedules.push({ id:window.idCounter++, y:d.getFullYear(), m:d.getMonth()+1, d:d.getDay(), r:req.room, st:req.start_time, et:req.end_time, cn:req.course_name, tn:req.instructor_name||'', bt:req.business_type||'직업교육', dates:[d.getDate()] });
-    });
-    await saveToCloud(); window.showToast(`${reqs.length}건 일괄 승인되었습니다`);
+    reqs.forEach(req => { req.status = 'approved'; });
+    mergeIntoSchedules(reqs);
+    saveToCloud();
+    window.showToast(`${reqs.length}건 승인 · 날짜 묶음으로 등록되었습니다`);
 };
 
-window.rejectRequest = async function(id) {
+window.rejectRequest = function(id) {
     const reason = prompt('❌ 반려 사유:'); if(!reason) return;
     window.saveState('요청 반려');
     const req = window.requests.find(r=>r.id===id);
-    if(req) { req.status='rejected'; req.reject_reason=reason; await saveToCloud(); window.showToast('요청이 반려되었습니다'); }
+    if(req) { req.status='rejected'; req.reject_reason=reason; saveToCloud(); window.showToast('요청이 반려되었습니다'); }
 };
 
-window.rejectGroupRequest = async function(groupId) {
+window.rejectGroupRequest = function(groupId) {
     const reason = prompt('❌ 반려 사유 (전체 적용):'); if(!reason) return;
     window.saveState('그룹 요청 반려');
     window.requests.filter(r=>r.group_id===Number(groupId)&&r.status==='pending').forEach(req => { req.status='rejected'; req.reject_reason=reason; });
-    await saveToCloud(); window.showToast('일괄 반려되었습니다');
+    saveToCloud(); window.showToast('일괄 반려되었습니다');
 };
 
 window.updateRequestBadge = function() {
@@ -2435,9 +2529,31 @@ window.updateStatistics = function() {
     `;
 };
 
-window.refreshData = async function() { await loadFromCloud(); window.showToast('새로고침 완료', 'info'); };
+window.refreshData = function() { loadFromCloud(); window.showToast('새로고침 완료', 'info'); };
 
-document.addEventListener("DOMContentLoaded", window.init);
+// Firebase CDN이 완전히 로드된 후 앱 초기화
+document.addEventListener("DOMContentLoaded", function() {
+    // firebase 객체 존재 여부 확인 후 실행
+    if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0) {
+        window.init();
+    } else {
+        // 혹시 CDN 로드가 늦을 경우 재시도
+        var retries = 0;
+        var checkFirebase = setInterval(function() {
+            retries++;
+            if (typeof firebase !== 'undefined') {
+                clearInterval(checkFirebase);
+                window.init();
+            } else if (retries > 20) {
+                clearInterval(checkFirebase);
+                // Firebase 로드 실패 시 오프라인 모드로 전환
+                console.warn('Firebase 로드 실패 - 오프라인 모드로 전환');
+                window._offlineMode = true;
+                window.init();
+            }
+        }, 200);
+    }
+});
 </script>
 </body>
 </html>
