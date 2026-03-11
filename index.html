@@ -1151,7 +1151,7 @@
                 <span style="color: var(--text-muted);">→</span>
             </button>
         </div>
-        <div class="role-hint">🔐 관리자 비밀번호: <strong>admin1234</strong></div>
+        <div class="role-hint">💡 관리자 모드는 별도 비밀번호 인증이 필요합니다</div>
     </div>
 </div>
 
@@ -1389,23 +1389,109 @@
 
 <!-- ── MODAL: REQUEST ── -->
 <div class="modal-backdrop" id="requestModal">
-    <div class="modal-box">
+    <div class="modal-box" style="max-width:680px;">
         <div class="modal-header">
             <div class="modal-title">📝 강의실 사용 요청</div>
             <button class="modal-close" onclick="window.closeRequestModal()">✕</button>
         </div>
+
+        <!-- 공통 필드 -->
         <div class="modal-form">
-            <div class="form-group"><label>👤 요청자 이름 *</label><input type="text" id="reqRequesterName" placeholder="홍길동"></div>
-            <div class="form-group"><label>🏢 강의실 *</label><select id="reqRoom"></select></div>
-            <div class="form-group"><label>📅 날짜 *</label><input type="date" id="reqDate"></div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                <div class="form-group"><label>⏰ 시작 시간</label><input type="time" id="reqStartTime" value="09:00"></div>
-                <div class="form-group"><label>⏰ 종료 시간</label><input type="time" id="reqEndTime" value="18:00"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <div class="form-group"><label>👤 요청자 이름 *</label><input type="text" id="reqRequesterName" placeholder="홍길동" style="width:100%;"></div>
+                <div class="form-group"><label>📚 과정명 *</label><input type="text" id="reqCourseName" placeholder="Python 기초 과정" style="width:100%;"></div>
             </div>
-            <div class="form-group"><label>📚 과정명 *</label><input type="text" id="reqCourseName" placeholder="과정명을 입력하세요"></div>
-            <div class="form-group"><label>👨‍🏫 강사명 (선택)</label><input type="text" id="reqInstructorName"></div>
-            <div class="form-group"><label>📝 사용 목적 (선택)</label><textarea id="reqPurpose" placeholder="사용 목적을 간략히 입력하세요"></textarea></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <div class="form-group"><label>👨‍🏫 강사명 (선택)</label><input type="text" id="reqInstructorName" style="width:100%;"></div>
+                <div class="form-group"><label>📊 사업구분</label>
+                    <select id="reqBusinessType" style="width:100%;">
+                        <option value="직업교육">직업교육</option><option value="여성미래">여성미래</option>
+                        <option value="양천구사업">양천구사업</option><option value="생활문화">생활문화</option>
+                        <option value="생활체육">생활체육</option><option value="내일배움카드">내일배움카드</option>
+                        <option value="직훈">직훈</option><option value="고부가">고부가</option>
+                        <option value="취업팀">취업팀</option><option value="관리팀">관리팀</option>
+                        <option value="대관">대관</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group"><label>📝 사용 목적 (선택)</label><textarea id="reqPurpose" rows="2" placeholder="사용 목적을 간략히 입력하세요" style="width:100%;"></textarea></div>
         </div>
+
+        <!-- 요청 유형 탭 -->
+        <div style="margin:16px 0 0;">
+            <div class="section-label">요청 유형 선택</div>
+            <div class="inner-tabs" style="width:100%;display:flex;">
+                <button class="inner-tab active" id="rtab-single" onclick="window.switchReqTab('single')" style="flex:1;">📅 단일 날짜</button>
+                <button class="inner-tab" id="rtab-multi" onclick="window.switchReqTab('multi')" style="flex:1;">🔢 다회차 (2~10회)</button>
+                <button class="inner-tab" id="rtab-bulk" onclick="window.switchReqTab('bulk')" style="flex:1;">📋 일괄 서식</button>
+            </div>
+        </div>
+
+        <!-- 단일 날짜 -->
+        <div id="req-panel-single" class="modal-form" style="margin-top:14px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+                <div class="form-group"><label>🏢 강의실 *</label><select id="reqRoom" style="width:100%;"></select></div>
+                <div class="form-group"><label>📅 날짜 *</label><input type="date" id="reqDate" style="width:100%;"></div>
+                <div></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <div class="form-group"><label>⏰ 시작 시간</label><input type="time" id="reqStartTime" value="09:00" style="width:100%;"></div>
+                <div class="form-group"><label>⏰ 종료 시간</label><input type="time" id="reqEndTime" value="18:00" style="width:100%;"></div>
+            </div>
+        </div>
+
+        <!-- 다회차 -->
+        <div id="req-panel-multi" class="modal-form" style="margin-top:14px;display:none;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+                <div class="form-group"><label>🏢 강의실 *</label><select id="reqRoomMulti" style="width:100%;"></select></div>
+                <div class="form-group">
+                    <label>🔢 총 회차 수</label>
+                    <select id="reqSessionCount" style="width:100%;" onchange="window.buildSessionRows()">
+                        <option value="2">2회차</option><option value="3">3회차</option><option value="4">4회차</option>
+                        <option value="5">5회차</option><option value="6">6회차</option><option value="7">7회차</option>
+                        <option value="8">8회차</option><option value="9">9회차</option><option value="10">10회차</option>
+                    </select>
+                </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+                <div class="form-group"><label>⏰ 시작 시간 (공통)</label><input type="time" id="reqMultiStartTime" value="09:00" style="width:100%;"></div>
+                <div class="form-group"><label>⏰ 종료 시간 (공통)</label><input type="time" id="reqMultiEndTime" value="18:00" style="width:100%;"></div>
+            </div>
+            <div class="section-label">회차별 날짜 입력</div>
+            <div id="sessionRows" style="display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto;padding-right:4px;"></div>
+        </div>
+
+        <!-- 일괄 서식 -->
+        <div id="req-panel-bulk" class="modal-form" style="margin-top:14px;display:none;">
+            <div class="info-box" style="margin-bottom:12px;">
+                📋 <strong>일괄 서식 사용법:</strong> 아래 표에서 행을 추가하여 여러 강의실·날짜를 한 번에 신청하세요.<br>
+                CSV 파일을 업로드하거나 직접 행을 추가할 수 있습니다.
+            </div>
+            <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+                <button class="btn btn-primary btn-sm" onclick="window.addBulkRow()">➕ 행 추가</button>
+                <button class="btn btn-ghost btn-sm" onclick="window.downloadBulkTemplate()">📥 서식 다운로드</button>
+                <label class="btn btn-ghost btn-sm" style="cursor:pointer;">
+                    📁 CSV 업로드 <input type="file" id="bulkCsvFile" accept=".csv" style="display:none;" onchange="window.loadBulkCsv(this)">
+                </label>
+                <button class="btn btn-danger btn-sm" onclick="window.clearBulkRows()">🗑️ 전체 삭제</button>
+            </div>
+            <div style="overflow-x:auto;">
+                <table style="min-width:100%;border-collapse:collapse;font-size:12px;">
+                    <thead>
+                        <tr style="background:var(--surface2);">
+                            <th style="padding:8px;border:1px solid var(--border);white-space:nowrap;">강의실</th>
+                            <th style="padding:8px;border:1px solid var(--border);white-space:nowrap;">날짜</th>
+                            <th style="padding:8px;border:1px solid var(--border);white-space:nowrap;">시작</th>
+                            <th style="padding:8px;border:1px solid var(--border);white-space:nowrap;">종료</th>
+                            <th style="padding:8px;border:1px solid var(--border);white-space:nowrap;">삭제</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bulkTableBody"></tbody>
+                </table>
+            </div>
+            <div id="bulkPreview" style="margin-top:10px;font-size:12px;color:var(--text-muted);"></div>
+        </div>
+
         <div class="modal-footer">
             <button class="btn btn-ghost" onclick="window.closeRequestModal()">취소</button>
             <button class="btn btn-success" onclick="window.submitRequest()">✅ 제출</button>
@@ -1612,7 +1698,7 @@ window.buildLegend = function() {
 };
 
 window.populateRoomSelects = function() {
-    ['roomSelect','reqRoom','editRoom'].forEach(id => {
+    ['roomSelect','reqRoom','reqRoomMulti','editRoom'].forEach(id => {
         const el = document.getElementById(id);
         if(el) window.rooms.forEach(r => el.innerHTML += `<option value="${r}">${r}</option>`);
     });
@@ -1942,64 +2028,272 @@ window.exportToExcel = function() {
 };
 
 // ── REQUESTS ──
-window.openRequestModal = function(room=null,date=null,startTime=null,endTime=null) {
-    document.getElementById('requestModal').classList.add('open');
-    document.getElementById('reqDate').value = date || new Date().toISOString().split('T')[0];
-    if(room) document.getElementById('reqRoom').value = room;
-    if(startTime) document.getElementById('reqStartTime').value = startTime;
-    if(endTime) document.getElementById('reqEndTime').value = endTime;
-};
-window.closeRequestModal = () => document.getElementById('requestModal').classList.remove('open');
+window._reqTab = 'single';
 
+window.switchReqTab = function(tab) {
+    window._reqTab = tab;
+    ['single','multi','bulk'].forEach(t => {
+        document.getElementById('rtab-'+t).classList.toggle('active', t===tab);
+        document.getElementById('req-panel-'+t).style.display = t===tab ? 'block' : 'none';
+    });
+    if(tab==='multi') window.buildSessionRows();
+    if(tab==='bulk') window.renderBulkPreview();
+};
+
+window.openRequestModal = function(room=null, date=null, startTime=null, endTime=null) {
+    document.getElementById('requestModal').classList.add('open');
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('reqDate').value = date || today;
+    if(room) { document.getElementById('reqRoom').value = room; document.getElementById('reqRoomMulti').value = room; }
+    if(startTime) { document.getElementById('reqStartTime').value = startTime; document.getElementById('reqMultiStartTime').value = startTime; }
+    if(endTime) { document.getElementById('reqEndTime').value = endTime; document.getElementById('reqMultiEndTime').value = endTime; }
+    window.switchReqTab('single');
+    if(!document.getElementById('bulkTableBody').children.length) window.addBulkRow();
+};
+
+window.closeRequestModal = function() {
+    document.getElementById('requestModal').classList.remove('open');
+};
+
+// ── 다회차: 회차 행 생성 ──
+window.buildSessionRows = function() {
+    const count = parseInt(document.getElementById('reqSessionCount').value) || 3;
+    const tbody = document.getElementById('sessionRows');
+    const existing = tbody.querySelectorAll('.session-row');
+    // 기존 행 유지하며 추가/제거
+    while(tbody.children.length < count) {
+        const n = tbody.children.length + 1;
+        const row = document.createElement('div');
+        row.className = 'session-row';
+        row.style.cssText = 'display:grid;grid-template-columns:40px 1fr;gap:6px;align-items:center;';
+        row.innerHTML = `<span style="font-size:11px;font-weight:700;color:var(--text-muted);text-align:center;">${n}회</span>
+            <input type="date" class="session-date" style="width:100%;" placeholder="${n}회차 날짜">`;
+        tbody.appendChild(row);
+    }
+    while(tbody.children.length > count) tbody.removeChild(tbody.lastChild);
+};
+
+// ── 일괄 서식: 행 관리 ──
+window._bulkRoomSelectHTML = function() {
+    return window.rooms.map(r => `<option value="${r}">${r}</option>`).join('');
+};
+
+window.addBulkRow = function(room='', date='', st='09:00', et='18:00') {
+    const tbody = document.getElementById('bulkTableBody');
+    const idx = tbody.children.length;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+        <td style="padding:4px;border:1px solid var(--border);">
+            <select class="bulk-room" style="width:100%;font-size:12px;padding:4px 6px;border:none;background:var(--surface2);border-radius:4px;">
+                ${window._bulkRoomSelectHTML()}
+            </select>
+        </td>
+        <td style="padding:4px;border:1px solid var(--border);"><input type="date" class="bulk-date" value="${date}" style="width:100%;font-size:12px;padding:4px;border:none;background:var(--surface2);border-radius:4px;"></td>
+        <td style="padding:4px;border:1px solid var(--border);"><input type="time" class="bulk-st" value="${st}" style="width:100%;font-size:12px;padding:4px;border:none;background:var(--surface2);border-radius:4px;"></td>
+        <td style="padding:4px;border:1px solid var(--border);"><input type="time" class="bulk-et" value="${et}" style="width:100%;font-size:12px;padding:4px;border:none;background:var(--surface2);border-radius:4px;"></td>
+        <td style="padding:4px;border:1px solid var(--border);text-align:center;">
+            <button onclick="this.closest('tr').remove();window.renderBulkPreview();" style="background:none;border:none;cursor:pointer;color:var(--danger);font-size:14px;">✕</button>
+        </td>`;
+    if(room) tr.querySelector('.bulk-room').value = room;
+    tbody.appendChild(tr);
+    window.renderBulkPreview();
+};
+
+window.clearBulkRows = function() {
+    document.getElementById('bulkTableBody').innerHTML = '';
+    window.renderBulkPreview();
+};
+
+window.renderBulkPreview = function() {
+    const rows = document.querySelectorAll('#bulkTableBody tr');
+    document.getElementById('bulkPreview').textContent = rows.length > 0 ? `총 ${rows.length}건 신청 예정` : '행을 추가하여 신청 내역을 입력하세요';
+};
+
+window.downloadBulkTemplate = function() {
+    const csv = '강의실,날짜,시작시간,종료시간\n207호,2026-05-01,09:00,13:00\n301호,2026-05-02,13:00,18:00';
+    const blob = new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='강의실요청_서식.csv'; a.click();
+};
+
+window.loadBulkCsv = function(input) {
+    const file = input.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const lines = e.target.result.split('\n').filter(l=>l.trim()).slice(1);
+        document.getElementById('bulkTableBody').innerHTML = '';
+        lines.forEach(line => {
+            const [room,date,st,et] = line.split(',').map(v=>v.trim().replace(/^["']|["']$/g,''));
+            if(room && date) window.addBulkRow(room, date, st||'09:00', et||'18:00');
+        });
+    };
+    reader.readAsText(file,'UTF-8');
+    input.value='';
+};
+
+// ── 제출 ──
 window.submitRequest = async function() {
     const rn = document.getElementById('reqRequesterName').value.trim();
-    const room = document.getElementById('reqRoom').value;
-    const date = document.getElementById('reqDate').value;
-    const st = document.getElementById('reqStartTime').value;
-    const et = document.getElementById('reqEndTime').value;
     const cn = document.getElementById('reqCourseName').value.trim();
     const tn = document.getElementById('reqInstructorName').value.trim();
+    const bt = document.getElementById('reqBusinessType').value;
     const pur = document.getElementById('reqPurpose').value.trim();
-    if(!rn||!date||!cn) { window.showToast('필수 항목을 입력하세요', 'error'); return; }
-    window.requests.push({ id:window.idCounter++, requester_name:rn, room, date, start_time:st, end_time:et, course_name:cn, instructor_name:tn, purpose:pur, status:'pending', created_at:new Date().toISOString() });
-    await saveToCloud(); window.showToast('요청이 제출되었습니다'); window.closeRequestModal();
-    document.getElementById('reqRequesterName').value = ''; document.getElementById('reqCourseName').value = '';
+    if(!rn||!cn) { window.showToast('요청자 이름과 과정명은 필수입니다', 'error'); return; }
+
+    const tab = window._reqTab;
+    const base = { requester_name:rn, course_name:cn, instructor_name:tn, business_type:bt, purpose:pur, status:'pending', created_at:new Date().toISOString(), req_type:tab };
+
+    if(tab === 'single') {
+        const room = document.getElementById('reqRoom').value;
+        const date = document.getElementById('reqDate').value;
+        const st = document.getElementById('reqStartTime').value;
+        const et = document.getElementById('reqEndTime').value;
+        if(!date) { window.showToast('날짜를 입력하세요', 'error'); return; }
+        window.requests.push({ ...base, id:window.idCounter++, room, date, start_time:st, end_time:et });
+
+    } else if(tab === 'multi') {
+        const room = document.getElementById('reqRoomMulti').value;
+        const st = document.getElementById('reqMultiStartTime').value;
+        const et = document.getElementById('reqMultiEndTime').value;
+        const dates = Array.from(document.querySelectorAll('.session-date')).map(i=>i.value).filter(v=>v);
+        if(dates.length === 0) { window.showToast('1개 이상의 날짜를 입력하세요', 'error'); return; }
+        // 그룹 ID로 묶어서 저장
+        const groupId = window.idCounter++;
+        dates.forEach((date, idx) => {
+            window.requests.push({ ...base, id:window.idCounter++, room, date, start_time:st, end_time:et, session_no:idx+1, session_total:dates.length, group_id:groupId });
+        });
+
+    } else if(tab === 'bulk') {
+        const rows = document.querySelectorAll('#bulkTableBody tr');
+        if(rows.length === 0) { window.showToast('신청 내역을 1건 이상 입력하세요', 'error'); return; }
+        const groupId = window.idCounter++;
+        let valid = 0;
+        rows.forEach((tr, idx) => {
+            const room = tr.querySelector('.bulk-room').value;
+            const date = tr.querySelector('.bulk-date').value;
+            const st = tr.querySelector('.bulk-st').value;
+            const et = tr.querySelector('.bulk-et').value;
+            if(date) { window.requests.push({ ...base, id:window.idCounter++, room, date, start_time:st, end_time:et, group_id:groupId, bulk_idx:idx+1 }); valid++; }
+        });
+        if(valid === 0) { window.showToast('날짜가 입력된 행이 없습니다', 'error'); return; }
+    }
+
+    await saveToCloud();
+    const tabLabel = {single:'단일', multi:'다회차', bulk:'일괄'}[tab];
+    window.showToast(`${tabLabel} 요청이 제출되었습니다`);
+    window.closeRequestModal();
+    document.getElementById('reqRequesterName').value = '';
+    document.getElementById('reqCourseName').value = '';
+    document.getElementById('reqPurpose').value = '';
+    document.getElementById('bulkTableBody').innerHTML = '';
 };
 
 window.renderRequests = function() {
     const cont = document.getElementById('requestList');
     if(!window.requests.length) { cont.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">요청이 없습니다</div></div>'; return; }
     const statusLabel = { pending:'⏳ 대기중', approved:'✅ 승인', rejected:'❌ 반려' };
-    cont.innerHTML = window.requests.map(req => `
-        <div class="req-item">
+    const typeLabel = { single:'단일', multi:'다회차', bulk:'일괄' };
+
+    // 그룹핑: group_id 있는 건 묶기
+    const groups = {};
+    const singles = [];
+    window.requests.forEach(req => {
+        if(req.group_id != null) {
+            if(!groups[req.group_id]) groups[req.group_id] = [];
+            groups[req.group_id].push(req);
+        } else {
+            singles.push(req);
+        }
+    });
+
+    let html = '';
+
+    // 단일 요청 렌더
+    singles.forEach(req => {
+        const typeTag = req.req_type ? `<span style="font-size:10px;background:var(--accent-light);color:var(--accent);padding:2px 8px;border-radius:10px;font-weight:700;">${typeLabel[req.req_type]||'단일'}</span>` : '';
+        html += `<div class="req-item">
             <div class="req-header">
-                <strong>👤 ${req.requester_name}</strong>
+                <div style="display:flex;align-items:center;gap:8px;"><strong>👤 ${req.requester_name}</strong>${typeTag}</div>
                 <span class="req-status status-${req.status}">${statusLabel[req.status]}</span>
             </div>
             <div class="req-info">
-                <span>🏢 ${req.room}</span>
-                <span>📅 ${req.date}</span>
-                <span>⏰ ${req.start_time} ~ ${req.end_time}</span>
-                <span>📚 ${req.course_name}</span>
-                ${req.instructor_name ? `<span>👨‍🏫 ${req.instructor_name}</span>` : ''}
+                <span>🏢 ${req.room}</span><span>📅 ${req.date}</span>
+                <span>⏰ ${req.start_time}~${req.end_time}</span><span>📚 ${req.course_name}</span>
+                ${req.instructor_name?`<span>👨‍🏫 ${req.instructor_name}</span>`:''}
+                ${req.business_type?`<span>📊 ${req.business_type}</span>`:''}
             </div>
-            ${req.status==='pending'&&window.currentRole==='admin' ? `<div style="display:flex;gap:8px;margin-top:4px;"><button class="btn btn-success btn-sm" onclick="window.approveRequest(${req.id})">✅ 승인</button><button class="btn btn-danger btn-sm" onclick="window.rejectRequest(${req.id})">❌ 반려</button></div>` : ''}
-        </div>
-    `).join('');
+            ${req.purpose?`<div style="font-size:12px;color:var(--text-muted);margin-top:4px;">📝 ${req.purpose}</div>`:''}
+            ${req.status==='pending'&&window.currentRole==='admin'?`<div style="display:flex;gap:8px;margin-top:8px;">
+                <button class="btn btn-success btn-sm" onclick="window.approveRequest(${req.id})">✅ 승인</button>
+                <button class="btn btn-danger btn-sm" onclick="window.rejectRequest(${req.id})">❌ 반려</button>
+            </div>`:''}
+        </div>`;
+    });
+
+    // 그룹 요청 렌더
+    Object.entries(groups).sort((a,b)=>Number(a[0])-Number(b[0])).forEach(([gid, reqs]) => {
+        reqs.sort((a,b) => (a.session_no||a.bulk_idx||0)-(b.session_no||b.bulk_idx||0));
+        const first = reqs[0];
+        const typeTag = first.req_type ? `<span style="font-size:10px;background:var(--info-light);color:var(--info);padding:2px 8px;border-radius:10px;font-weight:700;">${typeLabel[first.req_type]||''} ${reqs.length}건</span>` : '';
+        const pendingReqs = reqs.filter(r=>r.status==='pending');
+        const anyPending = pendingReqs.length > 0;
+        const statuses = [...new Set(reqs.map(r=>r.status))];
+        const groupStatus = statuses.length===1 ? statuses[0] : 'pending';
+        html += `<div class="req-item" style="border-left:3px solid var(--info);">
+            <div class="req-header">
+                <div style="display:flex;align-items:center;gap:8px;"><strong>👤 ${first.requester_name}</strong>${typeTag}</div>
+                <span class="req-status status-${groupStatus}">${statusLabel[groupStatus]}</span>
+            </div>
+            <div style="font-size:13px;font-weight:600;margin:4px 0;">📚 ${first.course_name}${first.instructor_name?' · 👨‍🏫 '+first.instructor_name:''}</div>
+            <div style="margin-top:6px;display:flex;flex-direction:column;gap:4px;">
+                ${reqs.map(r=>`<div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border-radius:6px;padding:5px 10px;font-size:12px;">
+                    <span>${r.session_no?r.session_no+'회차 · ':r.bulk_idx?r.bulk_idx+'번 · ':''}🏢 ${r.room} &nbsp;📅 ${r.date} &nbsp;⏰ ${r.start_time}~${r.end_time}</span>
+                    <span class="req-status status-${r.status}" style="font-size:10px;padding:2px 8px;">${statusLabel[r.status]}</span>
+                </div>`).join('')}
+            </div>
+            ${first.purpose?`<div style="font-size:12px;color:var(--text-muted);margin-top:6px;">📝 ${first.purpose}</div>`:''}
+            ${anyPending&&window.currentRole==='admin'?`<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+                <button class="btn btn-success btn-sm" onclick="window.approveGroupRequest(${gid})">✅ 전체 승인</button>
+                <button class="btn btn-danger btn-sm" onclick="window.rejectGroupRequest(${gid})">❌ 전체 반려</button>
+                ${pendingReqs.length<reqs.length?'<span style="font-size:11px;color:var(--text-muted);align-self:center;">일부 처리됨</span>':''}
+            </div>`:''}
+        </div>`;
+    });
+
+    cont.innerHTML = html || '<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">요청이 없습니다</div></div>';
 };
 
 window.approveRequest = async function(id) {
     const req = window.requests.find(r=>r.id===id); if(!req) return;
     window.saveState('요청 승인'); req.status='approved';
     const d = new Date(req.date);
-    window.schedules.push({ id:window.idCounter++, y:d.getFullYear(), m:d.getMonth()+1, d:d.getDay(), r:req.room, st:req.start_time, et:req.end_time, cn:req.course_name, tn:req.instructor_name||'', bt:'직업교육', dates:[d.getDate()] });
+    window.schedules.push({ id:window.idCounter++, y:d.getFullYear(), m:d.getMonth()+1, d:d.getDay(), r:req.room, st:req.start_time, et:req.end_time, cn:req.course_name, tn:req.instructor_name||'', bt:req.business_type||'직업교육', dates:[d.getDate()] });
     await saveToCloud(); window.showToast('요청이 승인되었습니다');
+};
+
+window.approveGroupRequest = async function(groupId) {
+    const reqs = window.requests.filter(r=>r.group_id===Number(groupId)&&r.status==='pending');
+    if(!reqs.length) return;
+    window.saveState('그룹 요청 승인');
+    reqs.forEach(req => {
+        req.status='approved';
+        const d = new Date(req.date);
+        window.schedules.push({ id:window.idCounter++, y:d.getFullYear(), m:d.getMonth()+1, d:d.getDay(), r:req.room, st:req.start_time, et:req.end_time, cn:req.course_name, tn:req.instructor_name||'', bt:req.business_type||'직업교육', dates:[d.getDate()] });
+    });
+    await saveToCloud(); window.showToast(`${reqs.length}건 일괄 승인되었습니다`);
 };
 
 window.rejectRequest = async function(id) {
     const reason = prompt('❌ 반려 사유:'); if(!reason) return;
     window.saveState('요청 반려');
-    const req = window.requests.find(r=>r.id===id); if(req) { req.status='rejected'; req.reject_reason=reason; await saveToCloud(); window.showToast('요청이 반려되었습니다'); }
+    const req = window.requests.find(r=>r.id===id);
+    if(req) { req.status='rejected'; req.reject_reason=reason; await saveToCloud(); window.showToast('요청이 반려되었습니다'); }
+};
+
+window.rejectGroupRequest = async function(groupId) {
+    const reason = prompt('❌ 반려 사유 (전체 적용):'); if(!reason) return;
+    window.saveState('그룹 요청 반려');
+    window.requests.filter(r=>r.group_id===Number(groupId)&&r.status==='pending').forEach(req => { req.status='rejected'; req.reject_reason=reason; });
+    await saveToCloud(); window.showToast('일괄 반려되었습니다');
 };
 
 window.updateRequestBadge = function() {
