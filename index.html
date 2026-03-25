@@ -144,23 +144,9 @@
             position: relative;
         }
 
-        .nav-item:hover {
-            background: var(--accent-light);
-            color: var(--accent);
-        }
-
-        .nav-item.active {
-            background: var(--accent-light);
-            color: var(--accent);
-            font-weight: 600;
-        }
-
-        .nav-item .nav-icon {
-            font-size: 16px;
-            width: 20px;
-            text-align: center;
-            flex-shrink: 0;
-        }
+        .nav-item:hover { background: var(--accent-light); color: var(--accent); }
+        .nav-item.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+        .nav-item .nav-icon { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
 
         .nav-badge {
             margin-left: auto;
@@ -174,10 +160,7 @@
             text-align: center;
         }
 
-        .sidebar-footer {
-            padding: 16px 12px;
-            border-top: 1px solid var(--border);
-        }
+        .sidebar-footer { padding: 16px 12px; border-top: 1px solid var(--border); }
 
         /* ── HEADER ── */
         .header {
@@ -196,19 +179,9 @@
             transition: background 0.3s;
         }
 
-        .header-title {
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
+        .header-title { font-size: 16px; font-weight: 700; color: var(--text-primary); }
         .header-spacer { flex: 1; }
-
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .header-actions { display: flex; align-items: center; gap: 8px; }
 
         .role-badge {
             display: flex;
@@ -234,20 +207,10 @@
             background: var(--success-light);
             color: var(--success);
         }
-
         .sync-chip.syncing { background: var(--warning-light); color: var(--warning); }
         .sync-chip.error { background: var(--danger-light); color: var(--danger); }
-
-        .sync-dot {
-            width: 6px; height: 6px;
-            border-radius: 50%;
-            background: currentColor;
-        }
-
-        .sync-chip.syncing .sync-dot {
-            animation: blink 0.8s infinite;
-        }
-
+        .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+        .sync-chip.syncing .sync-dot { animation: blink 0.8s infinite; }
         @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.2; } }
 
         /* ── MAIN ── */
@@ -258,7 +221,7 @@
             min-height: calc(100vh - var(--header-h));
         }
 
-        /* ── CARDS / PANELS ── */
+        /* ── CARDS ── */
         .card {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -268,7 +231,6 @@
             box-shadow: var(--shadow-sm);
             transition: background 0.3s, border 0.3s;
         }
-
         .card-title {
             font-size: 15px;
             font-weight: 700;
@@ -295,36 +257,20 @@
             text-decoration: none;
             white-space: nowrap;
         }
-
         .btn:disabled { opacity: 0.45; cursor: not-allowed; }
         .btn:not(:disabled):active { transform: scale(0.97); }
-
         .btn-primary { background: var(--accent); color: white; }
         .btn-primary:not(:disabled):hover { background: var(--accent-hover); box-shadow: 0 4px 12px rgba(59,91,219,0.35); }
-
         .btn-success { background: var(--success); color: white; }
         .btn-success:not(:disabled):hover { background: #099268; box-shadow: 0 4px 12px rgba(12,166,120,0.35); }
-
         .btn-danger { background: var(--danger); color: white; }
         .btn-danger:not(:disabled):hover { background: #c92a2a; box-shadow: 0 4px 12px rgba(224,49,49,0.35); }
-
         .btn-warning { background: var(--warning); color: white; }
         .btn-warning:not(:disabled):hover { background: #d66b00; }
-
         .btn-info { background: var(--info); color: white; }
         .btn-info:not(:disabled):hover { background: #0d8499; }
-
-        .btn-ghost {
-            background: transparent;
-            color: var(--text-secondary);
-            border: 1.5px solid var(--border);
-        }
-        .btn-ghost:not(:disabled):hover {
-            background: var(--surface2);
-            color: var(--text-primary);
-            border-color: var(--text-muted);
-        }
-
+        .btn-ghost { background: transparent; color: var(--text-secondary); border: 1.5px solid var(--border); }
+        .btn-ghost:not(:disabled):hover { background: var(--surface2); color: var(--text-primary); border-color: var(--text-muted); }
         .btn-sm { padding: 6px 11px; font-size: 12px; }
         .btn-icon {
             padding: 7px;
@@ -342,33 +288,12 @@
         .btn-icon:hover { background: var(--accent-light); color: var(--accent); border-color: var(--accent); }
 
         /* ── FORMS ── */
-        .form-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            align-items: flex-end;
-            margin-bottom: 12px;
-        }
+        .form-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin-bottom: 12px; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
+        .form-label { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
 
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .form-label {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-secondary);
-        }
-
-        input[type="text"],
-        input[type="date"],
-        input[type="time"],
-        input[type="number"],
-        input[type="file"],
-        select,
-        textarea {
+        input[type="text"], input[type="date"], input[type="time"],
+        input[type="number"], input[type="file"], select, textarea {
             background: var(--surface2);
             border: 1.5px solid var(--border);
             border-radius: var(--radius-sm);
@@ -379,44 +304,27 @@
             transition: border-color 0.15s, box-shadow 0.15s;
             outline: none;
         }
-
         input:focus, select:focus, textarea:focus {
             border-color: var(--accent);
             box-shadow: 0 0 0 3px rgba(59,91,219,0.12);
             background: var(--surface);
         }
-
         textarea { resize: vertical; min-height: 80px; }
 
-        .checkbox-pills {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-        }
-
-        .checkbox-pill {
-            position: relative;
-        }
-
+        .checkbox-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+        .checkbox-pill { position: relative; }
         .checkbox-pill input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
         .checkbox-pill label {
-            display: flex;
-            align-items: center;
+            display: flex; align-items: center;
             padding: 6px 14px;
             border: 1.5px solid var(--border);
             border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
+            font-size: 12px; font-weight: 600;
             color: var(--text-secondary);
-            cursor: pointer;
-            transition: all 0.15s;
+            cursor: pointer; transition: all 0.15s;
             background: var(--surface2);
         }
-        .checkbox-pill input:checked + label {
-            background: var(--accent-light);
-            color: var(--accent);
-            border-color: var(--accent);
-        }
+        .checkbox-pill input:checked + label { background: var(--accent-light); color: var(--accent); border-color: var(--accent); }
 
         /* ── SCHEDULE TABLE ── */
         .table-wrapper {
@@ -425,57 +333,33 @@
             border: 1px solid var(--border);
             box-shadow: var(--shadow-sm);
         }
-
-        table {
-            width: 100%;
-            min-width: 900px;
-            border-collapse: collapse;
-        }
-
+        table { width: 100%; min-width: 900px; border-collapse: collapse; }
         thead th {
             background: var(--surface2);
             padding: 12px 10px;
-            font-size: 12px;
-            font-weight: 700;
+            font-size: 12px; font-weight: 700;
             color: var(--text-secondary);
             text-align: center;
             border-bottom: 2px solid var(--border);
             border-right: 1px solid var(--border);
             letter-spacing: 0.03em;
-            position: sticky;
-            top: 0;
-            z-index: 5;
+            position: sticky; top: 0; z-index: 5;
         }
-
         thead th:last-child { border-right: none; }
-
         tbody td {
-            padding: 8px;
-            vertical-align: top;
+            padding: 8px; vertical-align: top;
             border-right: 1px solid var(--border);
             border-bottom: 1px solid var(--border);
             min-width: 120px;
         }
-
         tbody td:last-child { border-right: none; }
-
-        .room-th {
-            width: 90px;
-            min-width: 90px;
-            font-size: 12px;
-            text-align: center;
-        }
-
+        .room-th { width: 90px; min-width: 90px; font-size: 12px; text-align: center; }
         .room-cell {
             background: var(--surface2);
-            text-align: center;
-            font-weight: 700;
-            font-size: 12px;
+            text-align: center; font-weight: 700; font-size: 12px;
             color: var(--text-secondary);
             vertical-align: middle;
-            position: sticky;
-            left: 0;
-            z-index: 2;
+            position: sticky; left: 0; z-index: 2;
             border-right: 2px solid var(--border) !important;
         }
 
@@ -489,42 +373,57 @@
             border-left: 3px solid;
             transition: box-shadow 0.15s, transform 0.15s;
             cursor: default;
+            /* 기수 뱃지 공간 확보 */
+            padding-top: 24px;
         }
-
         .scard:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
-
-        .scard-time {
-            font-family: 'DM Mono', monospace;
-            font-size: 10.5px;
-            font-weight: 500;
-            opacity: 0.75;
-            margin-bottom: 2px;
-        }
-
+        .scard-time { font-family: 'DM Mono', monospace; font-size: 10.5px; font-weight: 500; opacity: 0.75; margin-bottom: 2px; }
         .scard-title { font-weight: 700; font-size: 12px; line-height: 1.3; }
         .scard-teacher { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
         .scard-dates { font-size: 10px; color: var(--text-muted); margin-top: 3px; font-family: 'DM Mono', monospace; }
 
+        /* ── 기수 뱃지 ── */
+        .cohort-badge {
+            position: absolute;
+            top: 5px;
+            left: 8px;
+            font-size: 9.5px;
+            font-weight: 800;
+            padding: 1px 7px;
+            border-radius: 20px;
+            letter-spacing: 0.03em;
+            pointer-events: none;
+            line-height: 1.6;
+            white-space: nowrap;
+        }
+        /* 분기 4색 팔레트 */
+        .cq-1 { background: #e3f0ff; color: #1a5bb5; border: 1.5px solid #90c2ff; }  /* 1분기 – 봄 블루 */
+        .cq-2 { background: #fff7e0; color: #b85c00; border: 1.5px solid #ffc96e; }  /* 2분기 – 여름 앰버 */
+        .cq-3 { background: #eaf6e5; color: #2a6e2a; border: 1.5px solid #8ecf8e; }  /* 3분기 – 가을 그린 */
+        .cq-4 { background: #f3e8ff; color: #6b1fa0; border: 1.5px solid #cda0ef; }  /* 4분기 – 겨울 퍼플 */
+        .cq-none { background: var(--surface2); color: var(--text-muted); border: 1.5px solid var(--border); }
+
+        [data-theme="dark"] .cq-1 { background: #0b1e38; color: #8dbfff; border-color: #1a5bb5; }
+        [data-theme="dark"] .cq-2 { background: #2a1a00; color: #ffc96e; border-color: #b85c00; }
+        [data-theme="dark"] .cq-3 { background: #0d2110; color: #8ecf8e; border-color: #2a6e2a; }
+        [data-theme="dark"] .cq-4 { background: #1e0830; color: #cda0ef; border-color: #6b1fa0; }
+
+        /* 관리자일 때 뱃지와 편집 버튼 공존 */
         .scard-actions {
             position: absolute;
             top: 5px; right: 5px;
             display: none;
             gap: 3px;
         }
-
         .scard:hover .scard-actions { display: flex; }
-
         .scard-btn {
             width: 22px; height: 22px;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            font-size: 11px;
+            border-radius: 6px; border: none;
+            cursor: pointer; font-size: 11px;
             display: flex; align-items: center; justify-content: center;
             transition: all 0.15s;
             background: rgba(255,255,255,0.85);
         }
-
         .scard-btn.edit:hover { background: var(--accent); color: white; }
         .scard-btn.copy:hover { background: var(--success); color: white; }
         .scard-btn.del:hover { background: var(--danger); color: white; }
@@ -555,391 +454,159 @@
         [data-theme="dark"] .type-대관   { background: #251f1c; }
 
         /* ── LEGEND ── */
-        .legend-wrap {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-bottom: 16px;
-        }
-
+        .legend-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
         .legend-chip {
-            display: flex;
-            align-items: center;
-            gap: 5px;
+            display: flex; align-items: center; gap: 5px;
             padding: 4px 10px;
             border-radius: 20px;
-            font-size: 11.5px;
-            font-weight: 600;
+            font-size: 11.5px; font-weight: 600;
             background: var(--surface2);
             border: 1.5px solid var(--border);
             color: var(--text-secondary);
         }
-
-        .legend-dot {
-            width: 8px; height: 8px;
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
+        .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
         /* ── FILTER BAR ── */
         .filter-bar {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            align-items: center;
+            display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
             background: var(--surface2);
             border: 1px solid var(--border);
             border-radius: var(--radius-md);
             padding: 14px 16px;
             margin-bottom: 18px;
         }
-
-        .filter-bar input[type="text"] {
-            flex: 1;
-            min-width: 180px;
-        }
-
+        .filter-bar input[type="text"] { flex: 1; min-width: 180px; }
         .filter-bar select { min-width: 130px; }
 
         /* ── STAT CARDS ── */
-        .stats-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 14px;
-            margin-bottom: 20px;
-        }
-
+        .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 20px; }
         .stat-card {
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: var(--radius-md);
             padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
+            display: flex; flex-direction: column; gap: 4px;
             box-shadow: var(--shadow-sm);
         }
-
-        .stat-icon {
-            font-size: 22px;
-            margin-bottom: 6px;
-        }
-
-        .stat-value {
-            font-size: 30px;
-            font-weight: 800;
-            font-family: 'DM Mono', monospace;
-            color: var(--text-primary);
-            letter-spacing: -1px;
-        }
-
-        .stat-label {
-            font-size: 12px;
-            color: var(--text-muted);
-            font-weight: 500;
-        }
+        .stat-icon { font-size: 22px; margin-bottom: 6px; }
+        .stat-value { font-size: 30px; font-weight: 800; font-family: 'DM Mono', monospace; color: var(--text-primary); letter-spacing: -1px; }
+        .stat-label { font-size: 12px; color: var(--text-muted); font-weight: 500; }
 
         /* ── REQUEST ITEMS ── */
         .req-item {
             background: var(--surface2);
             border: 1px solid var(--border);
             border-radius: var(--radius-md);
-            padding: 16px 20px;
-            margin-bottom: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+            padding: 16px 20px; margin-bottom: 10px;
+            display: flex; flex-direction: column; gap: 8px;
             transition: box-shadow 0.15s;
         }
         .req-item:hover { box-shadow: var(--shadow-md); }
-
-        .req-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .req-status {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 11.5px;
-            font-weight: 700;
-        }
-
+        .req-header { display: flex; justify-content: space-between; align-items: center; }
+        .req-status { padding: 4px 12px; border-radius: 20px; font-size: 11.5px; font-weight: 700; }
         .status-pending  { background: var(--warning-light); color: var(--warning); }
         .status-approved { background: var(--success-light); color: var(--success); }
         .status-rejected { background: var(--danger-light); color: var(--danger); }
-
-        .req-info {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 14px;
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-
+        .req-info { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--text-secondary); }
         .req-info span { display: flex; align-items: center; gap: 4px; }
 
         /* ── MODAL ── */
         .modal-backdrop {
-            display: none;
-            position: fixed;
-            inset: 0;
+            display: none; position: fixed; inset: 0;
             background: rgba(10,12,20,0.6);
             backdrop-filter: blur(6px);
-            z-index: 500;
-            align-items: center;
-            justify-content: center;
+            z-index: 500; align-items: center; justify-content: center;
         }
-
         .modal-backdrop.open { display: flex; animation: fadeModal 0.2s; }
-
-        @keyframes fadeModal {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
+        @keyframes fadeModal { from { opacity: 0; } to { opacity: 1; } }
         .modal-box {
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: var(--radius-xl);
             padding: 32px;
-            max-width: 580px;
-            width: 92%;
-            max-height: 90vh;
-            overflow-y: auto;
+            max-width: 580px; width: 92%; max-height: 90vh; overflow-y: auto;
             box-shadow: var(--shadow-lg);
             animation: slideModal 0.25s cubic-bezier(0.4,0,0.2,1);
         }
-
-        @keyframes slideModal {
-            from { opacity: 0; transform: translateY(24px) scale(0.97); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid var(--border);
-        }
-
+        @keyframes slideModal { from { opacity: 0; transform: translateY(24px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
         .modal-title { font-size: 17px; font-weight: 700; }
-
         .modal-close {
             width: 32px; height: 32px;
             border-radius: var(--radius-sm);
             border: 1.5px solid var(--border);
-            background: none;
-            cursor: pointer;
-            font-size: 16px;
+            background: none; cursor: pointer; font-size: 16px;
             color: var(--text-muted);
             display: flex; align-items: center; justify-content: center;
             transition: all 0.15s;
         }
         .modal-close:hover { background: var(--danger-light); color: var(--danger); border-color: var(--danger); }
-
         .modal-form .form-group { margin-bottom: 16px; }
         .modal-form label { display: block; font-size: 12.5px; font-weight: 600; color: var(--text-secondary); margin-bottom: 5px; }
         .modal-form input, .modal-form select, .modal-form textarea { width: 100%; }
-
-        .modal-footer {
-            display: flex;
-            justify-content: flex-end;
-            gap: 8px;
-            margin-top: 24px;
-            padding-top: 16px;
-            border-top: 1px solid var(--border);
-        }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); }
 
         /* ── AVAILABILITY ── */
-        .room-avail-card {
-            background: var(--surface2);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-md);
-            padding: 16px;
-            margin-bottom: 12px;
-        }
-
-        .room-avail-title {
-            font-size: 14px;
-            font-weight: 700;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .slot-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-        }
-
-        .slot-item {
-            border-radius: var(--radius-sm);
-            padding: 12px;
-            text-align: center;
-            font-size: 12px;
-            border: 1.5px solid;
-            transition: all 0.15s;
-        }
-
-        .slot-available {
-            background: var(--success-light);
-            border-color: var(--success);
-            color: var(--success);
-            cursor: pointer;
-        }
-
+        .room-avail-card { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px; margin-bottom: 12px; }
+        .room-avail-title { font-size: 14px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+        .slot-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .slot-item { border-radius: var(--radius-sm); padding: 12px; text-align: center; font-size: 12px; border: 1.5px solid; transition: all 0.15s; }
+        .slot-available { background: var(--success-light); border-color: var(--success); color: var(--success); cursor: pointer; }
         .slot-available:hover { box-shadow: 0 4px 12px rgba(12,166,120,0.3); transform: translateY(-2px); }
         .slot-occupied { background: var(--danger-light); border-color: var(--danger); color: var(--danger); }
-
         .slot-time { font-family: 'DM Mono', monospace; font-size: 10.5px; margin-bottom: 4px; }
         .slot-label { font-weight: 700; font-size: 13px; }
         .slot-course { font-size: 10px; margin-top: 3px; opacity: 0.8; }
 
         /* ── CALENDAR ── */
-        .cal-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 6px;
-            margin-top: 16px;
-        }
-
-        .cal-head {
-            text-align: center;
-            font-size: 11.5px;
-            font-weight: 700;
-            color: var(--text-muted);
-            padding: 8px 4px;
-        }
-
-        .cal-day {
-            background: var(--surface2);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            padding: 8px;
-            min-height: 80px;
-            font-size: 11.5px;
-            transition: all 0.15s;
-        }
-
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 16px; }
+        .cal-head { text-align: center; font-size: 11.5px; font-weight: 700; color: var(--text-muted); padding: 8px 4px; }
+        .cal-day { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px; min-height: 80px; font-size: 11.5px; transition: all 0.15s; }
         .cal-day:hover { box-shadow: var(--shadow-md); }
-
         .cal-day.today { border-color: var(--accent); background: var(--accent-light); }
         .cal-day.other-month { opacity: 0.4; }
-
         .cal-day-num { font-weight: 700; font-size: 13px; margin-bottom: 4px; }
         .cal-usage { font-size: 10px; color: var(--text-secondary); margin-top: 4px; }
 
         /* ── PROGRESS ── */
-        .prog-bar {
-            background: var(--border);
-            border-radius: 20px;
-            height: 6px;
-            overflow: hidden;
-            margin-top: 5px;
-        }
-
-        .prog-fill {
-            height: 100%;
-            border-radius: 20px;
-            background: var(--accent);
-            transition: width 0.5s;
-        }
-
+        .prog-bar { background: var(--border); border-radius: 20px; height: 6px; overflow: hidden; margin-top: 5px; }
+        .prog-fill { height: 100%; border-radius: 20px; background: var(--accent); transition: width 0.5s; }
         .prog-fill.med { background: var(--warning); }
         .prog-fill.high { background: var(--danger); }
 
         /* ── TOAST ── */
-        .toast-wrap {
-            position: fixed;
-            bottom: 24px; right: 24px;
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
+        .toast-wrap { position: fixed; bottom: 24px; right: 24px; z-index: 1000; display: flex; flex-direction: column; gap: 8px; }
         .toast {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-md);
-            padding: 12px 18px;
-            font-size: 13px;
-            font-weight: 500;
+            background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md);
+            padding: 12px 18px; font-size: 13px; font-weight: 500;
             box-shadow: var(--shadow-lg);
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            display: flex; align-items: center; gap: 8px;
             animation: slideToast 0.3s cubic-bezier(0.4,0,0.2,1);
             max-width: 340px;
         }
-
-        @keyframes slideToast {
-            from { opacity: 0; transform: translateX(60px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
+        @keyframes slideToast { from { opacity: 0; transform: translateX(60px); } to { opacity: 1; transform: translateX(0); } }
         .toast.t-success { border-left: 3px solid var(--success); }
         .toast.t-error { border-left: 3px solid var(--danger); }
         .toast.t-info { border-left: 3px solid var(--accent); }
 
         /* ── ROLE SCREEN ── */
-        #roleScreen {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            background: var(--bg);
-        }
-
+        #roleScreen { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: var(--bg); }
         .role-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-xl);
-            padding: 48px;
-            max-width: 480px;
-            width: 92%;
-            box-shadow: var(--shadow-lg);
-            text-align: center;
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius-xl); padding: 48px;
+            max-width: 480px; width: 92%;
+            box-shadow: var(--shadow-lg); text-align: center;
         }
-
-        .role-logo {
-            width: 64px; height: 64px;
-            background: var(--accent);
-            border-radius: 20px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 32px;
-            margin: 0 auto 20px;
-        }
-
-        .role-title {
-            font-size: 22px;
-            font-weight: 800;
-            margin-bottom: 6px;
-        }
-
+        .role-logo { width: 64px; height: 64px; background: var(--accent); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 20px; }
+        .role-title { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
         .role-subtitle { color: var(--text-muted); font-size: 13px; margin-bottom: 32px; }
-
         .role-btns { display: flex; flex-direction: column; gap: 10px; }
         .role-btn {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px 20px;
-            border-radius: var(--radius-md);
-            border: 1.5px solid var(--border);
-            background: var(--surface2);
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            font-family: inherit;
-            color: var(--text-primary);
-            transition: all 0.15s;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 16px 20px; border-radius: var(--radius-md);
+            border: 1.5px solid var(--border); background: var(--surface2);
+            cursor: pointer; font-size: 14px; font-weight: 600; font-family: inherit;
+            color: var(--text-primary); transition: all 0.15s;
         }
         .role-btn:hover { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
         .role-btn-left { display: flex; align-items: center; gap: 12px; }
@@ -947,113 +614,34 @@
         .role-btn-sub { font-size: 11.5px; color: var(--text-muted); font-weight: 400; }
         .role-hint { margin-top: 20px; font-size: 12px; color: var(--text-muted); background: var(--surface2); padding: 10px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border); }
 
-        /* ── TABS (inner) ── */
+        /* ── INNER TABS ── */
         .inner-tabs {
-            display: flex;
-            gap: 4px;
-            background: var(--surface2);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-md);
-            padding: 4px;
-            margin-bottom: 18px;
-            width: fit-content;
+            display: flex; gap: 4px;
+            background: var(--surface2); border: 1px solid var(--border);
+            border-radius: var(--radius-md); padding: 4px;
+            margin-bottom: 18px; width: fit-content;
         }
-
-        .inner-tab {
-            padding: 7px 16px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-            background: none;
-            color: var(--text-secondary);
-            font-family: inherit;
-            transition: all 0.15s;
-        }
-
-        .inner-tab.active {
-            background: var(--surface);
-            color: var(--accent);
-            box-shadow: var(--shadow-sm);
-        }
+        .inner-tab { padding: 7px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; background: none; color: var(--text-secondary); font-family: inherit; transition: all 0.15s; }
+        .inner-tab.active { background: var(--surface); color: var(--accent); box-shadow: var(--shadow-sm); }
 
         /* ── PAGE HEADER ── */
-        .page-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        .page-title {
-            font-size: 20px;
-            font-weight: 800;
-        }
-
-        .page-title small {
-            display: block;
-            font-size: 12px;
-            font-weight: 400;
-            color: var(--text-muted);
-            margin-top: 2px;
-        }
-
-        /* count indicator */
-        .count-badge {
-            background: var(--surface2);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            padding: 5px 12px;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            font-family: 'DM Mono', monospace;
-        }
-
-        /* Month/Year picker */
-        .period-picker {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: var(--surface2);
-            border: 1.5px solid var(--border);
-            border-radius: var(--radius-md);
-            padding: 6px 12px;
-        }
+        .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+        .page-title { font-size: 20px; font-weight: 800; }
+        .page-title small { display: block; font-size: 12px; font-weight: 400; color: var(--text-muted); margin-top: 2px; }
+        .count-badge { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 5px 12px; font-size: 12px; font-weight: 600; color: var(--text-secondary); font-family: 'DM Mono', monospace; }
+        .period-picker { display: flex; align-items: center; gap: 8px; background: var(--surface2); border: 1.5px solid var(--border); border-radius: var(--radius-md); padding: 6px 12px; }
         .period-picker label { font-size: 12px; color: var(--text-muted); }
-        .period-picker input, .period-picker select {
-            border: none;
-            background: none;
-            padding: 2px 4px;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
+        .period-picker input, .period-picker select { border: none; background: none; padding: 2px 4px; font-size: 13px; font-weight: 600; color: var(--text-primary); }
         .period-picker input:focus, .period-picker select:focus { box-shadow: none; border: none; }
 
-        /* ── DIVIDER ── */
+        /* ── MISC ── */
         .divider { height: 1px; background: var(--border); margin: 20px 0; }
-
-        /* ── SECTION LABEL ── */
-        .section-label {
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            margin-bottom: 12px;
-        }
-
-        /* ── SCROLLBAR ── */
+        .section-label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
-        /* ── RESPONSIVE ── */
         @media (max-width: 768px) {
             .sidebar { transform: translateX(-100%); }
             .sidebar.open { transform: translateX(0); }
@@ -1063,16 +651,10 @@
             .slot-grid { grid-template-columns: 1fr; }
         }
 
-        /* ── EMPTY STATE ── */
-        .empty-state {
-            text-align: center;
-            padding: 48px 24px;
-            color: var(--text-muted);
-        }
+        .empty-state { text-align: center; padding: 48px 24px; color: var(--text-muted); }
         .empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
         .empty-state .empty-text { font-size: 14px; }
 
-        /* helper */
         .flex { display: flex; }
         .items-center { align-items: center; }
         .gap-2 { gap: 8px; }
@@ -1085,38 +667,11 @@
         .text-muted { color: var(--text-muted); }
         .font-mono { font-family: 'DM Mono', monospace; }
 
-        /* info box */
-        .info-box {
-            background: var(--info-light);
-            border: 1px solid var(--info);
-            border-left: 3px solid var(--info);
-            border-radius: var(--radius-sm);
-            padding: 12px 16px;
-            font-size: 12.5px;
-            color: var(--info);
-            line-height: 1.7;
-        }
+        .info-box { background: var(--info-light); border: 1px solid var(--info); border-left: 3px solid var(--info); border-radius: var(--radius-sm); padding: 12px 16px; font-size: 12.5px; color: var(--info); line-height: 1.7; }
 
-        /* theme toggle */
-        .theme-toggle {
-            width: 38px; height: 22px;
-            background: var(--border);
-            border-radius: 11px;
-            position: relative;
-            cursor: pointer;
-            border: none;
-            transition: background 0.2s;
-        }
+        .theme-toggle { width: 38px; height: 22px; background: var(--border); border-radius: 11px; position: relative; cursor: pointer; border: none; transition: background 0.2s; }
         .theme-toggle.on { background: var(--accent); }
-        .theme-toggle::after {
-            content: '';
-            position: absolute;
-            left: 3px; top: 3px;
-            width: 16px; height: 16px;
-            border-radius: 50%;
-            background: white;
-            transition: left 0.2s;
-        }
+        .theme-toggle::after { content: ''; position: absolute; left: 3px; top: 3px; width: 16px; height: 16px; border-radius: 50%; background: white; transition: left 0.2s; }
         .theme-toggle.on::after { left: calc(100% - 19px); }
     </style>
 </head>
@@ -1158,7 +713,6 @@
 <!-- ══════════════ APP SHELL ══════════════ -->
 <div id="appShell" style="display:none;">
 
-    <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-logo">
             <div class="logo-icon">📅</div>
@@ -1189,15 +743,11 @@
         </div>
     </aside>
 
-    <!-- HEADER -->
     <header class="header">
         <div class="header-title" id="headerTitle">배정표</div>
         <div class="header-spacer"></div>
         <div class="header-actions">
-            <div class="sync-chip" id="syncChip">
-                <div class="sync-dot"></div>
-                <span id="syncText">저장됨</span>
-            </div>
+            <div class="sync-chip" id="syncChip"><div class="sync-dot"></div><span id="syncText">저장됨</span></div>
             <div class="role-badge" id="roleBadge"></div>
             <div id="adminHeaderBtns" style="display:none; gap:6px;" class="flex">
                 <button class="btn btn-ghost btn-sm" onclick="window.undo()" id="undoBtn" disabled>↶ 되돌리기</button>
@@ -1210,12 +760,10 @@
         </div>
     </header>
 
-    <!-- MAIN -->
     <main class="main">
 
         <!-- ── TAB: SCHEDULE ── -->
         <div id="tab-schedule" class="tab-pane">
-            <!-- Admin Register Panel -->
             <div id="adminRegPanel" class="card" style="display:none;">
                 <div class="card-title">✏️ 일정 직접 등록</div>
                 <div class="form-row">
@@ -1245,12 +793,25 @@
                     <div class="form-group"><label class="form-label">종료</label><input type="time" id="endTime" value="17:30"></div>
                     <div class="form-group" style="flex:2;"><label class="form-label">과정명</label><input type="text" id="courseName" placeholder="Python 기초 과정" style="width:100%;"></div>
                     <div class="form-group" style="flex:1;"><label class="form-label">강사명</label><input type="text" id="instructorName" placeholder="홍길동"></div>
-                    <div class="form-group"><label class="form-label">사업구분</label><select id="businessType"><option value="직업교육">직업교육</option><option value="여성미래">여성미래</option><option value="양천구사업">양천구사업</option><option value="생활문화">생활문화</option><option value="생활체육">생활체육</option><option value="내일배움카드">내일배움카드</option><option value="직훈">직훈</option><option value="고부가">고부가</option><option value="취업팀">취업팀</option><option value="관리팀">관리팀</option><option value="대관">대관</option></select></div>
+                    <div class="form-group"><label class="form-label">사업구분</label>
+                        <select id="businessType">
+                            <option value="직업교육">직업교육</option><option value="여성미래">여성미래</option>
+                            <option value="양천구사업">양천구사업</option><option value="생활문화">생활문화</option>
+                            <option value="생활체육">생활체육</option><option value="내일배움카드">내일배움카드</option>
+                            <option value="직훈">직훈</option><option value="고부가">고부가</option>
+                            <option value="취업팀">취업팀</option><option value="관리팀">관리팀</option>
+                            <option value="대관">대관</option>
+                        </select>
+                    </div>
+                    <!-- ★ 기수 입력 필드 추가 -->
+                    <div class="form-group">
+                        <label class="form-label">🎖 기수 (선택)</label>
+                        <input type="text" id="cohortNum" placeholder="예: 102기" style="width:90px;">
+                    </div>
                     <div class="form-group" style="align-self:flex-end;"><button class="btn btn-primary" onclick="window.addSchedule()">➕ 등록</button></div>
                 </div>
 
                 <div class="divider"></div>
-
                 <div class="section-label">CSV 일괄 업로드</div>
                 <div class="form-row">
                     <input type="file" id="csvFile" accept=".csv" style="flex:1;">
@@ -1260,16 +821,24 @@
                 </div>
 
                 <div class="divider"></div>
-
-                <div class="section-label">범례</div>
+                <div class="section-label">사업구분 범례</div>
                 <div class="legend-wrap" id="legendWrap"></div>
 
+                <!-- ★ 기수 색상 범례 -->
+                <div class="section-label" style="margin-top:12px;">기수 색상 범례</div>
+                <div class="legend-wrap" id="cohortLegendWrap">
+                    <div class="legend-chip"><span class="cohort-badge cq-1" style="position:static;font-size:10px;padding:2px 8px;">102기</span>1분기 (봄)</div>
+                    <div class="legend-chip"><span class="cohort-badge cq-2" style="position:static;font-size:10px;padding:2px 8px;">103기</span>2분기 (여름)</div>
+                    <div class="legend-chip"><span class="cohort-badge cq-3" style="position:static;font-size:10px;padding:2px 8px;">104기</span>3분기 (가을)</div>
+                    <div class="legend-chip"><span class="cohort-badge cq-4" style="position:static;font-size:10px;padding:2px 8px;">105기</span>4분기 (겨울)</div>
+                </div>
+
                 <div class="info-box mt-2">
-                    💡 <strong>카드 조작:</strong> &nbsp;✏️ 수정 &nbsp;📋 복사 &nbsp;❌ 삭제 &nbsp;·&nbsp; <strong>더블클릭</strong>으로 같은 과정 일괄 삭제
+                    💡 <strong>카드 조작:</strong> &nbsp;✏️ 수정 &nbsp;📋 복사 &nbsp;❌ 삭제 &nbsp;·&nbsp; <strong>더블클릭</strong>으로 같은 과정 일괄 삭제<br>
+                    🎖 <strong>기수:</strong> 숫자 입력 시 분기(1~4분기)에 따라 자동 색상 적용됩니다. 예) 102기→1분기(봄), 103기→2분기(여름)
                 </div>
             </div>
 
-            <!-- User Panel -->
             <div id="userRegPanel" class="card" style="display:none;">
                 <div class="flex items-center gap-3">
                     <button class="btn btn-success" onclick="window.openRequestModal()">📝 강의실 사용 요청하기</button>
@@ -1277,10 +846,9 @@
                 </div>
             </div>
 
-            <!-- Filter bar -->
             <div class="filter-bar">
                 <span class="text-sm text-muted" style="flex-shrink:0;">🔍 검색</span>
-                <input type="text" id="searchInput" placeholder="과정명, 강사명, 강의실..." oninput="window.renderSchedule()">
+                <input type="text" id="searchInput" placeholder="과정명, 강사명, 강의실, 기수..." oninput="window.renderSchedule()">
                 <select id="filterBusinessType" onchange="window.renderSchedule()">
                     <option value="">전체 사업구분</option>
                     <option value="직업교육">직업교육</option><option value="여성미래">여성미래</option>
@@ -1291,6 +859,8 @@
                     <option value="대관">대관</option>
                 </select>
                 <select id="filterRoom" onchange="window.renderSchedule()"><option value="">전체 강의실</option></select>
+                <!-- ★ 기수 필터 -->
+                <select id="filterCohort" onchange="window.renderSchedule()"><option value="">전체 기수</option></select>
                 <button class="btn btn-ghost btn-sm" onclick="window.clearFilters()">✕ 초기화</button>
                 <div class="period-picker ml-auto">
                     <label>조회</label>
@@ -1305,7 +875,6 @@
                 <span class="count-badge">표시 <span id="displayCount">0</span> / <span id="totalCount">0</span></span>
             </div>
 
-            <!-- Schedule table -->
             <div class="table-wrapper">
                 <table>
                     <thead id="scheduleHead"></thead>
@@ -1327,19 +896,14 @@
             <div class="page-header">
                 <div class="page-title">빈 강의실 확인<small>날짜와 시간대별 가용 강의실 조회</small></div>
             </div>
-
             <div class="inner-tabs">
                 <button class="inner-tab active" id="dailyViewTab" onclick="window.showAvailabilityView('daily')">📅 일별 보기</button>
                 <button class="inner-tab" id="monthlyViewTab" onclick="window.showAvailabilityView('monthly')">📆 월별 보기</button>
             </div>
-
             <div id="dailyAvailability">
                 <div class="card">
                     <div class="form-row" style="align-items:flex-end;">
-                        <div class="form-group">
-                            <label class="form-label">날짜</label>
-                            <input type="date" id="checkDate">
-                        </div>
+                        <div class="form-group"><label class="form-label">날짜</label><input type="date" id="checkDate"></div>
                         <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:flex-end;">
                             <button class="btn btn-ghost btn-sm" onclick="window.setTimePreset('morning')">🌅 오전 09~13</button>
                             <button class="btn btn-ghost btn-sm" onclick="window.setTimePreset('afternoon')">☀️ 오후 13~18</button>
@@ -1353,7 +917,6 @@
                 </div>
                 <div id="dailyResult"></div>
             </div>
-
             <div id="monthlyAvailability" style="display:none;">
                 <div class="card">
                     <div class="form-row" style="align-items:flex-end;">
@@ -1383,7 +946,6 @@
             </div>
             <div id="statisticsContent"></div>
         </div>
-
     </main>
 </div>
 
@@ -1394,8 +956,6 @@
             <div class="modal-title">📝 강의실 사용 요청</div>
             <button class="modal-close" onclick="window.closeRequestModal()">✕</button>
         </div>
-
-        <!-- 공통 필드 -->
         <div class="modal-form">
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
                 <div class="form-group"><label>👤 요청자 이름 *</label><input type="text" id="reqRequesterName" placeholder="홍길동" style="width:100%;"></div>
@@ -1416,8 +976,6 @@
             </div>
             <div class="form-group"><label>📝 사용 목적 (선택)</label><textarea id="reqPurpose" rows="2" placeholder="사용 목적을 간략히 입력하세요" style="width:100%;"></textarea></div>
         </div>
-
-        <!-- 요청 유형 탭 -->
         <div style="margin:16px 0 0;">
             <div class="section-label">요청 유형 선택</div>
             <div class="inner-tabs" style="width:100%;display:flex;">
@@ -1426,8 +984,6 @@
                 <button class="inner-tab" id="rtab-bulk" onclick="window.switchReqTab('bulk')" style="flex:1;">📋 일괄 서식</button>
             </div>
         </div>
-
-        <!-- 단일 날짜 -->
         <div id="req-panel-single" class="modal-form" style="margin-top:14px;">
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
                 <div class="form-group"><label>🏢 강의실 *</label><select id="reqRoom" style="width:100%;"></select></div>
@@ -1439,8 +995,6 @@
                 <div class="form-group"><label>⏰ 종료 시간</label><input type="time" id="reqEndTime" value="18:00" style="width:100%;"></div>
             </div>
         </div>
-
-        <!-- 다회차 -->
         <div id="req-panel-multi" class="modal-form" style="margin-top:14px;display:none;">
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
                 <div class="form-group"><label>🏢 강의실 *</label><select id="reqRoomMulti" style="width:100%;"></select></div>
@@ -1460,12 +1014,9 @@
             <div class="section-label">회차별 날짜 입력</div>
             <div id="sessionRows" style="display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto;padding-right:4px;"></div>
         </div>
-
-        <!-- 일괄 서식 -->
         <div id="req-panel-bulk" class="modal-form" style="margin-top:14px;display:none;">
             <div class="info-box" style="margin-bottom:12px;">
-                📋 <strong>일괄 서식 사용법:</strong> 아래 표에서 행을 추가하여 여러 강의실·날짜를 한 번에 신청하세요.<br>
-                CSV 파일을 업로드하거나 직접 행을 추가할 수 있습니다.
+                📋 <strong>일괄 서식 사용법:</strong> 아래 표에서 행을 추가하여 여러 강의실·날짜를 한 번에 신청하세요.
             </div>
             <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
                 <button class="btn btn-primary btn-sm" onclick="window.addBulkRow()">➕ 행 추가</button>
@@ -1479,11 +1030,11 @@
                 <table style="min-width:100%;border-collapse:collapse;font-size:12px;">
                     <thead>
                         <tr style="background:var(--surface2);">
-                            <th style="padding:8px;border:1px solid var(--border);white-space:nowrap;">강의실</th>
-                            <th style="padding:8px;border:1px solid var(--border);white-space:nowrap;">날짜</th>
-                            <th style="padding:8px;border:1px solid var(--border);white-space:nowrap;">시작</th>
-                            <th style="padding:8px;border:1px solid var(--border);white-space:nowrap;">종료</th>
-                            <th style="padding:8px;border:1px solid var(--border);white-space:nowrap;">삭제</th>
+                            <th style="padding:8px;border:1px solid var(--border);">강의실</th>
+                            <th style="padding:8px;border:1px solid var(--border);">날짜</th>
+                            <th style="padding:8px;border:1px solid var(--border);">시작</th>
+                            <th style="padding:8px;border:1px solid var(--border);">종료</th>
+                            <th style="padding:8px;border:1px solid var(--border);">삭제</th>
                         </tr>
                     </thead>
                     <tbody id="bulkTableBody"></tbody>
@@ -1491,7 +1042,6 @@
             </div>
             <div id="bulkPreview" style="margin-top:10px;font-size:12px;color:var(--text-muted);"></div>
         </div>
-
         <div class="modal-footer">
             <button class="btn btn-ghost" onclick="window.closeRequestModal()">취소</button>
             <button class="btn btn-success" onclick="window.submitRequest()">✅ 제출</button>
@@ -1535,6 +1085,11 @@
                     <option value="대관">대관</option>
                 </select>
             </div>
+            <!-- ★ 기수 편집 필드 -->
+            <div class="form-group">
+                <label>🎖 기수 (선택)</label>
+                <input type="text" id="editCohortNum" placeholder="예: 102기" style="width:100%;">
+            </div>
         </div>
         <div class="modal-footer">
             <button class="btn btn-ghost" onclick="window.closeEditModal()">취소</button>
@@ -1555,17 +1110,13 @@ const firebaseConfig = {
     messagingSenderId: "336179508315",
     appId: "1:336179508315:web:02eb5553d16b7342383b7e"
 };
-
-// Firebase 초기화 (중복 방지)
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 const dbRef = database.ref('classroom_data');
 
 // ── GLOBALS ──
 window.schedules = [];
-window.requests = [];
+window.requests  = [];
 window.idCounter = 1;
 window.currentRole = null;
 window.rooms = ["B101","101호","102호","201호","202호","203호","204호","205호","206호","207호","208호","209호","301호","302호","303호","스튜디오","강당","상담실"];
@@ -1580,11 +1131,57 @@ const typeColors = {
     "생활문화":"#4caf50","생활체육":"#009688","내일배움카드":"#ff9800",
     "직훈":"#fbc02d","고부가":"#5c6bc0","취업팀":"#03a9f4","관리팀":"#8bc34a","대관":"#795548"
 };
-
 const timeSlots = {
     morning:   { start:'09:00', end:'13:00', label:'오전' },
     afternoon: { start:'13:00', end:'18:00', label:'오후' },
     evening:   { start:'18:00', end:'21:00', label:'저녁' }
+};
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ★★★ 기수 관련 유틸리티 ★★★
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+/**
+ * 기수 문자열(예: "102기")에서 분기(1~4)를 계산하여 CSS 클래스 반환
+ * 기수 번호 % 4 로 분기 결정:
+ *   나머지 1 → 1분기(봄)  cq-1
+ *   나머지 2 → 2분기(여름) cq-2
+ *   나머지 3 → 3분기(가을) cq-3
+ *   나머지 0 → 4분기(겨울) cq-4
+ */
+window.getCohortClass = function(cohortStr) {
+    if (!cohortStr || !cohortStr.toString().trim()) return 'cq-none';
+    const num = parseInt(cohortStr.toString().replace(/[^0-9]/g, ''));
+    if (isNaN(num)) return 'cq-none';
+    const q = num % 4;
+    return q === 1 ? 'cq-1' : q === 2 ? 'cq-2' : q === 3 ? 'cq-3' : 'cq-4';
+};
+
+/**
+ * 기수 뱃지 HTML 반환 (카드 좌상단 절대 위치)
+ */
+window.getCohortBadgeHTML = function(cohortStr) {
+    if (!cohortStr || !cohortStr.toString().trim()) return '';
+    const cls = window.getCohortClass(cohortStr);
+    const label = cohortStr.toString().trim();
+    return `<span class="cohort-badge ${cls}">${label}</span>`;
+};
+
+/**
+ * 기수 필터 select 옵션 업데이트
+ */
+window.updateCohortFilter = function() {
+    const sel = document.getElementById('filterCohort');
+    if (!sel) return;
+    const cohorts = [...new Set(window.schedules.map(s => s.cohort).filter(Boolean))].sort();
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">전체 기수</option>';
+    cohorts.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c; opt.textContent = c;
+        if (c === cur) opt.selected = true;
+        sel.appendChild(opt);
+    });
 };
 
 // ── THEME ──
@@ -1603,7 +1200,7 @@ window.showToast = function(msg, type = 'success') {
     const icons = { success:'✅', error:'❌', info:'ℹ️' };
     el.innerHTML = `<span>${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
     wrap.appendChild(el);
-    setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity 0.3s'; setTimeout(() => el.remove(), 300); }, 2800);
+    setTimeout(() => { el.style.opacity='0'; el.style.transition='opacity 0.3s'; setTimeout(()=>el.remove(),300); }, 2800);
 };
 
 // ── SYNC STATUS ──
@@ -1616,39 +1213,35 @@ window.setSyncStatus = function(status) {
 
 // ── UNDO/REDO ──
 window.saveState = function(action) {
-    window.undoStack.push({ schedules: JSON.parse(JSON.stringify(window.schedules)), requests: JSON.parse(JSON.stringify(window.requests)), idCounter: window.idCounter, action });
+    window.undoStack.push({ schedules:JSON.parse(JSON.stringify(window.schedules)), requests:JSON.parse(JSON.stringify(window.requests)), idCounter:window.idCounter, action });
     window.redoStack = [];
     if(window.undoStack.length > 50) window.undoStack.shift();
     window.updateUndoRedo();
 };
-
 window.undo = function() {
     if(!window.undoStack.length) return;
-    window.redoStack.push({ schedules: JSON.parse(JSON.stringify(window.schedules)), requests: JSON.parse(JSON.stringify(window.requests)), idCounter: window.idCounter, action:'current' });
+    window.redoStack.push({ schedules:JSON.parse(JSON.stringify(window.schedules)), requests:JSON.parse(JSON.stringify(window.requests)), idCounter:window.idCounter, action:'current' });
     const prev = window.undoStack.pop();
-    window.schedules = prev.schedules; window.requests = prev.requests; window.idCounter = prev.idCounter;
-    saveToCloud(); window.showToast(`↶ ${prev.action} 되돌림`, 'info'); window.updateUndoRedo();
+    window.schedules=prev.schedules; window.requests=prev.requests; window.idCounter=prev.idCounter;
+    saveToCloud(); window.showToast(`↶ ${prev.action} 되돌림`,'info'); window.updateUndoRedo();
 };
-
 window.redo = function() {
     if(!window.redoStack.length) return;
-    window.undoStack.push({ schedules: JSON.parse(JSON.stringify(window.schedules)), requests: JSON.parse(JSON.stringify(window.requests)), idCounter: window.idCounter, action:'undo' });
+    window.undoStack.push({ schedules:JSON.parse(JSON.stringify(window.schedules)), requests:JSON.parse(JSON.stringify(window.requests)), idCounter:window.idCounter, action:'undo' });
     const next = window.redoStack.pop();
-    window.schedules = next.schedules; window.requests = next.requests; window.idCounter = next.idCounter;
-    saveToCloud(); window.showToast(`↷ 다시실행`, 'info'); window.updateUndoRedo();
+    window.schedules=next.schedules; window.requests=next.requests; window.idCounter=next.idCounter;
+    saveToCloud(); window.showToast('↷ 다시실행','info'); window.updateUndoRedo();
 };
-
 window.updateUndoRedo = function() {
-    const u = document.getElementById('undoBtn'), r = document.getElementById('redoBtn');
-    if(u) u.disabled = window.undoStack.length === 0;
-    if(r) r.disabled = window.redoStack.length === 0;
+    const u=document.getElementById('undoBtn'), r=document.getElementById('redoBtn');
+    if(u) u.disabled=window.undoStack.length===0;
+    if(r) r.disabled=window.redoStack.length===0;
 };
 
-// ── Firebase 저장/실시간 동기화 (오프라인 캐시 겸용) ──
+// ── Firebase ──
 var _realtimeListenerAttached = false;
-
 function attachRealtimeListener() {
-    if (_realtimeListenerAttached) return;
+    if(_realtimeListenerAttached) return;
     _realtimeListenerAttached = true;
     dbRef.on('value', function(snap) {
         if(snap.exists()) {
@@ -1660,8 +1253,8 @@ function attachRealtimeListener() {
             window.renderRequests();
             window.updateRequestBadge();
             window.updateStatistics();
+            window.updateCohortFilter();
             window.setSyncStatus('synced');
-            // 로컬 캐시 저장 (오프라인 대비)
             try { localStorage.setItem('seobu_cache', JSON.stringify({schedules:window.schedules,requests:window.requests,idCounter:window.idCounter})); } catch(e){}
         }
     }, function(err) {
@@ -1671,44 +1264,30 @@ function attachRealtimeListener() {
 }
 
 function loadFromCloud() {
-    if (window._offlineMode) {
-        // 오프라인: localStorage 캐시 사용
+    if(window._offlineMode) {
         try {
             const cached = localStorage.getItem('seobu_cache');
-            if (cached) {
-                const d = JSON.parse(cached);
-                window.schedules = d.schedules || [];
-                window.requests  = d.requests  || [];
-                window.idCounter = d.idCounter || 1;
-            }
+            if(cached) { const d=JSON.parse(cached); window.schedules=d.schedules||[]; window.requests=d.requests||[]; window.idCounter=d.idCounter||1; }
         } catch(e) {}
         window.setSyncStatus('error');
-        window.renderSchedule(); window.renderRequests(); window.updateStatistics();
-        window.showToast('오프라인 상태 - 캐시 데이터를 표시합니다', 'error');
+        window.renderSchedule(); window.renderRequests(); window.updateStatistics(); window.updateCohortFilter();
+        window.showToast('오프라인 상태 - 캐시 데이터를 표시합니다','error');
         return;
     }
     window.setSyncStatus('syncing');
-    attachRealtimeListener(); // 실시간 리스너가 데이터 로드도 처리
+    attachRealtimeListener();
 }
 
 function saveToCloud() {
-    if (window._offlineMode) {
+    if(window._offlineMode) {
         try { localStorage.setItem('seobu_cache', JSON.stringify({schedules:window.schedules,requests:window.requests,idCounter:window.idCounter})); } catch(e){}
-        window.showToast('오프라인 - 로컬 저장됨 (연결 후 동기화 필요)', 'error');
+        window.showToast('오프라인 - 로컬 저장됨','error');
         return;
     }
     window.setSyncStatus('syncing');
-    dbRef.set({
-        schedules:   window.schedules,
-        requests:    window.requests,
-        idCounter:   window.idCounter,
-        lastUpdated: new Date().toISOString()
-    }).then(function() {
-        window.setSyncStatus('synced');
-    }).catch(function(e) {
-        window.setSyncStatus('error');
-        window.showToast('저장 실패: ' + e.message, 'error');
-    });
+    dbRef.set({ schedules:window.schedules, requests:window.requests, idCounter:window.idCounter, lastUpdated:new Date().toISOString() })
+    .then(() => window.setSyncStatus('synced'))
+    .catch(e => { window.setSyncStatus('error'); window.showToast('저장 실패: '+e.message,'error'); });
 }
 
 // ── INIT ──
@@ -1716,13 +1295,11 @@ window.init = function() {
     const savedTheme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
     document.getElementById('themeToggle').classList.toggle('on', savedTheme === 'dark');
-
     window.populateRoomSelects();
     window.buildLegend();
     loadFromCloud();
     document.getElementById('checkDate').value = new Date().toISOString().split('T')[0];
-    document.getElementById('reqDate').value = new Date().toISOString().split('T')[0];
-
+    document.getElementById('reqDate').value   = new Date().toISOString().split('T')[0];
     const filterRoom = document.getElementById('filterRoom');
     window.rooms.forEach(r => filterRoom.innerHTML += `<option value="${r}">${r}</option>`);
 };
@@ -1745,7 +1322,7 @@ window.populateRoomSelects = function() {
 window.setRole = function(role) {
     if(role === 'admin') {
         const pw = prompt('🔐 관리자 비밀번호:');
-        if(pw !== 'admin1234') { if(pw !== null) window.showToast('비밀번호가 올바르지 않습니다', 'error'); return; }
+        if(pw !== 'admin1234') { if(pw !== null) window.showToast('비밀번호가 올바르지 않습니다','error'); return; }
         window.showToast('관리자 인증 성공!');
     }
     window.currentRole = role;
@@ -1757,7 +1334,6 @@ window.setRole = function(role) {
     document.getElementById('adminHeaderBtns').style.display = role === 'admin' ? 'flex' : 'none';
     window.updateRequestBadge(); window.renderSchedule(); window.renderRequests(); window.updateStatistics(); window.updateUndoRedo();
 };
-
 window.changeRole = function() {
     document.getElementById('roleScreen').style.display = 'flex';
     document.getElementById('appShell').style.display = 'none';
@@ -1766,25 +1342,24 @@ window.changeRole = function() {
 
 // ── TABS ──
 const tabTitles = { schedule:'배정표', request:'사용 요청 내역', availability:'빈 강의실', statistics:'통계' };
-
 window.showTab = function(tab) {
-    document.querySelectorAll('.tab-pane').forEach(p => p.style.display = 'none');
+    document.querySelectorAll('.tab-pane').forEach(p => p.style.display='none');
     document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-    document.getElementById('tab-' + tab).style.display = 'block';
-    const navEl = document.getElementById('nav-' + tab);
+    document.getElementById('tab-'+tab).style.display='block';
+    const navEl = document.getElementById('nav-'+tab);
     if(navEl) navEl.classList.add('active');
-    document.getElementById('headerTitle').textContent = tabTitles[tab] || tab;
+    document.getElementById('headerTitle').textContent = tabTitles[tab]||tab;
     window.currentTab = tab;
-    if(tab === 'statistics') window.updateStatistics();
+    if(tab==='statistics') window.updateStatistics();
 };
 
 // ── SCHEDULE RENDER ──
 window.getDates = function(year, month) {
     const result = {};
     const lastDay = new Date(year, month, 0).getDate();
-    for(let i = 1; i <= lastDay; i++) {
-        const day = new Date(year, month - 1, i).getDay();
-        if(day >= 1 && day <= 6) { if(!result[day]) result[day] = []; result[day].push(i); }
+    for(let i=1; i<=lastDay; i++) {
+        const day = new Date(year, month-1, i).getDay();
+        if(day>=1 && day<=6) { if(!result[day]) result[day]=[]; result[day].push(i); }
     }
     return result;
 };
@@ -1793,15 +1368,17 @@ window.clearFilters = function() {
     document.getElementById('searchInput').value = '';
     document.getElementById('filterBusinessType').value = '';
     document.getElementById('filterRoom').value = '';
+    document.getElementById('filterCohort').value = '';
     window.renderSchedule();
 };
 
 window.renderSchedule = function() {
-    const year = parseInt(document.getElementById('viewYear').value);
-    const month = parseInt(document.getElementById('viewMonth').value);
+    const year   = parseInt(document.getElementById('viewYear').value);
+    const month  = parseInt(document.getElementById('viewMonth').value);
     const search = document.getElementById('searchInput').value.toLowerCase();
     const filterBT = document.getElementById('filterBusinessType').value;
-    const filterR = document.getElementById('filterRoom').value;
+    const filterR  = document.getElementById('filterRoom').value;
+    const filterC  = document.getElementById('filterCohort').value;   // ★ 기수 필터
 
     const datesMap = window.getDates(year, month);
     const dayNames = ['일','월','화','수','목','금','토'];
@@ -1809,7 +1386,7 @@ window.renderSchedule = function() {
     const tbody = document.getElementById('scheduleBody');
 
     let headHtml = `<tr><th class="room-th room-cell">강의실</th>`;
-    for(let d = 1; d <= 6; d++) {
+    for(let d=1; d<=6; d++) {
         const dates = datesMap[d] || [];
         headHtml += `<th>${dayNames[d]}<br><small style="font-weight:400;font-family:'DM Mono',monospace;">${dates.join(' ')}</small></th>`;
     }
@@ -1826,18 +1403,22 @@ window.renderSchedule = function() {
         tdRoom.textContent = room;
         tr.appendChild(tdRoom);
 
-        for(let d = 1; d <= 6; d++) {
+        for(let d=1; d<=6; d++) {
             const td = document.createElement('td');
-            let items = window.schedules.filter(s => s.y === year && s.m === month && s.r === room && s.d === d);
-            if(search) items = items.filter(s => s.cn.toLowerCase().includes(search) || (s.tn&&s.tn.toLowerCase().includes(search)) || s.r.toLowerCase().includes(search));
+            let items = window.schedules.filter(s => s.y===year && s.m===month && s.r===room && s.d===d);
+            if(search)   items = items.filter(s => s.cn.toLowerCase().includes(search) || (s.tn&&s.tn.toLowerCase().includes(search)) || s.r.toLowerCase().includes(search) || (s.cohort&&s.cohort.toLowerCase().includes(search)));
             if(filterBT) items = items.filter(s => s.bt === filterBT);
+            if(filterC)  items = items.filter(s => s.cohort === filterC);  // ★
             items.sort((a,b) => a.st.localeCompare(b.st));
             displayCount += items.length;
 
             items.forEach(item => {
                 const div = document.createElement('div');
                 div.className = `scard type-${item.bt || '직업교육'}`;
-                let html = `<div class="scard-time">${item.st}–${item.et}</div>
+
+                // ★ 기수 뱃지 + 카드 내용
+                let html = window.getCohortBadgeHTML(item.cohort);
+                html += `<div class="scard-time">${item.st}–${item.et}</div>
                     <div class="scard-title">${item.cn}</div>`;
                 if(item.tn) html += `<div class="scard-teacher">👨‍🏫 ${item.tn}</div>`;
                 html += `<div class="scard-dates">📅 ${item.dates.join(',')}일</div>`;
@@ -1846,7 +1427,7 @@ window.renderSchedule = function() {
                     html += `<div class="scard-actions">
                         <button class="scard-btn edit" onclick="event.stopPropagation();window.openEditModal(${item.id})" title="수정">✏️</button>
                         <button class="scard-btn copy" onclick="event.stopPropagation();window.copySchedule(${item.id})" title="복사">📋</button>
-                        <button class="scard-btn del" onclick="event.stopPropagation();window.deleteSchedule(${item.id})" title="삭제">❌</button>
+                        <button class="scard-btn del"  onclick="event.stopPropagation();window.deleteSchedule(${item.id})" title="삭제">❌</button>
                     </div>`;
                     const cn = item.cn;
                     div.ondblclick = () => window.deleteAllByCourse(cn);
@@ -1863,111 +1444,117 @@ window.renderSchedule = function() {
 
     document.getElementById('displayCount').textContent = displayCount;
     document.getElementById('totalCount').textContent = window.schedules.length;
+    window.updateCohortFilter();  // ★ 렌더 후 필터 옵션 갱신
 };
 
 // ── EDIT MODAL ──
 window.openEditModal = function(id) {
-    const s = window.schedules.find(x => x.id === id); if(!s) return;
+    const s = window.schedules.find(x => x.id===id); if(!s) return;
     window.currentEditingId = id;
-    document.getElementById('editRoom').value = s.r;
-    document.getElementById('editYear').value = s.y;
-    document.getElementById('editMonth').value = s.m;
-    document.getElementById('editDayOfWeek').value = s.d;
-    document.getElementById('editDates').value = s.dates.join(',');
-    document.getElementById('editStartTime').value = s.st;
-    document.getElementById('editEndTime').value = s.et;
-    document.getElementById('editCourseName').value = s.cn;
+    document.getElementById('editRoom').value         = s.r;
+    document.getElementById('editYear').value         = s.y;
+    document.getElementById('editMonth').value        = s.m;
+    document.getElementById('editDayOfWeek').value    = s.d;
+    document.getElementById('editDates').value        = s.dates.join(',');
+    document.getElementById('editStartTime').value    = s.st;
+    document.getElementById('editEndTime').value      = s.et;
+    document.getElementById('editCourseName').value   = s.cn;
     document.getElementById('editInstructorName').value = s.tn || '';
     document.getElementById('editBusinessType').value = s.bt || '직업교육';
+    document.getElementById('editCohortNum').value    = s.cohort || '';  // ★
     document.getElementById('editModal').classList.add('open');
 };
-
-window.closeEditModal = function() { document.getElementById('editModal').classList.remove('open'); window.currentEditingId = null; };
+window.closeEditModal = function() { document.getElementById('editModal').classList.remove('open'); window.currentEditingId=null; };
 
 window.saveEdit = function() {
     if(!window.currentEditingId) return;
-    const s = window.schedules.find(x => x.id === window.currentEditingId); if(!s) return;
+    const s = window.schedules.find(x => x.id===window.currentEditingId); if(!s) return;
     window.saveState('일정 수정');
     const datesStr = document.getElementById('editDates').value;
-    const dates = datesStr.split(',').map(d => parseInt(d.trim())).filter(d => !isNaN(d) && d>=1 && d<=31);
-    if(!dates.length) { window.showToast('올바른 날짜를 입력하세요', 'error'); return; }
-    s.r = document.getElementById('editRoom').value;
-    s.y = parseInt(document.getElementById('editYear').value);
-    s.m = parseInt(document.getElementById('editMonth').value);
-    s.d = parseInt(document.getElementById('editDayOfWeek').value);
-    s.dates = dates; s.st = document.getElementById('editStartTime').value;
-    s.et = document.getElementById('editEndTime').value;
-    s.cn = document.getElementById('editCourseName').value.trim();
-    s.tn = document.getElementById('editInstructorName').value.trim();
-    s.bt = document.getElementById('editBusinessType').value;
+    const dates = datesStr.split(',').map(d=>parseInt(d.trim())).filter(d=>!isNaN(d)&&d>=1&&d<=31);
+    if(!dates.length) { window.showToast('올바른 날짜를 입력하세요','error'); return; }
+    s.r      = document.getElementById('editRoom').value;
+    s.y      = parseInt(document.getElementById('editYear').value);
+    s.m      = parseInt(document.getElementById('editMonth').value);
+    s.d      = parseInt(document.getElementById('editDayOfWeek').value);
+    s.dates  = dates;
+    s.st     = document.getElementById('editStartTime').value;
+    s.et     = document.getElementById('editEndTime').value;
+    s.cn     = document.getElementById('editCourseName').value.trim();
+    s.tn     = document.getElementById('editInstructorName').value.trim();
+    s.bt     = document.getElementById('editBusinessType').value;
+    s.cohort = document.getElementById('editCohortNum').value.trim();  // ★
     saveToCloud(); window.showToast('일정이 수정되었습니다'); window.closeEditModal();
 };
 
 window.copySchedule = function(id) {
-    const s = window.schedules.find(x => x.id === id); if(!s) return;
+    const s = window.schedules.find(x => x.id===id); if(!s) return;
     window.saveState('일정 복사');
-    window.schedules.push({...s, id: window.idCounter++, cn: s.cn + ' (복사)'});
-    saveToCloud(); window.showToast('일정이 복사되었습니다', 'info');
+    window.schedules.push({...s, id:window.idCounter++, cn:s.cn+' (복사)'});
+    saveToCloud(); window.showToast('일정이 복사되었습니다','info');
 };
 
 // ── ADD SCHEDULE ──
-window.timeOverlap = (s1,e1,s2,e2) => s1 < e2 && e1 > s2;
+window.timeOverlap = (s1,e1,s2,e2) => s1<e2 && e1>s2;
 
 window.addSchedule = function() {
-    const startDate = new Date(document.getElementById('startDate').value);
-    const endDate = new Date(document.getElementById('endDate').value);
-    const room = document.getElementById('roomSelect').value;
-    const startTime = document.getElementById('startTime').value;
-    const endTime = document.getElementById('endTime').value;
+    const startDate  = new Date(document.getElementById('startDate').value);
+    const endDate    = new Date(document.getElementById('endDate').value);
+    const room       = document.getElementById('roomSelect').value;
+    const startTime  = document.getElementById('startTime').value;
+    const endTime    = document.getElementById('endTime').value;
     const courseName = document.getElementById('courseName').value.trim();
     const instructorName = document.getElementById('instructorName').value.trim();
-    const businessType = document.getElementById('businessType').value;
-    if(!courseName) { window.showToast('과정명을 입력하세요', 'error'); return; }
-    const days = Array.from(document.querySelectorAll('input[name="chkDay"]:checked')).map(cb => parseInt(cb.value));
-    if(!days.length) { window.showToast('요일을 선택하세요', 'error'); return; }
+    const businessType   = document.getElementById('businessType').value;
+    const cohortNum      = document.getElementById('cohortNum').value.trim();  // ★
+
+    if(!courseName) { window.showToast('과정명을 입력하세요','error'); return; }
+    const days = Array.from(document.querySelectorAll('input[name="chkDay"]:checked')).map(cb=>parseInt(cb.value));
+    if(!days.length) { window.showToast('요일을 선택하세요','error'); return; }
+
     window.saveState('일정 등록');
     const datesByYMD = {}; const conflicts = [];
-    for(let d = new Date(startDate); d <= endDate; d.setDate(d.getDate()+1)) {
+
+    for(let d=new Date(startDate); d<=endDate; d.setDate(d.getDate()+1)) {
         const dow = d.getDay();
         if(days.includes(dow)) {
-            const y = d.getFullYear(), m = d.getMonth()+1, dt = d.getDate();
+            const y=d.getFullYear(), m=d.getMonth()+1, dt=d.getDate();
             if(!datesByYMD[y]) datesByYMD[y]={};
             if(!datesByYMD[y][m]) datesByYMD[y][m]={};
             if(!datesByYMD[y][m][dow]) datesByYMD[y][m][dow]=[];
             datesByYMD[y][m][dow].push(dt);
-            window.schedules.filter(s => s.y===y && s.m===m && s.r===room && s.d===dow && s.dates.includes(dt)).forEach(ex => {
-                if(window.timeOverlap(startTime,endTime,ex.st,ex.et)) conflicts.push({date:`${y}-${String(m).padStart(2,'0')}-${String(dt).padStart(2,'0')}`, time:`${ex.st}~${ex.et}`, course:ex.cn});
+            window.schedules.filter(s=>s.y===y&&s.m===m&&s.r===room&&s.d===dow&&s.dates.includes(dt)).forEach(ex => {
+                if(window.timeOverlap(startTime,endTime,ex.st,ex.et)) conflicts.push({date:`${y}-${String(m).padStart(2,'0')}-${String(dt).padStart(2,'0')}`,time:`${ex.st}~${ex.et}`,course:ex.cn});
             });
         }
     }
     if(conflicts.length) {
         let msg = `⚠️ 중복 일정 ${conflicts.length}개 발견:\n\n`;
-        conflicts.slice(0,5).forEach(c => msg += `📅 ${c.date} ${c.time} - ${c.course}\n`);
-        if(conflicts.length > 5) msg += `\n... 외 ${conflicts.length-5}개`;
-        msg += '\n\n계속하시겠습니까?';
+        conflicts.slice(0,5).forEach(c=>msg+=`📅 ${c.date} ${c.time} - ${c.course}\n`);
+        if(conflicts.length>5) msg+=`\n... 외 ${conflicts.length-5}개`;
+        msg+='\n\n계속하시겠습니까?';
         if(!confirm(msg)) { window.undoStack.pop(); return; }
     }
-    for(const [y, mData] of Object.entries(datesByYMD)) for(const [m, dData] of Object.entries(mData)) for(const [dow, dates] of Object.entries(dData)) {
-        window.schedules.push({ id: window.idCounter++, y:parseInt(y), m:parseInt(m), d:parseInt(dow), r:room, st:startTime, et:endTime, cn:courseName, tn:instructorName, bt:businessType, dates });
+    for(const [y,mData] of Object.entries(datesByYMD)) for(const [m,dData] of Object.entries(mData)) for(const [dow,dates] of Object.entries(dData)) {
+        window.schedules.push({ id:window.idCounter++, y:parseInt(y), m:parseInt(m), d:parseInt(dow), r:room, st:startTime, et:endTime, cn:courseName, tn:instructorName, bt:businessType, cohort:cohortNum, dates });  // ★ cohort 추가
     }
     saveToCloud();
     window.showToast(conflicts.length ? `⚠️ 중복 ${conflicts.length}개 있지만 등록됨` : '일정이 등록되었습니다');
-    document.getElementById('courseName').value = ''; document.getElementById('instructorName').value = '';
+    document.getElementById('courseName').value = ''; document.getElementById('instructorName').value = ''; document.getElementById('cohortNum').value = '';
 };
 
 window.deleteSchedule = function(id) {
     if(!confirm('🗑️ 이 일정을 삭제하시겠습니까?')) return;
     window.saveState('일정 삭제');
-    window.schedules = window.schedules.filter(s => s.id !== id);
+    window.schedules = window.schedules.filter(s => s.id!==id);
     saveToCloud(); window.showToast('일정이 삭제되었습니다');
 };
-
 window.deleteAllByCourse = function(courseName) {
-    const same = window.schedules.filter(s => s.cn === courseName);
+    const same = window.schedules.filter(s => s.cn===courseName);
     if(!same.length) return;
     if(!confirm(`🗑️ "${courseName}" 과정 ${same.length}개를 모두 삭제하시겠습니까?`)) return;
     window.saveState('일괄 삭제');
-    window.schedules = window.schedules.filter(s => s.cn !== courseName);
+    window.schedules = window.schedules.filter(s => s.cn!==courseName);
     saveToCloud(); window.showToast(`${same.length}개 일정이 삭제되었습니다`);
 };
 
@@ -1975,33 +1562,35 @@ window.deleteAllByCourse = function(courseName) {
 window.parseTime = t => { if(!t) return ''; t=t.trim(); if(/^\d{1,2}:\d{2}$/.test(t)) return t; if(/^\d{1,2}:\d{2}:\d{2}$/.test(t)) return t.substring(0,5); if(/^\d{3,4}$/.test(t)) return t.length===3?'0'+t[0]+':'+t.substring(1):t.substring(0,2)+':'+t.substring(2); return t; };
 window.parseDays = ds => { if(!ds) return []; const m={'월':1,'화':2,'수':3,'목':4,'금':5,'토':6,'1':1,'2':2,'3':3,'4':4,'5':5,'6':6}; ds=ds.trim(); if(ds.includes(',')) return [...new Set(ds.split(',').map(p=>p.trim()).filter(p=>m[p]).map(p=>m[p]))]; const days=[]; for(const c of ds) if(m[c]) days.push(m[c]); return [...new Set(days)]; };
 
+// ★ 샘플 CSV에 기수 컬럼 추가
 window.downloadSampleCSV = function() {
-    const d = `강좌명,강의실,시작일,종료일,요일,시작시간,종료시간,강사명,사업구분\n엑셀기초,207호,2026-04-20,2026-05-18,월화수목금,13:00,17:00,김철수,직업교육\nPython입문,301호,2026-04-15,2026-06-10,화목,09:00,12:00,박민수,직훈`;
-    const blob = new Blob(['\uFEFF'+d], {type:'text/csv;charset=utf-8;'});
-    const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='강의실배정_샘플.csv'; a.click();
+    const d = `강좌명,강의실,시작일,종료일,요일,시작시간,종료시간,강사명,사업구분,기수\n엑셀기초,207호,2026-04-20,2026-05-18,월화수목금,13:00,17:00,김철수,직업교육,102기\nPython입문,301호,2026-04-15,2026-06-10,화목,09:00,12:00,박민수,직훈,102기`;
+    const blob = new Blob(['\uFEFF'+d],{type:'text/csv;charset=utf-8;'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='강의실배정_샘플.csv'; a.click();
 };
 
 window.clearAllSchedules = function() {
     if(!confirm('⚠️ 모든 일정을 삭제하시겠습니까?')) return;
     if(!confirm(`현재 ${window.schedules.length}개 일정이 삭제됩니다. 계속하시겠습니까?`)) return;
-    window.saveState('전체 초기화'); window.schedules = [];
+    window.saveState('전체 초기화'); window.schedules=[];
     saveToCloud(); window.showToast('모든 일정이 삭제되었습니다');
 };
 
+// ★ CSV 업로드 — 기수 컬럼(10번째) 파싱
 window.uploadCSV = function() {
     const file = document.getElementById('csvFile').files[0];
-    if(!file) { window.showToast('CSV 파일을 선택하세요', 'error'); return; }
+    if(!file) { window.showToast('CSV 파일을 선택하세요','error'); return; }
     window.saveState('CSV 업로드');
     const reader = new FileReader();
     reader.onload = async function(e) {
         const lines = e.target.result.split('\n').filter(l=>l.trim());
-        if(lines.length < 2) { window.showToast('데이터가 없습니다', 'error'); return; }
+        if(lines.length < 2) { window.showToast('데이터가 없습니다','error'); return; }
         let ok=0, fail=0, errs=[];
         for(let i=1; i<lines.length; i++) {
             try {
                 const vals = lines[i].trim().split(',').map(v=>v.trim().replace(/^["']|["']$/g,''));
                 if(vals.length < 8) { fail++; errs.push(`${i}행: 필드 부족`); continue; }
-                let [cn,room,sd,ed,dayStr,st,et,tn,bt='직업교육'] = vals;
+                let [cn,room,sd,ed,dayStr,st,et,tn,bt='직업교육',cohort=''] = vals;
                 if(!validBusinessTypes.includes(bt)) { fail++; errs.push(`${i}행: 잘못된 사업구분 "${bt}"`); continue; }
                 st=window.parseTime(st); et=window.parseTime(et);
                 const parseDate = ds => { if(!ds) return null; ds=ds.trim(); const m=ds.match(/^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})$/); if(m) return new Date(+m[1],+m[2]-1,+m[3]); const m2=ds.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{4})$/); if(m2) return new Date(+m2[3],+m2[1]-1,+m2[2]); const d=new Date(ds); return isNaN(d.getTime())?null:d; };
@@ -2013,60 +1602,64 @@ window.uploadCSV = function() {
                 for(let d=new Date(sDate); d<=eDate; d.setDate(d.getDate()+1)) {
                     const dow=d.getDay(); if(days.includes(dow)) { const y=d.getFullYear(),m2=d.getMonth()+1,dt=d.getDate(); if(!map[y])map[y]={}; if(!map[y][m2])map[y][m2]={}; if(!map[y][m2][dow])map[y][m2][dow]=[]; map[y][m2][dow].push(dt); }
                 }
-                for(const [y,mData] of Object.entries(map)) for(const [m2,dData] of Object.entries(mData)) for(const [dow,dates] of Object.entries(dData)) window.schedules.push({id:window.idCounter++,y:+y,m:+m2,d:+dow,r:room,st,et,cn,tn,bt,dates});
+                for(const [y,mData] of Object.entries(map)) for(const [m2,dData] of Object.entries(mData)) for(const [dow,dates] of Object.entries(dData))
+                    window.schedules.push({id:window.idCounter++,y:+y,m:+m2,d:+dow,r:room,st,et,cn,tn,bt,cohort,dates});  // ★ cohort
                 ok++;
             } catch(err) { fail++; errs.push(`${i}행: ${err.message}`); }
         }
         saveToCloud();
-        let msg = `업로드 완료 — 성공: ${ok}개, 실패: ${fail}개`;
-        if(errs.length) { msg += '\n\n오류:\n'; errs.slice(0,5).forEach(e=>msg+=e+'\n'); if(errs.length>5) msg+=`... 외 ${errs.length-5}개`; alert(msg); }
+        let msg=`업로드 완료 — 성공: ${ok}개, 실패: ${fail}개`;
+        if(errs.length) { msg+='\n\n오류:\n'; errs.slice(0,5).forEach(e=>msg+=e+'\n'); if(errs.length>5) msg+=`... 외 ${errs.length-5}개`; alert(msg); }
         window.showToast(`CSV 업로드 완료: ${ok}개`);
-        document.getElementById('csvFile').value = '';
+        document.getElementById('csvFile').value='';
     };
-    reader.readAsText(file, 'UTF-8');
+    reader.readAsText(file,'UTF-8');
 };
 
 window.downloadBackup = function() {
-    const blob = new Blob([JSON.stringify({schedules:window.schedules,requests:window.requests,idCounter:window.idCounter,timestamp:new Date().toISOString(),version:'2.0'},null,2)], {type:'application/json'});
-    const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`강의실배정_백업_${new Date().toISOString().split('T')[0]}.json`; a.click();
+    const blob=new Blob([JSON.stringify({schedules:window.schedules,requests:window.requests,idCounter:window.idCounter,timestamp:new Date().toISOString(),version:'2.1'},null,2)],{type:'application/json'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`강의실배정_백업_${new Date().toISOString().split('T')[0]}.json`; a.click();
     window.showToast('백업 완료');
 };
 
 window.restoreBackup = function() {
-    const input = document.createElement('input'); input.type='file'; input.accept='.json';
-    input.onchange = async function(e) {
-        const file = e.target.files[0]; if(!file) return;
-        const reader = new FileReader();
-        reader.onload = async function(ev) {
+    const input=document.createElement('input'); input.type='file'; input.accept='.json';
+    input.onchange=async function(e) {
+        const file=e.target.files[0]; if(!file) return;
+        const reader=new FileReader();
+        reader.onload=async function(ev) {
             try {
-                const b = JSON.parse(ev.target.result);
-                if(!b.schedules||!Array.isArray(b.schedules)) { window.showToast('잘못된 파일', 'error'); return; }
+                const b=JSON.parse(ev.target.result);
+                if(!b.schedules||!Array.isArray(b.schedules)) { window.showToast('잘못된 파일','error'); return; }
                 if(!confirm(`복원 시 현재 ${window.schedules.length}개 삭제 → 백업 ${b.schedules.length}개로 대체됩니다.\n계속하시겠습니까?`)) return;
                 window.saveState('백업 복원'); window.schedules=b.schedules; window.requests=b.requests||[]; window.idCounter=b.idCounter||1;
                 saveToCloud(); window.showToast(`복원 완료 (${b.schedules.length}개)`);
-            } catch(err) { window.showToast('파일 읽기 오류: '+err.message, 'error'); }
+            } catch(err) { window.showToast('파일 읽기 오류: '+err.message,'error'); }
         };
         reader.readAsText(file);
     };
     input.click();
 };
 
+// ★ 내보내기 CSV에 기수 컬럼 추가
 window.exportToExcel = function() {
-    const year = parseInt(document.getElementById('viewYear').value);
-    const month = parseInt(document.getElementById('viewMonth').value);
-    const dayNames = ['일','월','화','수','목','금','토'];
-    let csv = '\uFEFF강의실,날짜,요일,시작시간,종료시간,과정명,강사명,사업구분\n';
+    const year=parseInt(document.getElementById('viewYear').value);
+    const month=parseInt(document.getElementById('viewMonth').value);
+    const dayNames=['일','월','화','수','목','금','토'];
+    let csv='\uFEFF강의실,날짜,요일,시작시간,종료시간,과정명,강사명,사업구분,기수\n';
     window.schedules.filter(s=>s.y===year&&s.m===month).sort((a,b)=>a.r.localeCompare(b.r)||a.d-b.d||a.st.localeCompare(b.st)).forEach(s => {
-        s.dates.forEach(dt => { const ds=`${s.y}-${String(s.m).padStart(2,'0')}-${String(dt).padStart(2,'0')}`; csv+=`${s.r},${ds},${dayNames[s.d]},${s.st},${s.et},${s.cn},${s.tn||''},${s.bt}\n`; });
+        s.dates.forEach(dt => {
+            const ds=`${s.y}-${String(s.m).padStart(2,'0')}-${String(dt).padStart(2,'0')}`;
+            csv+=`${s.r},${ds},${dayNames[s.d]},${s.st},${s.et},${s.cn},${s.tn||''},${s.bt},${s.cohort||''}\n`;
+        });
     });
-    const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
+    const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
     const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`강의실배정_${year}년${month}월.csv`; a.click();
     window.showToast('내보내기 완료');
 };
 
 // ── REQUESTS ──
 window._reqTab = 'single';
-
 window.switchReqTab = function(tab) {
     window._reqTab = tab;
     ['single','multi','bulk'].forEach(t => {
@@ -2074,56 +1667,42 @@ window.switchReqTab = function(tab) {
         document.getElementById('req-panel-'+t).style.display = t===tab ? 'block' : 'none';
     });
     if(tab==='multi') window.buildSessionRows();
-    if(tab==='bulk') window.renderBulkPreview();
+    if(tab==='bulk')  window.renderBulkPreview();
 };
-
 window.openRequestModal = function(room=null, date=null, startTime=null, endTime=null) {
     document.getElementById('requestModal').classList.add('open');
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('reqDate').value = date || today;
-    if(room) { document.getElementById('reqRoom').value = room; document.getElementById('reqRoomMulti').value = room; }
-    if(startTime) { document.getElementById('reqStartTime').value = startTime; document.getElementById('reqMultiStartTime').value = startTime; }
-    if(endTime) { document.getElementById('reqEndTime').value = endTime; document.getElementById('reqMultiEndTime').value = endTime; }
+    const today=new Date().toISOString().split('T')[0];
+    document.getElementById('reqDate').value=date||today;
+    if(room) { document.getElementById('reqRoom').value=room; document.getElementById('reqRoomMulti').value=room; }
+    if(startTime) { document.getElementById('reqStartTime').value=startTime; document.getElementById('reqMultiStartTime').value=startTime; }
+    if(endTime)   { document.getElementById('reqEndTime').value=endTime;   document.getElementById('reqMultiEndTime').value=endTime; }
     window.switchReqTab('single');
     if(!document.getElementById('bulkTableBody').children.length) window.addBulkRow();
 };
+window.closeRequestModal = function() { document.getElementById('requestModal').classList.remove('open'); };
 
-window.closeRequestModal = function() {
-    document.getElementById('requestModal').classList.remove('open');
-};
-
-// ── 다회차: 회차 행 생성 ──
 window.buildSessionRows = function() {
-    const count = parseInt(document.getElementById('reqSessionCount').value) || 3;
-    const tbody = document.getElementById('sessionRows');
-    const existing = tbody.querySelectorAll('.session-row');
-    // 기존 행 유지하며 추가/제거
-    while(tbody.children.length < count) {
-        const n = tbody.children.length + 1;
-        const row = document.createElement('div');
-        row.className = 'session-row';
-        row.style.cssText = 'display:grid;grid-template-columns:40px 1fr;gap:6px;align-items:center;';
-        row.innerHTML = `<span style="font-size:11px;font-weight:700;color:var(--text-muted);text-align:center;">${n}회</span>
-            <input type="date" class="session-date" style="width:100%;" placeholder="${n}회차 날짜">`;
+    const count=parseInt(document.getElementById('reqSessionCount').value)||3;
+    const tbody=document.getElementById('sessionRows');
+    while(tbody.children.length<count) {
+        const n=tbody.children.length+1;
+        const row=document.createElement('div');
+        row.className='session-row';
+        row.style.cssText='display:grid;grid-template-columns:40px 1fr;gap:6px;align-items:center;';
+        row.innerHTML=`<span style="font-size:11px;font-weight:700;color:var(--text-muted);text-align:center;">${n}회</span>
+            <input type="date" class="session-date" style="width:100%;">`;
         tbody.appendChild(row);
     }
-    while(tbody.children.length > count) tbody.removeChild(tbody.lastChild);
+    while(tbody.children.length>count) tbody.removeChild(tbody.lastChild);
 };
 
-// ── 일괄 서식: 행 관리 ──
-window._bulkRoomSelectHTML = function() {
-    return window.rooms.map(r => `<option value="${r}">${r}</option>`).join('');
-};
-
+window._bulkRoomSelectHTML = function() { return window.rooms.map(r=>`<option value="${r}">${r}</option>`).join(''); };
 window.addBulkRow = function(room='', date='', st='09:00', et='18:00') {
-    const tbody = document.getElementById('bulkTableBody');
-    const idx = tbody.children.length;
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
+    const tbody=document.getElementById('bulkTableBody');
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
         <td style="padding:4px;border:1px solid var(--border);">
-            <select class="bulk-room" style="width:100%;font-size:12px;padding:4px 6px;border:none;background:var(--surface2);border-radius:4px;">
-                ${window._bulkRoomSelectHTML()}
-            </select>
+            <select class="bulk-room" style="width:100%;font-size:12px;padding:4px 6px;border:none;background:var(--surface2);border-radius:4px;">${window._bulkRoomSelectHTML()}</select>
         </td>
         <td style="padding:4px;border:1px solid var(--border);"><input type="date" class="bulk-date" value="${date}" style="width:100%;font-size:12px;padding:4px;border:none;background:var(--surface2);border-radius:4px;"></td>
         <td style="padding:4px;border:1px solid var(--border);"><input type="time" class="bulk-st" value="${st}" style="width:100%;font-size:12px;padding:4px;border:none;background:var(--surface2);border-radius:4px;"></td>
@@ -2131,374 +1710,233 @@ window.addBulkRow = function(room='', date='', st='09:00', et='18:00') {
         <td style="padding:4px;border:1px solid var(--border);text-align:center;">
             <button onclick="this.closest('tr').remove();window.renderBulkPreview();" style="background:none;border:none;cursor:pointer;color:var(--danger);font-size:14px;">✕</button>
         </td>`;
-    if(room) tr.querySelector('.bulk-room').value = room;
+    if(room) tr.querySelector('.bulk-room').value=room;
     tbody.appendChild(tr);
     window.renderBulkPreview();
 };
-
-window.clearBulkRows = function() {
-    document.getElementById('bulkTableBody').innerHTML = '';
-    window.renderBulkPreview();
-};
-
+window.clearBulkRows = function() { document.getElementById('bulkTableBody').innerHTML=''; window.renderBulkPreview(); };
 window.renderBulkPreview = function() {
-    const rows = document.querySelectorAll('#bulkTableBody tr');
-    document.getElementById('bulkPreview').textContent = rows.length > 0 ? `총 ${rows.length}건 신청 예정` : '행을 추가하여 신청 내역을 입력하세요';
+    const rows=document.querySelectorAll('#bulkTableBody tr');
+    document.getElementById('bulkPreview').textContent=rows.length>0?`총 ${rows.length}건 신청 예정`:'행을 추가하여 신청 내역을 입력하세요';
 };
-
 window.downloadBulkTemplate = function() {
-    const csv = '강의실,날짜,시작시간,종료시간\n207호,2026-05-01,09:00,13:00\n301호,2026-05-02,13:00,18:00';
-    const blob = new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+    const csv='강의실,날짜,시작시간,종료시간\n207호,2026-05-01,09:00,13:00\n301호,2026-05-02,13:00,18:00';
+    const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
     const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='강의실요청_서식.csv'; a.click();
 };
-
 window.loadBulkCsv = function(input) {
-    const file = input.files[0]; if(!file) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const lines = e.target.result.split('\n').filter(l=>l.trim()).slice(1);
-        document.getElementById('bulkTableBody').innerHTML = '';
+    const file=input.files[0]; if(!file) return;
+    const reader=new FileReader();
+    reader.onload=function(e) {
+        const lines=e.target.result.split('\n').filter(l=>l.trim()).slice(1);
+        document.getElementById('bulkTableBody').innerHTML='';
         lines.forEach(line => {
-            const [room,date,st,et] = line.split(',').map(v=>v.trim().replace(/^["']|["']$/g,''));
-            if(room && date) window.addBulkRow(room, date, st||'09:00', et||'18:00');
+            const [room,date,st,et]=line.split(',').map(v=>v.trim().replace(/^["']|["']$/g,''));
+            if(room&&date) window.addBulkRow(room,date,st||'09:00',et||'18:00');
         });
     };
     reader.readAsText(file,'UTF-8');
     input.value='';
 };
 
-// ── 제출 ──
 window.submitRequest = function() {
-    const rn = document.getElementById('reqRequesterName').value.trim();
-    const cn = document.getElementById('reqCourseName').value.trim();
-    const tn = document.getElementById('reqInstructorName').value.trim();
-    const bt = document.getElementById('reqBusinessType').value;
-    const pur = document.getElementById('reqPurpose').value.trim();
-    if(!rn||!cn) { window.showToast('요청자 이름과 과정명은 필수입니다', 'error'); return; }
-
-    const tab = window._reqTab;
-    const base = { requester_name:rn, course_name:cn, instructor_name:tn, business_type:bt, purpose:pur, status:'pending', created_at:new Date().toISOString(), req_type:tab };
-
-    if(tab === 'single') {
-        const room = document.getElementById('reqRoom').value;
-        const date = document.getElementById('reqDate').value;
-        const st = document.getElementById('reqStartTime').value;
-        const et = document.getElementById('reqEndTime').value;
-        if(!date) { window.showToast('날짜를 입력하세요', 'error'); return; }
-        window.requests.push({ ...base, id:window.idCounter++, room, date, start_time:st, end_time:et });
-
-    } else if(tab === 'multi') {
-        const room = document.getElementById('reqRoomMulti').value;
-        const st = document.getElementById('reqMultiStartTime').value;
-        const et = document.getElementById('reqMultiEndTime').value;
-        const dates = Array.from(document.querySelectorAll('.session-date')).map(i=>i.value).filter(v=>v);
-        if(dates.length === 0) { window.showToast('1개 이상의 날짜를 입력하세요', 'error'); return; }
-        // 그룹 ID로 묶어서 저장
-        const groupId = window.idCounter++;
-        dates.forEach((date, idx) => {
-            window.requests.push({ ...base, id:window.idCounter++, room, date, start_time:st, end_time:et, session_no:idx+1, session_total:dates.length, group_id:groupId });
+    const rn=document.getElementById('reqRequesterName').value.trim();
+    const cn=document.getElementById('reqCourseName').value.trim();
+    const tn=document.getElementById('reqInstructorName').value.trim();
+    const bt=document.getElementById('reqBusinessType').value;
+    const pur=document.getElementById('reqPurpose').value.trim();
+    if(!rn||!cn) { window.showToast('요청자 이름과 과정명은 필수입니다','error'); return; }
+    const tab=window._reqTab;
+    const base={requester_name:rn,course_name:cn,instructor_name:tn,business_type:bt,purpose:pur,status:'pending',created_at:new Date().toISOString(),req_type:tab};
+    if(tab==='single') {
+        const room=document.getElementById('reqRoom').value;
+        const date=document.getElementById('reqDate').value;
+        const st=document.getElementById('reqStartTime').value;
+        const et=document.getElementById('reqEndTime').value;
+        if(!date) { window.showToast('날짜를 입력하세요','error'); return; }
+        window.requests.push({...base,id:window.idCounter++,room,date,start_time:st,end_time:et});
+    } else if(tab==='multi') {
+        const room=document.getElementById('reqRoomMulti').value;
+        const st=document.getElementById('reqMultiStartTime').value;
+        const et=document.getElementById('reqMultiEndTime').value;
+        const dates=Array.from(document.querySelectorAll('.session-date')).map(i=>i.value).filter(v=>v);
+        if(!dates.length) { window.showToast('1개 이상의 날짜를 입력하세요','error'); return; }
+        const groupId=window.idCounter++;
+        dates.forEach((date,idx) => window.requests.push({...base,id:window.idCounter++,room,date,start_time:st,end_time:et,session_no:idx+1,session_total:dates.length,group_id:groupId}));
+    } else if(tab==='bulk') {
+        const rows=document.querySelectorAll('#bulkTableBody tr');
+        if(!rows.length) { window.showToast('신청 내역을 1건 이상 입력하세요','error'); return; }
+        const groupId=window.idCounter++; let valid=0;
+        rows.forEach((tr,idx) => {
+            const room=tr.querySelector('.bulk-room').value;
+            const date=tr.querySelector('.bulk-date').value;
+            const st=tr.querySelector('.bulk-st').value;
+            const et=tr.querySelector('.bulk-et').value;
+            if(date) { window.requests.push({...base,id:window.idCounter++,room,date,start_time:st,end_time:et,group_id:groupId,bulk_idx:idx+1}); valid++; }
         });
-
-    } else if(tab === 'bulk') {
-        const rows = document.querySelectorAll('#bulkTableBody tr');
-        if(rows.length === 0) { window.showToast('신청 내역을 1건 이상 입력하세요', 'error'); return; }
-        const groupId = window.idCounter++;
-        let valid = 0;
-        rows.forEach((tr, idx) => {
-            const room = tr.querySelector('.bulk-room').value;
-            const date = tr.querySelector('.bulk-date').value;
-            const st = tr.querySelector('.bulk-st').value;
-            const et = tr.querySelector('.bulk-et').value;
-            if(date) { window.requests.push({ ...base, id:window.idCounter++, room, date, start_time:st, end_time:et, group_id:groupId, bulk_idx:idx+1 }); valid++; }
-        });
-        if(valid === 0) { window.showToast('날짜가 입력된 행이 없습니다', 'error'); return; }
+        if(!valid) { window.showToast('날짜가 입력된 행이 없습니다','error'); return; }
     }
-
     saveToCloud();
-    const tabLabel = {single:'단일', multi:'다회차', bulk:'일괄'}[tab];
-    window.showToast(`${tabLabel} 요청이 제출되었습니다`);
+    window.showToast(`${{single:'단일',multi:'다회차',bulk:'일괄'}[tab]} 요청이 제출되었습니다`);
     window.closeRequestModal();
-    document.getElementById('reqRequesterName').value = '';
-    document.getElementById('reqCourseName').value = '';
-    document.getElementById('reqPurpose').value = '';
-    document.getElementById('bulkTableBody').innerHTML = '';
+    document.getElementById('reqRequesterName').value=''; document.getElementById('reqCourseName').value=''; document.getElementById('reqPurpose').value=''; document.getElementById('bulkTableBody').innerHTML='';
 };
 
 window.renderRequests = function() {
-    const cont = document.getElementById('requestList');
-    if(!window.requests.length) { cont.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">요청이 없습니다</div></div>'; return; }
-    const statusLabel = { pending:'⏳ 대기중', approved:'✅ 승인', rejected:'❌ 반려' };
-    const typeLabel = { single:'단일', multi:'다회차', bulk:'일괄' };
-
-    // 그룹핑: group_id 있는 건 묶기
-    const groups = {};
-    const singles = [];
-    window.requests.forEach(req => {
-        if(req.group_id != null) {
-            if(!groups[req.group_id]) groups[req.group_id] = [];
-            groups[req.group_id].push(req);
-        } else {
-            singles.push(req);
-        }
-    });
-
-    let html = '';
-
-    // 단일 요청 렌더
+    const cont=document.getElementById('requestList');
+    if(!window.requests.length) { cont.innerHTML='<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">요청이 없습니다</div></div>'; return; }
+    const statusLabel={pending:'⏳ 대기중',approved:'✅ 승인',rejected:'❌ 반려'};
+    const typeLabel={single:'단일',multi:'다회차',bulk:'일괄'};
+    const groups={}; const singles=[];
+    window.requests.forEach(req => { if(req.group_id!=null) { if(!groups[req.group_id]) groups[req.group_id]=[]; groups[req.group_id].push(req); } else singles.push(req); });
+    let html='';
     singles.forEach(req => {
-        const typeTag = req.req_type ? `<span style="font-size:10px;background:var(--accent-light);color:var(--accent);padding:2px 8px;border-radius:10px;font-weight:700;">${typeLabel[req.req_type]||'단일'}</span>` : '';
-        html += `<div class="req-item">
-            <div class="req-header">
-                <div style="display:flex;align-items:center;gap:8px;"><strong>👤 ${req.requester_name}</strong>${typeTag}</div>
-                <span class="req-status status-${req.status}">${statusLabel[req.status]}</span>
-            </div>
-            <div class="req-info">
-                <span>🏢 ${req.room}</span><span>📅 ${req.date}</span>
-                <span>⏰ ${req.start_time}~${req.end_time}</span><span>📚 ${req.course_name}</span>
-                ${req.instructor_name?`<span>👨‍🏫 ${req.instructor_name}</span>`:''}
-                ${req.business_type?`<span>📊 ${req.business_type}</span>`:''}
-            </div>
+        const typeTag=req.req_type?`<span style="font-size:10px;background:var(--accent-light);color:var(--accent);padding:2px 8px;border-radius:10px;font-weight:700;">${typeLabel[req.req_type]||'단일'}</span>`:'';
+        html+=`<div class="req-item"><div class="req-header"><div style="display:flex;align-items:center;gap:8px;"><strong>👤 ${req.requester_name}</strong>${typeTag}</div><span class="req-status status-${req.status}">${statusLabel[req.status]}</span></div>
+            <div class="req-info"><span>🏢 ${req.room}</span><span>📅 ${req.date}</span><span>⏰ ${req.start_time}~${req.end_time}</span><span>📚 ${req.course_name}</span>${req.instructor_name?`<span>👨‍🏫 ${req.instructor_name}</span>`:''}${req.business_type?`<span>📊 ${req.business_type}</span>`:''}</div>
             ${req.purpose?`<div style="font-size:12px;color:var(--text-muted);margin-top:4px;">📝 ${req.purpose}</div>`:''}
-            ${req.status==='pending'&&window.currentRole==='admin'?`<div style="display:flex;gap:8px;margin-top:8px;">
-                <button class="btn btn-success btn-sm" onclick="window.approveRequest(${req.id})">✅ 승인</button>
-                <button class="btn btn-danger btn-sm" onclick="window.rejectRequest(${req.id})">❌ 반려</button>
-            </div>`:''}
+            ${req.status==='pending'&&window.currentRole==='admin'?`<div style="display:flex;gap:8px;margin-top:8px;"><button class="btn btn-success btn-sm" onclick="window.approveRequest(${req.id})">✅ 승인</button><button class="btn btn-danger btn-sm" onclick="window.rejectRequest(${req.id})">❌ 반려</button></div>`:''}
         </div>`;
     });
-
-    // 그룹 요청 렌더 - 강의실+시간대별로 날짜 묶어서 표시
-    Object.entries(groups).sort((a,b)=>Number(a[0])-Number(b[0])).forEach(([gid, reqs]) => {
-        reqs.sort((a,b) => new Date(a.date) - new Date(b.date));
-        const first = reqs[0];
-        const typeTag = first.req_type ? `<span style="font-size:10px;background:var(--info-light);color:var(--info);padding:2px 8px;border-radius:10px;font-weight:700;">${typeLabel[first.req_type]||''} ${reqs.length}회차</span>` : '';
-        const pendingReqs = reqs.filter(r=>r.status==='pending');
-        const anyPending = pendingReqs.length > 0;
-        const statuses = [...new Set(reqs.map(r=>r.status))];
-        const groupStatus = statuses.length===1 ? statuses[0] : 'pending';
-
-        // 강의실+시간대별 날짜 묶음
-        const slotMap = {};
-        reqs.forEach(r => {
-            const key = r.room + '|' + r.start_time + '|' + r.end_time;
-            if(!slotMap[key]) slotMap[key] = { room:r.room, st:r.start_time, et:r.end_time, dates:[], status:'approved' };
-            const dt = new Date(r.date).getDate();
-            slotMap[key].dates.push(dt);
-            if(r.status === 'pending') slotMap[key].status = 'pending';
-            else if(r.status === 'rejected' && slotMap[key].status !== 'pending') slotMap[key].status = 'rejected';
-        });
-        const slotRows = Object.values(slotMap).map(slot =>
-            `<div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border-radius:6px;padding:8px 12px;font-size:12.5px;flex-wrap:wrap;gap:4px;">
-                <span>🏢 <strong>${slot.room}</strong> &nbsp;⏰ ${slot.st}~${slot.et} &nbsp;📅 <strong>${slot.dates.join(', ')}일</strong></span>
-                <span class="req-status status-${slot.status}" style="font-size:10px;padding:2px 8px;">${statusLabel[slot.status]}</span>
-            </div>`
-        ).join('');
-
-        html += `<div class="req-item" style="border-left:3px solid var(--info);">
-            <div class="req-header">
-                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                    <strong>👤 ${first.requester_name}</strong>${typeTag}
-                    ${first.business_type?`<span style="font-size:10px;background:var(--surface2);border:1px solid var(--border);padding:2px 8px;border-radius:10px;color:var(--text-secondary);">${first.business_type}</span>`:''}
-                </div>
-                <span class="req-status status-${groupStatus}">${statusLabel[groupStatus]}</span>
-            </div>
+    Object.entries(groups).sort((a,b)=>Number(a[0])-Number(b[0])).forEach(([gid,reqs]) => {
+        reqs.sort((a,b)=>new Date(a.date)-new Date(b.date));
+        const first=reqs[0];
+        const typeTag=first.req_type?`<span style="font-size:10px;background:var(--info-light);color:var(--info);padding:2px 8px;border-radius:10px;font-weight:700;">${typeLabel[first.req_type]||''} ${reqs.length}회차</span>`:'';
+        const pendingReqs=reqs.filter(r=>r.status==='pending');
+        const anyPending=pendingReqs.length>0;
+        const statuses=[...new Set(reqs.map(r=>r.status))];
+        const groupStatus=statuses.length===1?statuses[0]:'pending';
+        const slotMap={};
+        reqs.forEach(r => { const key=r.room+'|'+r.start_time+'|'+r.end_time; if(!slotMap[key]) slotMap[key]={room:r.room,st:r.start_time,et:r.end_time,dates:[],status:'approved'}; const dt=new Date(r.date).getDate(); slotMap[key].dates.push(dt); if(r.status==='pending') slotMap[key].status='pending'; else if(r.status==='rejected'&&slotMap[key].status!=='pending') slotMap[key].status='rejected'; });
+        const slotRows=Object.values(slotMap).map(slot=>`<div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border-radius:6px;padding:8px 12px;font-size:12.5px;flex-wrap:wrap;gap:4px;"><span>🏢 <strong>${slot.room}</strong> &nbsp;⏰ ${slot.st}~${slot.et} &nbsp;📅 <strong>${slot.dates.join(', ')}일</strong></span><span class="req-status status-${slot.status}" style="font-size:10px;padding:2px 8px;">${statusLabel[slot.status]}</span></div>`).join('');
+        html+=`<div class="req-item" style="border-left:3px solid var(--info);">
+            <div class="req-header"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><strong>👤 ${first.requester_name}</strong>${typeTag}${first.business_type?`<span style="font-size:10px;background:var(--surface2);border:1px solid var(--border);padding:2px 8px;border-radius:10px;color:var(--text-secondary);">${first.business_type}</span>`:''}</div><span class="req-status status-${groupStatus}">${statusLabel[groupStatus]}</span></div>
             <div style="font-size:13.5px;font-weight:700;margin:6px 0 8px;">📚 ${first.course_name}${first.instructor_name?' &nbsp;👨‍🏫 '+first.instructor_name:''}</div>
             <div style="display:flex;flex-direction:column;gap:5px;">${slotRows}</div>
             ${first.purpose?`<div style="font-size:12px;color:var(--text-muted);margin-top:8px;padding:6px 10px;background:var(--surface2);border-radius:6px;">📝 ${first.purpose}</div>`:''}
-            ${anyPending&&window.currentRole==='admin'?`<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
-                <button class="btn btn-success btn-sm" onclick="window.approveGroupRequest(${gid})">✅ 전체 승인</button>
-                <button class="btn btn-danger btn-sm" onclick="window.rejectGroupRequest(${gid})">❌ 전체 반려</button>
-                ${pendingReqs.length<reqs.length?'<span style="font-size:11px;color:var(--text-muted);align-self:center;">일부 처리됨</span>':''}
-            </div>`:''}
+            ${anyPending&&window.currentRole==='admin'?`<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;"><button class="btn btn-success btn-sm" onclick="window.approveGroupRequest(${gid})">✅ 전체 승인</button><button class="btn btn-danger btn-sm" onclick="window.rejectGroupRequest(${gid})">❌ 전체 반려</button>${pendingReqs.length<reqs.length?'<span style="font-size:11px;color:var(--text-muted);align-self:center;">일부 처리됨</span>':''}</div>`:''}
         </div>`;
     });
-
-    cont.innerHTML = html || '<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">요청이 없습니다</div></div>';
+    cont.innerHTML=html||'<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">요청이 없습니다</div></div>';
 };
 
-// ── 요청 승인 시 날짜 묶음 헬퍼 ──
-// 같은 강의실·요일·연월·시작·종료·과정명 → 하나의 스케줄로 dates[] 병합
 function mergeIntoSchedules(reqList) {
-    // key: room|year|month|dayOfWeek|startTime|endTime|courseName
-    const map = {};
+    const map={};
     reqList.forEach(req => {
-        const d = new Date(req.date);
-        const y = d.getFullYear(), m = d.getMonth()+1, dow = d.getDay(), dt = d.getDate();
-        const key = [req.room, y, m, dow, req.start_time, req.end_time, req.course_name].join('|');
-        if(!map[key]) {
-            map[key] = {
-                id: window.idCounter++,
-                y, m, d: dow,
-                r:  req.room,
-                st: req.start_time,
-                et: req.end_time,
-                cn: req.course_name,
-                tn: req.instructor_name || '',
-                bt: req.business_type  || '직업교육',
-                dates: []
-            };
-        }
+        const d=new Date(req.date); const y=d.getFullYear(),m=d.getMonth()+1,dow=d.getDay(),dt=d.getDate();
+        const key=[req.room,y,m,dow,req.start_time,req.end_time,req.course_name].join('|');
+        if(!map[key]) map[key]={id:window.idCounter++,y,m,d:dow,r:req.room,st:req.start_time,et:req.end_time,cn:req.course_name,tn:req.instructor_name||'',bt:req.business_type||'직업교육',cohort:'',dates:[]};
         if(!map[key].dates.includes(dt)) map[key].dates.push(dt);
     });
-    // dates 오름차순 정렬 후 기존 스케줄에 병합 or 신규 추가
     Object.values(map).forEach(newSched => {
         newSched.dates.sort((a,b)=>a-b);
-        // 동일 강의실·요일·연월·시간·과정명의 기존 스케줄이 있으면 dates만 추가
-        const existing = window.schedules.find(s =>
-            s.r===newSched.r && s.y===newSched.y && s.m===newSched.m &&
-            s.d===newSched.d && s.st===newSched.st && s.et===newSched.et &&
-            s.cn===newSched.cn
-        );
-        if(existing) {
-            newSched.dates.forEach(dt => { if(!existing.dates.includes(dt)) existing.dates.push(dt); });
-            existing.dates.sort((a,b)=>a-b);
-        } else {
-            window.schedules.push(newSched);
-        }
+        const existing=window.schedules.find(s=>s.r===newSched.r&&s.y===newSched.y&&s.m===newSched.m&&s.d===newSched.d&&s.st===newSched.st&&s.et===newSched.et&&s.cn===newSched.cn);
+        if(existing) { newSched.dates.forEach(dt=>{if(!existing.dates.includes(dt))existing.dates.push(dt);}); existing.dates.sort((a,b)=>a-b); }
+        else window.schedules.push(newSched);
     });
 }
 
-window.approveRequest = function(id) {
-    const req = window.requests.find(r=>r.id===id); if(!req) return;
-    window.saveState('요청 승인');
-    req.status = 'approved';
-    mergeIntoSchedules([req]);
-    saveToCloud();
-    window.showToast('요청이 승인되었습니다');
-};
-
-window.approveGroupRequest = function(groupId) {
-    const reqs = window.requests.filter(r=>r.group_id===Number(groupId)&&r.status==='pending');
-    if(!reqs.length) return;
-    window.saveState('그룹 요청 승인');
-    reqs.forEach(req => { req.status = 'approved'; });
-    mergeIntoSchedules(reqs);
-    saveToCloud();
-    window.showToast(`${reqs.length}건 승인 · 날짜 묶음으로 등록되었습니다`);
-};
-
-window.rejectRequest = function(id) {
-    const reason = prompt('❌ 반려 사유:'); if(!reason) return;
-    window.saveState('요청 반려');
-    const req = window.requests.find(r=>r.id===id);
-    if(req) { req.status='rejected'; req.reject_reason=reason; saveToCloud(); window.showToast('요청이 반려되었습니다'); }
-};
-
-window.rejectGroupRequest = function(groupId) {
-    const reason = prompt('❌ 반려 사유 (전체 적용):'); if(!reason) return;
-    window.saveState('그룹 요청 반려');
-    window.requests.filter(r=>r.group_id===Number(groupId)&&r.status==='pending').forEach(req => { req.status='rejected'; req.reject_reason=reason; });
-    saveToCloud(); window.showToast('일괄 반려되었습니다');
-};
-
-window.updateRequestBadge = function() {
-    const cnt = window.requests.filter(r=>r.status==='pending').length;
-    const badge = document.getElementById('navBadge');
-    if(badge) { badge.textContent=cnt; badge.style.display=(cnt>0&&window.currentRole==='admin')?'':'none'; }
-};
+window.approveRequest      = function(id) { const req=window.requests.find(r=>r.id===id); if(!req) return; window.saveState('요청 승인'); req.status='approved'; mergeIntoSchedules([req]); saveToCloud(); window.showToast('요청이 승인되었습니다'); };
+window.approveGroupRequest = function(groupId) { const reqs=window.requests.filter(r=>r.group_id===Number(groupId)&&r.status==='pending'); if(!reqs.length) return; window.saveState('그룹 요청 승인'); reqs.forEach(req=>{req.status='approved';}); mergeIntoSchedules(reqs); saveToCloud(); window.showToast(`${reqs.length}건 승인`); };
+window.rejectRequest       = function(id) { const reason=prompt('❌ 반려 사유:'); if(!reason) return; window.saveState('요청 반려'); const req=window.requests.find(r=>r.id===id); if(req){req.status='rejected';req.reject_reason=reason;saveToCloud();window.showToast('요청이 반려되었습니다');} };
+window.rejectGroupRequest  = function(groupId) { const reason=prompt('❌ 반려 사유 (전체 적용):'); if(!reason) return; window.saveState('그룹 요청 반려'); window.requests.filter(r=>r.group_id===Number(groupId)&&r.status==='pending').forEach(req=>{req.status='rejected';req.reject_reason=reason;}); saveToCloud(); window.showToast('일괄 반려되었습니다'); };
+window.updateRequestBadge  = function() { const cnt=window.requests.filter(r=>r.status==='pending').length; const badge=document.getElementById('navBadge'); if(badge){badge.textContent=cnt;badge.style.display=(cnt>0&&window.currentRole==='admin')?'':'none';} };
 
 // ── AVAILABILITY ──
 window.showAvailabilityView = function(view) {
-    document.getElementById('dailyViewTab').classList.toggle('active', view==='daily');
-    document.getElementById('monthlyViewTab').classList.toggle('active', view==='monthly');
-    document.getElementById('dailyAvailability').style.display = view==='daily' ? 'block' : 'none';
-    document.getElementById('monthlyAvailability').style.display = view==='monthly' ? 'block' : 'none';
+    document.getElementById('dailyViewTab').classList.toggle('active',view==='daily');
+    document.getElementById('monthlyViewTab').classList.toggle('active',view==='monthly');
+    document.getElementById('dailyAvailability').style.display=view==='daily'?'block':'none';
+    document.getElementById('monthlyAvailability').style.display=view==='monthly'?'block':'none';
     if(view==='monthly') window.checkMonthlyAvailability();
 };
-
 window.setTimePreset = function(preset) {
-    const presets = { morning:['09:00','13:00'], afternoon:['13:00','18:00'], evening:['18:00','21:00'], allday:['09:00','21:00'] };
-    if(presets[preset]) { document.getElementById('checkStartTime').value=presets[preset][0]; document.getElementById('checkEndTime').value=presets[preset][1]; }
+    const presets={morning:['09:00','13:00'],afternoon:['13:00','18:00'],evening:['18:00','21:00'],allday:['09:00','21:00']};
+    if(presets[preset]){document.getElementById('checkStartTime').value=presets[preset][0];document.getElementById('checkEndTime').value=presets[preset][1];}
 };
-
 window.checkDailyAvailability = function() {
-    const dateStr = document.getElementById('checkDate').value;
-    const sT = document.getElementById('checkStartTime').value;
-    const eT = document.getElementById('checkEndTime').value;
-    if(!dateStr) { window.showToast('날짜를 선택하세요', 'error'); return; }
-    const date = new Date(dateStr);
-    const y=date.getFullYear(), m=date.getMonth()+1, dt=date.getDate(), dow=date.getDay();
-    if(dow===0) { window.showToast('일요일은 사용하지 않습니다', 'error'); return; }
+    const dateStr=document.getElementById('checkDate').value;
+    const sT=document.getElementById('checkStartTime').value;
+    const eT=document.getElementById('checkEndTime').value;
+    if(!dateStr){window.showToast('날짜를 선택하세요','error');return;}
+    const date=new Date(dateStr); const y=date.getFullYear(),m=date.getMonth()+1,dt=date.getDate(),dow=date.getDay();
+    if(dow===0){window.showToast('일요일은 사용하지 않습니다','error');return;}
     const dayNames=['일','월','화','수','목','금','토'];
-    let html = `<div class="card" style="background:var(--accent-light);border-color:var(--accent);margin-bottom:16px;"><strong>📅 ${dateStr} (${dayNames[dow]}) — ${sT} ~ ${eT} 시간대 현황</strong></div>`;
-
+    let html=`<div class="card" style="background:var(--accent-light);border-color:var(--accent);margin-bottom:16px;"><strong>📅 ${dateStr} (${dayNames[dow]}) — ${sT} ~ ${eT} 시간대 현황</strong></div>`;
     window.rooms.forEach(room => {
-        const items = window.schedules.filter(s=>s.y===y&&s.m===m&&s.r===room&&s.d===dow&&s.dates.includes(dt));
-        const isOccupied = items.some(s=>window.timeOverlap(sT,eT,s.st,s.et));
-        html += `<div class="room-avail-card">
-            <div class="room-avail-title">
-                <span>🏢 ${room}</span>
-                <span style="font-size:12px;color:${isOccupied?'var(--danger)':'var(--success)'};">${isOccupied?'❌ 사용 중':'✅ 사용 가능'}</span>
-            </div>
-            <div class="slot-grid">`;
-        for(const [key, slot] of Object.entries(timeSlots)) {
-            const occupied = items.some(s=>window.timeOverlap(slot.start,slot.end,s.st,s.et));
-            const info = items.find(s=>window.timeOverlap(slot.start,slot.end,s.st,s.et));
-            html += `<div class="slot-item ${occupied?'slot-occupied':'slot-available'}" ${!occupied?`onclick="window.openRequestModal('${room}','${dateStr}','${slot.start}','${slot.end}')"`:''}>
+        const items=window.schedules.filter(s=>s.y===y&&s.m===m&&s.r===room&&s.d===dow&&s.dates.includes(dt));
+        const isOccupied=items.some(s=>window.timeOverlap(sT,eT,s.st,s.et));
+        html+=`<div class="room-avail-card"><div class="room-avail-title"><span>🏢 ${room}</span><span style="font-size:12px;color:${isOccupied?'var(--danger)':'var(--success)'};">${isOccupied?'❌ 사용 중':'✅ 사용 가능'}</span></div><div class="slot-grid">`;
+        for(const [key,slot] of Object.entries(timeSlots)) {
+            const occupied=items.some(s=>window.timeOverlap(slot.start,slot.end,s.st,s.et));
+            const info=items.find(s=>window.timeOverlap(slot.start,slot.end,s.st,s.et));
+            html+=`<div class="slot-item ${occupied?'slot-occupied':'slot-available'}" ${!occupied?`onclick="window.openRequestModal('${room}','${dateStr}','${slot.start}','${slot.end}')"`:''}>
                 <div class="slot-time">${slot.start}–${slot.end}</div>
                 <div class="slot-label">${slot.label}</div>
                 <div class="slot-course">${occupied?'❌ '+(info?.cn||'사용중'):'✅ 클릭하여 신청'}</div>
             </div>`;
         }
-        html += '</div></div>';
+        html+='</div></div>';
     });
-    document.getElementById('dailyResult').innerHTML = html;
+    document.getElementById('dailyResult').innerHTML=html;
 };
-
 window.checkMonthlyAvailability = function() {
-    const year = parseInt(document.getElementById('monthViewYear').value);
-    const month = parseInt(document.getElementById('monthViewMonth').value);
-    const sT = document.getElementById('monthCheckStartTime').value;
-    const eT = document.getElementById('monthCheckEndTime').value;
-    const first = new Date(year, month-1, 1);
-    const daysInMonth = new Date(year, month, 0).getDate();
-    const startDow = first.getDay();
+    const year=parseInt(document.getElementById('monthViewYear').value);
+    const month=parseInt(document.getElementById('monthViewMonth').value);
+    const sT=document.getElementById('monthCheckStartTime').value;
+    const eT=document.getElementById('monthCheckEndTime').value;
+    const first=new Date(year,month-1,1);
+    const daysInMonth=new Date(year,month,0).getDate();
+    const startDow=first.getDay();
     const dayNames=['일','월','화','수','목','금','토'];
-    const today = new Date();
-
-    let html = `<div class="card" style="background:var(--accent-light);border-color:var(--accent);margin-bottom:16px;"><strong>📆 ${year}년 ${month}월 — ${sT}~${eT} 시간대 강의실 가용 현황</strong></div>
-    <div class="cal-grid">`;
-    dayNames.forEach(d => html += `<div class="cal-head">${d}</div>`);
-    for(let i=0; i<startDow; i++) html += '<div class="cal-day other-month"></div>';
-    for(let day=1; day<=daysInMonth; day++) {
-        const curr = new Date(year,month-1,day);
-        const dow = curr.getDay();
-        const isToday = curr.toDateString()===today.toDateString();
+    const today=new Date();
+    let html=`<div class="card" style="background:var(--accent-light);border-color:var(--accent);margin-bottom:16px;"><strong>📆 ${year}년 ${month}월 — ${sT}~${eT} 시간대 강의실 가용 현황</strong></div><div class="cal-grid">`;
+    dayNames.forEach(d=>html+=`<div class="cal-head">${d}</div>`);
+    for(let i=0;i<startDow;i++) html+='<div class="cal-day other-month"></div>';
+    for(let day=1;day<=daysInMonth;day++) {
+        const curr=new Date(year,month-1,day); const dow=curr.getDay();
+        const isToday=curr.toDateString()===today.toDateString();
         let used=0;
-        if(dow!==0) { window.rooms.forEach(room => { const items=window.schedules.filter(s=>s.y===year&&s.m===month&&s.r===room&&s.d===dow&&s.dates.includes(day)); if(items.some(s=>window.timeOverlap(sT,eT,s.st,s.et))) used++; }); }
-        const avail = window.rooms.length - used;
-        const pct = Math.round(used/window.rooms.length*100);
-        const fillClass = pct>=70?'high':pct>=40?'med':'';
-        html += `<div class="cal-day${isToday?' today':''}${dow===0?' other-month':''}">
-            <div class="cal-day-num">${day}</div>
-            ${dow!==0?`<div class="cal-usage">사용: ${used}/${window.rooms.length}<br>가용: <strong>${avail}</strong>개</div>
-            <div class="prog-bar"><div class="prog-fill ${fillClass}" style="width:${pct}%;"></div></div>`:''}
-        </div>`;
+        if(dow!==0){window.rooms.forEach(room=>{const items=window.schedules.filter(s=>s.y===year&&s.m===month&&s.r===room&&s.d===dow&&s.dates.includes(day));if(items.some(s=>window.timeOverlap(sT,eT,s.st,s.et)))used++;});}
+        const avail=window.rooms.length-used; const pct=Math.round(used/window.rooms.length*100); const fillClass=pct>=70?'high':pct>=40?'med':'';
+        html+=`<div class="cal-day${isToday?' today':''}${dow===0?' other-month':''}"><div class="cal-day-num">${day}</div>${dow!==0?`<div class="cal-usage">사용: ${used}/${window.rooms.length}<br>가용: <strong>${avail}</strong>개</div><div class="prog-bar"><div class="prog-fill ${fillClass}" style="width:${pct}%;"></div></div>`:''}</div>`;
     }
-    const remaining = 7 - ((startDow + daysInMonth) % 7);
-    if(remaining < 7) for(let i=0; i<remaining; i++) html += '<div class="cal-day other-month"></div>';
-    html += '</div>';
-    document.getElementById('monthlyResult').innerHTML = html;
+    const remaining=7-((startDow+daysInMonth)%7);
+    if(remaining<7) for(let i=0;i<remaining;i++) html+='<div class="cal-day other-month"></div>';
+    html+='</div>';
+    document.getElementById('monthlyResult').innerHTML=html;
 };
 
 // ── STATISTICS ──
 window.updateStatistics = function() {
-    if(window.currentTab !== 'statistics') return;
-    const cont = document.getElementById('statisticsContent');
-    const btStats = {}; validBusinessTypes.forEach(bt => btStats[bt]=0);
-    window.schedules.forEach(s => { if(s.bt&&btStats[s.bt]!==undefined) btStats[s.bt]++; });
-    const roomStats = {}; window.rooms.forEach(r => roomStats[r]=0);
-    window.schedules.forEach(s => roomStats[s.r]=(roomStats[s.r]||0)+1);
-    const topRooms = Object.entries(roomStats).sort((a,b)=>b[1]-a[1]).slice(0,5);
-    const total = window.schedules.length || 1;
+    if(window.currentTab!=='statistics') return;
+    const cont=document.getElementById('statisticsContent');
+    const btStats={}; validBusinessTypes.forEach(bt=>btStats[bt]=0);
+    window.schedules.forEach(s=>{if(s.bt&&btStats[s.bt]!==undefined)btStats[s.bt]++;});
+    const roomStats={}; window.rooms.forEach(r=>roomStats[r]=0);
+    window.schedules.forEach(s=>roomStats[s.r]=(roomStats[s.r]||0)+1);
+    const topRooms=Object.entries(roomStats).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    const total=window.schedules.length||1;
 
-    cont.innerHTML = `
+    // ★ 기수별 통계
+    const cohortStats={};
+    window.schedules.forEach(s=>{if(s.cohort){cohortStats[s.cohort]=(cohortStats[s.cohort]||0)+1;}});
+    const cohortRows=Object.entries(cohortStats).sort((a,b)=>a[0].localeCompare(b[0],'ko')).map(([k,v])=>{
+        const cls=window.getCohortClass(k);
+        return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:7px;">
+            <span style="display:flex;align-items:center;gap:8px;"><span class="cohort-badge ${cls}" style="position:static;font-size:10px;padding:2px 8px;">${k}</span></span>
+            <span class="font-mono" style="font-size:13px;font-weight:700;">${v}개</span>
+        </div>`;
+    }).join('');
+
+    cont.innerHTML=`
         <div class="stats-row">
             <div class="stat-card"><div class="stat-icon">📋</div><div class="stat-value">${window.schedules.length}</div><div class="stat-label">총 일정</div></div>
             <div class="stat-card"><div class="stat-icon">⏳</div><div class="stat-value">${window.requests.filter(r=>r.status==='pending').length}</div><div class="stat-label">대기 요청</div></div>
             <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-value">${window.requests.filter(r=>r.status==='approved').length}</div><div class="stat-label">승인 완료</div></div>
             <div class="stat-card"><div class="stat-icon">🏢</div><div class="stat-value">${Object.values(roomStats).filter(v=>v>0).length}</div><div class="stat-label">사용 강의실</div></div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;flex-wrap:wrap;">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;flex-wrap:wrap;">
             <div class="card">
                 <div class="card-title">📊 사업구분별 현황</div>
                 ${Object.entries(btStats).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`
@@ -2507,11 +1945,8 @@ window.updateStatistics = function() {
                             <span style="display:flex;align-items:center;gap:6px;"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${typeColors[k]};"></span>${k}</span>
                             <span class="font-mono" style="color:var(--text-muted);">${v}개 &nbsp;${Math.round(v/total*100)}%</span>
                         </div>
-                        <div class="prog-bar">
-                            <div class="prog-fill" style="width:${v/total*100}%;background:${typeColors[k]};"></div>
-                        </div>
-                    </div>
-                `).join('')}
+                        <div class="prog-bar"><div class="prog-fill" style="width:${v/total*100}%;background:${typeColors[k]};"></div></div>
+                    </div>`).join('')}
             </div>
             <div class="card">
                 <div class="card-title">🏆 강의실 사용 Top 5</div>
@@ -2522,36 +1957,27 @@ window.updateStatistics = function() {
                             <strong>${room}</strong>
                         </div>
                         <span class="font-mono" style="font-size:13px;font-weight:700;">${cnt}개</span>
-                    </div>
-                `).join('')}
+                    </div>`).join('')}
             </div>
-        </div>
-    `;
+            <div class="card">
+                <div class="card-title">🎖 기수별 현황</div>
+                ${cohortRows || '<div style="color:var(--text-muted);font-size:13px;">기수가 등록된 일정이 없습니다</div>'}
+            </div>
+        </div>`;
 };
 
-window.refreshData = function() { loadFromCloud(); window.showToast('새로고침 완료', 'info'); };
+window.refreshData = function() { loadFromCloud(); window.showToast('새로고침 완료','info'); };
 
-// Firebase CDN이 완전히 로드된 후 앱 초기화
 document.addEventListener("DOMContentLoaded", function() {
-    // firebase 객체 존재 여부 확인 후 실행
-    if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0) {
+    if(typeof firebase!=='undefined'&&firebase.apps&&firebase.apps.length>0) {
         window.init();
     } else {
-        // 혹시 CDN 로드가 늦을 경우 재시도
-        var retries = 0;
-        var checkFirebase = setInterval(function() {
+        var retries=0;
+        var checkFirebase=setInterval(function() {
             retries++;
-            if (typeof firebase !== 'undefined') {
-                clearInterval(checkFirebase);
-                window.init();
-            } else if (retries > 20) {
-                clearInterval(checkFirebase);
-                // Firebase 로드 실패 시 오프라인 모드로 전환
-                console.warn('Firebase 로드 실패 - 오프라인 모드로 전환');
-                window._offlineMode = true;
-                window.init();
-            }
-        }, 200);
+            if(typeof firebase!=='undefined') { clearInterval(checkFirebase); window.init(); }
+            else if(retries>20) { clearInterval(checkFirebase); console.warn('Firebase 로드 실패 - 오프라인 모드'); window._offlineMode=true; window.init(); }
+        },200);
     }
 });
 </script>
