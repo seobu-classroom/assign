@@ -1020,14 +1020,42 @@ window.openEditModal = function(id){
   document.getElementById('editModal').classList.add('open');
 };
 window.closeEditModal = function(){ document.getElementById('editModal').classList.remove('open'); window.currentEditingId = null; };
-window.findConflicts = function(room, y, m, d, dates, st, et, excludeId){
+/* ───────── 중복 배정 검사 (직접 등록·수정, CSV 업로드, 요청 승인 공통) ─────────
+   겹침 = ① 강의실 같음(앞뒤 공백 제거, 끝의 '호' 무시: 206 = 206호)
+        ② 실제 날짜(YYYY-MM-DD) 같음
+        ③ 시간 겹침: 시작 < 상대 종료 && 상대 시작 < 종료 (12:30 종료 / 12:30 시작은 겹침 아님) */
+function roomKey(r){ return String(r == null ? '' : r).trim().replace(/호$/, ''); }
+function ymdStr(y, m, d){ return y + '-' + pad2(m) + '-' + pad2(d); }
+/* 일정 레코드(y·m·dates) 또는 요청(date 1개) → [{room, date, st, et}] */
+function toSlots(item){
+  if(item.date) return [{room:item.room, date:String(item.date), st:normTime(item.start_time), et:normTime(item.end_time)}];
+  return (item.dates || []).map(dt => ({room:item.r, date:ymdStr(+item.y, +item.m, +dt), st:normTime(item.st), et:normTime(item.et)}));
+}
+/* candidates(일정 레코드·요청 배열)를 배정표 일정(opts.excludeId 제외)과 opts.extra(이번 작업에서 이미 통과한 것)에 비교.
+   반환: 겹침 목록 [{room,date,st,et, exCourse,exRoom,exSt,exEt, from}] — 데이터는 읽기만 함 */
+window.findOverlaps = function(candidates, opts){
+  opts = opts || {};
+  const pool = window.schedules.filter(s => opts.excludeId == null || s.id !== opts.excludeId).map(s => ({src:s, from:'기존'}))
+    .concat((opts.extra || []).map(x => ({src:x.rec, from:x.label || '이번 작업의'})));
+  const index = {};
+  pool.forEach(p => toSlots(p.src).forEach(sl => {
+    const k = roomKey(sl.room) + '|' + sl.date;
+    (index[k] = index[k] || []).push(Object.assign({cn:p.src.cn || p.src.course_name || '', from:p.from}, sl));
+  }));
   const found = [];
-  window.schedules.filter(s => s.id !== excludeId && s.y === y && s.m === m && s.r === room && s.d === d).forEach(ex => {
-    const overlapDates = (ex.dates || []).filter(dt => dates.includes(dt));
-    if(overlapDates.length && window.timeOverlap(st, et, ex.st, ex.et)) found.push({dates:overlapDates,time:ex.st + '~' + ex.et,course:ex.cn});
-  });
+  [].concat(candidates).forEach(c => toSlots(c).forEach(sl => {
+    (index[roomKey(sl.room) + '|' + sl.date] || []).forEach(ex => {
+      if(sl.st < ex.et && ex.st < sl.et) found.push({room:sl.room, date:sl.date, st:sl.st, et:sl.et, exCourse:ex.cn, exRoom:ex.room, exSt:ex.st, exEt:ex.et, from:ex.from});
+    });
+  }));
   return found;
 };
+function overlapLine(o){ return String(o.room).trim() + ' ' + o.date + ' ' + o.st + '-' + o.et + '이 ' + o.from + ' "' + o.exCourse + '" 과정(' + String(o.exRoom).trim() + ' ' + o.exSt + '-' + o.exEt + ')과 겹침'; }
+function overlapAlert(title, list){
+  let msg = '⛔ ' + title + '\n겹치는 일정 ' + list.length + '건:\n\n' + list.slice(0,10).map(o => '• ' + overlapLine(o)).join('\n');
+  if(list.length > 10) msg += '\n... 외 ' + (list.length-10) + '건';
+  alert(msg);
+}
 window.saveEdit = function(){
   if(!window.currentEditingId) return;
   const s = window.schedules.find(x => x.id === window.currentEditingId);
@@ -1051,14 +1079,9 @@ window.saveEdit = function(){
   const mismatched = dates.find(dt => new Date(y, m-1, dt).getDay() !== d);
   if(mismatched !== undefined){ window.showToast(mismatched + '일은 ' + dayNames[new Date(y, m-1, mismatched).getDay()] + '요일이라 선택한 요일(' + dayNames[d] + ')과 일치하지 않습니다','error'); return; }
   const room = document.getElementById('editRoom').value;
-  const conflicts = window.findConflicts(room, y, m, d, dates, st, et, s.id);
-  if(conflicts.length){
-    let msg = '⚠️ 중복 일정 ' + conflicts.length + '건:\n\n';
-    conflicts.slice(0,5).forEach(c => { msg += '📅 ' + c.dates.join(',') + '일 ' + c.time + ' - ' + c.course + '\n'; });
-    msg += '\n계속하시겠습니까?';
-    if(!confirm(msg)) return;
-  }
   const rec = schedRec({r:room, y:y, m:m, d:d, dates:dates.sort((a,b) => a-b), st:st, et:et, cn:cn, tn:document.getElementById('editInstructorName').value.trim(), bt:document.getElementById('editBusinessType').value, cohort:document.getElementById('editCohortNum').value.trim()});
+  const overlaps = window.findOverlaps([rec], {excludeId:s.id});
+  if(overlaps.length){ overlapAlert('수정할 수 없습니다. 원래 일정은 그대로 유지됩니다.', overlaps); return; }
   const id = s.id;
   window.commit('일정 수정: ' + cn, {['schedules/' + id]: rec}).then(ok => { if(ok){ window.showToast('일정이 수정되었습니다'); window.closeEditModal(); } });
 };
@@ -1086,7 +1109,7 @@ window.addSchedule = function(){
   if(!startTime || !endTime || startTime >= endTime){ window.showToast('시작 시간은 종료 시간보다 빨라야 합니다','error'); return; }
   const days = Array.from(document.querySelectorAll('input[name="chkDay"]:checked')).map(cb => parseInt(cb.value));
   if(!days.length){ window.showToast('요일을 선택하세요','error'); return; }
-  const datesByYMD = {}; const conflicts = [];
+  const datesByYMD = {};
   for(let d = new Date(startDate); d <= endDate; d.setDate(d.getDate()+1)){
     const dow = d.getDay();
     if(days.includes(dow)){
@@ -1095,26 +1118,20 @@ window.addSchedule = function(){
       if(!datesByYMD[y][m]) datesByYMD[y][m] = {};
       if(!datesByYMD[y][m][dow]) datesByYMD[y][m][dow] = [];
       datesByYMD[y][m][dow].push(dt);
-      window.schedules.filter(s => s.y === y && s.m === m && s.r === room && s.d === dow && (s.dates || []).includes(dt)).forEach(ex => {
-        if(window.timeOverlap(startTime, endTime, ex.st, ex.et)) conflicts.push({date:window.localDateStr(d),time:ex.st + '~' + ex.et,course:ex.cn});
-      });
     }
   }
   if(!Object.keys(datesByYMD).length){ window.showToast('선택한 기간·요일에 해당하는 날짜가 없습니다','error'); return; }
-  if(conflicts.length){
-    let msg = '⚠️ 중복 일정 ' + conflicts.length + '개 발견:\n\n';
-    conflicts.slice(0,5).forEach(c => { msg += '📅 ' + c.date + ' ' + c.time + ' - ' + c.course + '\n'; });
-    if(conflicts.length > 5) msg += '\n... 외 ' + (conflicts.length-5) + '개';
-    msg += '\n\n계속하시겠습니까?';
-    if(!confirm(msg)) return;
-  }
-  const changes = {};
+  const recs = [];
   for(const [y,mData] of Object.entries(datesByYMD)) for(const [m,dData] of Object.entries(mData)) for(const [dow,dates] of Object.entries(dData)){
-    changes['schedules/' + newKey('schedules')] = schedRec({y:y,m:m,d:dow,r:room,st:startTime,et:endTime,cn:courseName,tn:instructorName,bt:businessType,cohort:cohortNum,dates:dates});
+    recs.push(schedRec({y:y,m:m,d:dow,r:room,st:startTime,et:endTime,cn:courseName,tn:instructorName,bt:businessType,cohort:cohortNum,dates:dates}));
   }
+  const overlaps = window.findOverlaps(recs);
+  if(overlaps.length){ overlapAlert('등록할 수 없습니다.', overlaps); return; }
+  const changes = {};
+  recs.forEach(rec => { changes['schedules/' + newKey('schedules')] = rec; });
   window.commit('일정 등록: ' + courseName, changes).then(ok => {
     if(!ok) return;
-    window.showToast(conflicts.length ? '⚠️ 중복 ' + conflicts.length + '개 있지만 등록됨' : '일정이 등록되었습니다');
+    window.showToast('일정이 등록되었습니다');
     document.getElementById('courseName').value = ''; document.getElementById('instructorName').value = ''; document.getElementById('cohortNum').value = '';
     document.querySelectorAll('input[name="chkDay"]').forEach(cb => { cb.checked = false; });
   });
@@ -1157,46 +1174,68 @@ window.uploadCSV = function(){
   reader.onload = function(e){
     const rows = window.parseCSV(e.target.result);
     if(rows.length < 2){ window.showToast('데이터가 없습니다','error'); return; }
-    let ok = 0, fail = 0; const errs = []; const pending = [];
+    let ok = 0; const pending = [];
+    /* 실패한 행은 원래 값 + 사유를 모아 두었다가, 그 행들만 CSV로 내려받아 고쳐서 다시 올릴 수 있게 함 */
+    const failed = [];
+    const failRow = (i, reason) => { failed.push({line:i+1, vals:rows[i], reason:reason}); };
+    const accepted = [];   // 이번 파일에서 이미 통과한 행의 일정 (같은 파일 안의 겹침 검사용)
     for(let i = 1; i < rows.length; i++){
       try{
         const vals = rows[i].map(v => v.trim());
-        if(vals.length < 8){ fail++; errs.push((i+1) + '행: 필드 부족'); continue; }
+        if(vals.length < 8){ failRow(i, '필드 부족'); continue; }
         let [cn,room,sd,ed,dayStr,st,et,tn,bt,cohort] = vals;
         cohort = cohort || '';
-        if(!cn || !room || !sd || !ed){ fail++; errs.push((i+1) + '행: 필수 필드 누락'); continue; }
+        if(!cn || !room || !sd || !ed){ failRow(i, '필수 필드 누락'); continue; }
         const btRaw = bt || '직업교육'; bt = normalizeBT(btRaw);
-        if(!bt){ fail++; errs.push((i+1) + '행: 잘못된 사업구분 "' + btRaw + '" (사용 가능: ' + validBusinessTypes.join(', ') + ')'); continue; }
+        if(!bt){ failRow(i, '잘못된 사업구분 "' + btRaw + '" (사용 가능: ' + validBusinessTypes.join(', ') + ')'); continue; }
         room = normalizeRoom(room);
-        if(!window.rooms.includes(room)){ fail++; errs.push((i+1) + '행: 없는 강의실 "' + room + '"'); continue; }
+        if(!window.rooms.includes(room)){ failRow(i, '없는 강의실 "' + room + '"'); continue; }
         st = window.parseTime(st); et = window.parseTime(et);
-        if(!/^\d{2}:\d{2}$/.test(st) || !/^\d{2}:\d{2}$/.test(et) || st >= et){ fail++; errs.push((i+1) + '행: 시간 오류'); continue; }
+        if(!/^\d{2}:\d{2}$/.test(st) || !/^\d{2}:\d{2}$/.test(et) || st >= et){ failRow(i, '시간 오류'); continue; }
         const parseDate = ds => { ds = ds.trim(); const m = ds.match(/^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})$/); if(m) return new Date(+m[1], +m[2]-1, +m[3]); const m2 = ds.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{4})$/); if(m2) return new Date(+m2[3], +m2[1]-1, +m2[2]); const d = new Date(ds); return isNaN(d.getTime()) ? null : d; };
         const sDate = parseDate(sd), eDate = parseDate(ed);
-        if(!sDate || !eDate || sDate > eDate){ fail++; errs.push((i+1) + '행: 날짜 오류'); continue; }
+        if(!sDate || !eDate || sDate > eDate){ failRow(i, '날짜 오류'); continue; }
         const days = window.parseDays(dayStr);
-        if(!days.length){ fail++; errs.push((i+1) + '행: 요일 오류'); continue; }
+        if(!days.length){ failRow(i, '요일 오류'); continue; }
         const map = {};
         for(let d = new Date(sDate); d <= eDate; d.setDate(d.getDate()+1)){
           const dow = d.getDay(); if(days.includes(dow)){ const y = d.getFullYear(), m2 = d.getMonth()+1, dt = d.getDate(); if(!map[y]) map[y] = {}; if(!map[y][m2]) map[y][m2] = {}; if(!map[y][m2][dow]) map[y][m2][dow] = []; map[y][m2][dow].push(dt); }
         }
+        const rowRecs = [];
         for(const [y,mData] of Object.entries(map)) for(const [m2,dData] of Object.entries(mData)) for(const [dow,dates] of Object.entries(dData))
-          pending.push({y:+y,m:+m2,d:+dow,r:room,st:st,et:et,cn:cn,tn:tn || '',bt:bt,cohort:cohort,dates:dates});
+          rowRecs.push(schedRec({y:+y,m:+m2,d:+dow,r:room,st:st,et:et,cn:cn,tn:tn || '',bt:bt,cohort:cohort,dates:dates}));
+        if(!rowRecs.length){ failRow(i, '기간 안에 해당 요일이 없음'); continue; }
+        /* 쓰기 전에 기존 일정 + 이 파일에서 이미 통과한 행과 겹치는지 검사. 겹치면 이 행만 건너뜀 */
+        const overlaps = window.findOverlaps(rowRecs, {extra:accepted});
+        if(overlaps.length){ failRow(i, overlapLine(overlaps[0]) + (overlaps.length > 1 ? ' 외 ' + (overlaps.length-1) + '건' : '')); continue; }
+        rowRecs.forEach(rec => { accepted.push({rec:rec, label:'이 파일 ' + (i+1) + '행의'}); pending.push(rec); });
         ok++;
-      }catch(err){ fail++; errs.push((i+1) + '행: ' + err.message); }
+      }catch(err){ failRow(i, err.message); }
     }
-    const report = () => {
-      let msg = '업로드 완료 — 성공: ' + ok + '개, 실패: ' + fail + '개';
-      if(errs.length){ msg += '\n\n오류:\n'; errs.slice(0,5).forEach(e2 => { msg += e2 + '\n'; }); if(errs.length > 5) msg += '... 외 ' + (errs.length-5) + '개'; alert(msg); }
-      window.showToast('CSV 업로드 완료: ' + ok + '개');
+    const report = saved => {
+      let msg = (saved ? '업로드 완료' : '⚠️ 저장 실패 — 아무것도 저장되지 않았습니다') + '\n성공: ' + (saved ? ok : 0) + '건, 실패: ' + failed.length + '건';
+      if(failed.length){
+        msg += '\n\n실패 목록:\n' + failed.slice(0,15).map(f => f.line + '행: ' + f.reason).join('\n');
+        if(failed.length > 15) msg += '\n... 외 ' + (failed.length-15) + '건';
+      }
+      alert(msg);
+      if(saved && failed.length && confirm('실패한 ' + failed.length + '행만 CSV로 내려받을까요?\n고친 뒤 그 파일만 다시 올리면 됩니다. (성공한 행은 이미 저장됨)')) downloadFailedRows(rows[0], failed);
+      window.showToast('CSV 업로드: 성공 ' + (saved ? ok : 0) + '건, 실패 ' + failed.length + '건', failed.length ? 'info' : 'success');
       document.getElementById('csvFile').value = '';
     };
-    if(!pending.length){ report(); return; }
-    const changes = {}; pending.forEach(p => { changes['schedules/' + newKey('schedules')] = schedRec(p); });
-    window.commit('CSV 업로드 (' + ok + '개 과정)', changes).then(saved => { if(saved) report(); });
+    if(!pending.length){ report(true); return; }
+    const changes = {}; pending.forEach(rec => { changes['schedules/' + newKey('schedules')] = rec; });
+    window.commit('CSV 업로드 (' + ok + '개 행)', changes).then(saved => report(saved));
   };
   reader.readAsText(file,'UTF-8');
 };
+/* 실패한 행만 원래 값 그대로 + 맨 끝 '실패사유' 열. 업로드는 앞 10열만 읽으므로 고친 뒤 그대로 다시 올릴 수 있음 */
+function downloadFailedRows(header, failed){
+  const head = (header || []).slice(0,10).concat(['실패사유']).map(window.csvEscape).join(',');
+  const body = failed.map(f => { const v = (f.vals || []).slice(0,10); while(v.length < 10) v.push(''); return v.concat([f.line + '행: ' + f.reason]).map(window.csvEscape).join(','); }).join('\n');
+  const blob = new Blob(['﻿' + head + '\n' + body + '\n'],{type:'text/csv;charset=utf-8;'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = '강의실배정_업로드실패_' + window.localDateStr(new Date()) + '.csv'; a.click();
+}
 /* 백업에는 연락처(requestContacts)를 넣지 않음 — 개인정보 파일 유출 방지 */
 window.downloadBackup = function(){
   const blob = new Blob([JSON.stringify({schedules:window.schedules,requests:window.requests,timestamp:new Date().toISOString(),version:APP_VERSION,by:myEmail()},null,2)],{type:'application/json'});
@@ -1381,7 +1420,6 @@ window.submitRequest = function(){
     document.getElementById('reqCourseName').value = ''; document.getElementById('reqCohort').value = ''; document.getElementById('reqPurpose').value = ''; document.getElementById('reqRequesterContact').value = ''; document.getElementById('bulkTableBody').innerHTML = '';
   });
 };
-window.findRequestConflicts = function(req){ const d = new Date(req.date); if(isNaN(d.getTime())) return []; return window.findConflicts(req.room, d.getFullYear(), d.getMonth() + 1, d.getDay(), [d.getDate()], req.start_time, req.end_time, null); };
 function contactOf(id){ return window._maps.requestContacts[id] || null; }
 window.openRequestMail = function(id){
   const req = window.requests.find(r => r.id === id); if(!req){ window.showToast('요청을 찾을 수 없습니다','error'); return; }
@@ -1508,17 +1546,21 @@ function processedReq(req, status, reason){
 }
 window.approveRequest = function(id){
   const req = window.requests.find(r => r.id === id); if(!req || req.status !== 'pending') return;
-  const conflicts = window.findRequestConflicts(req);
-  if(conflicts.length){ const msg = '⚠️ 이미 배정된 일정과 겹칩니다:\n\n' + conflicts.map(c => '📅 ' + c.dates.join(',') + '일 ' + c.time + ' - ' + c.course).join('\n') + '\n\n그래도 승인하시겠습니까?'; if(!confirm(msg)) return; }
+  const overlaps = window.findOverlaps([req]);
+  if(overlaps.length){ overlapAlert('승인할 수 없습니다. 요청은 대기 상태로 남습니다.', overlaps); return; }
   const changes = mergeChanges([req]);
   changes['requests/' + id] = processedReq(req, 'approved');
   window.commit('요청 승인: ' + req.course_name, changes).then(ok => { if(ok) window.showToast('요청이 승인되었습니다'); });
 };
 window.approveGroupRequest = function(groupId){
   const reqs = window.requests.filter(r => r.group_id === String(groupId) && r.status === 'pending'); if(!reqs.length) return;
-  const allConflicts = [];
-  reqs.forEach(req => { window.findRequestConflicts(req).forEach(c => allConflicts.push(req.date + ' ' + req.room + ' ' + c.time + ' - ' + c.course + ' (' + c.dates.join(',') + '일)')); });
-  if(allConflicts.length){ if(!confirm('⚠️ 이미 배정된 일정과 겹칩니다:\n\n' + allConflicts.join('\n') + '\n\n그래도 승인하시겠습니까?')) return; }
+  /* 배정표 일정 + 같은 묶음 안의 앞선 요청끼리도 검사. 하나라도 겹치면 묶음 전체 승인을 막음 */
+  const overlaps = []; const accepted = [];
+  reqs.forEach(req => {
+    window.findOverlaps([req], {extra:accepted}).forEach(o => overlaps.push(o));
+    accepted.push({rec:req, label:'같은 요청 묶음의'});
+  });
+  if(overlaps.length){ overlapAlert('전체 승인할 수 없습니다. 요청은 모두 대기 상태로 남습니다.', overlaps); return; }
   const changes = mergeChanges(reqs);
   reqs.forEach(req => { changes['requests/' + req.id] = processedReq(req, 'approved'); });
   window.commit('그룹 요청 승인: ' + reqs[0].course_name, changes).then(ok => { if(ok) window.showToast(reqs.length + '건 승인'); });
