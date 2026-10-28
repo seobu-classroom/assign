@@ -267,7 +267,54 @@ tbody td:last-child{border-right:none}
 .theme-toggle.on{background:var(--accent)}
 .theme-toggle::after{content:'';position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:white;transition:left .2s}
 .theme-toggle.on::after{left:calc(100% - 19px)}
-@media print{body{background:white}.sidebar,.header,.filter-bar,#adminRegPanel,#userRegPanel,.role-hint{display:none!important}.main{margin:0;padding:0}.card{box-shadow:none;border:none}}
+.schedule-caption{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:15px;font-weight:700;margin:0 0 10px}
+.schedule-caption small{font-size:12px;font-weight:400;color:var(--text-muted)}
+th.col-today{background:var(--accent-light);color:var(--accent)}
+td.col-today{background:var(--accent-light)}
+th.day-link{cursor:pointer}
+th.day-link:hover{color:var(--accent)}
+.wcard{border-radius:var(--radius-sm);padding:6px 8px;margin-bottom:5px;font-size:11.5px;border-left:3px solid;line-height:1.35}
+.wcard .cohort-badge{position:static;display:inline-block;margin-bottom:3px}
+.tl-head{padding:8px 10px!important}
+.tl-scale{position:relative;height:16px;font-family:'DM Mono',monospace;font-size:10.5px;font-weight:500}
+.tl-scale span{position:absolute;top:0;transform:translateX(-50%)}
+.tl-scale span:first-child{transform:none}
+.tl-scale span:last-child{transform:translateX(-100%)}
+td.tl-cell{padding:6px 10px;min-width:760px;vertical-align:middle}
+.tl-track{position:relative;min-height:36px;background-image:linear-gradient(to right,var(--border) 1px,transparent 1px);background-size:calc(100% / 14) 100%;border-right:1px solid var(--border)}
+.tl-block{position:absolute;height:32px;border-radius:6px;border-left:3px solid;padding:3px 6px;font-size:11px;line-height:1.3;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;box-shadow:var(--shadow-sm)}
+.tl-block .tl-time{font-family:'DM Mono',monospace;font-size:10px;opacity:.75;margin-right:4px}
+.tl-block .tl-tn{color:var(--text-secondary)}
+.tl-empty{font-size:11px;color:var(--text-muted);padding-left:6px;line-height:36px}
+/* 강의실별 시간표: 화면에서도 A4 가로(여백 10mm 제외 약 1040×700px) 크기 그대로 보여주고, 넘치면 축소 */
+#roomSheets{display:flex;flex-direction:column;gap:20px;overflow-x:auto;padding-bottom:4px}
+.rs-page{width:1040px;height:700px;flex-shrink:0;margin:0 auto;background:#fff;color:#1a1d2e;border:1px solid var(--border);box-shadow:var(--shadow-sm);overflow:hidden}
+.rs-inner{width:1040px;padding:14px 18px;transform-origin:top left}
+.rs-title{text-align:center;font-size:24px;font-weight:800;color:#1F3864;margin:2px 0 12px;letter-spacing:-.3px}
+.rs-title small{font-size:13px;font-weight:500;color:#5a6480;margin-left:8px}
+table.rs-table{width:100%;min-width:0;border-collapse:collapse;table-layout:fixed}
+.rs-table th,.rs-table td{border:1px solid #B4C6E7!important;min-width:0;position:static}
+.rs-table thead th{background:#203864;color:#fff;font-size:14px;font-weight:700;padding:6px 4px;letter-spacing:0}
+.rs-table thead th small{display:block;font-weight:400;font-size:10px;opacity:.85;font-family:'DM Mono',monospace}
+.rs-table .rs-corner{width:58px}
+.rs-table tbody tr{height:156px}
+.rs-table th.rs-slot{background:#D6E3F3;color:#1F3864;font-size:13px;font-weight:700;text-align:center}
+.rs-table td{vertical-align:middle;text-align:center;padding:5px 4px;font-size:11px;background:#fff}
+.rs-item{padding:2px 0}
+.rs-item+.rs-item{border-top:1px dashed #C9D3E6;margin-top:4px;padding-top:5px}
+.rs-time{font-family:'DM Mono',monospace;font-size:10.5px;color:#2f4ac7;font-weight:500}
+.rs-name{font-weight:700;font-size:11.5px;line-height:1.3;word-break:keep-all;overflow-wrap:anywhere}
+.rs-sub{font-size:10.5px;color:#5a6480;line-height:1.3}
+.rs-foot{display:flex;justify-content:space-between;align-items:flex-end;margin-top:12px}
+.rs-org{font-weight:700;color:#1F3864;font-size:13px}
+table.rs-mgr{width:200px;min-width:0;border-collapse:collapse;font-size:11px}
+.rs-mgr th,.rs-mgr td{border:1px solid #000!important;padding:2px 6px;text-align:center;min-width:0;position:static;background:#fff;color:#000;font-weight:600}
+.rs-mgr thead th{background:#F2F2F2}
+@media print{body{background:white}.sidebar,.header,.filter-bar,#adminRegPanel,#userRegPanel,#viewTabs,.role-hint{display:none!important}.main{margin:0;padding:0}.card{box-shadow:none;border:none}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}@page{size:A4 landscape;margin:10mm}
+  .room-mode #scheduleCaption{display:none!important}
+  #roomSheets{display:block!important;overflow:visible}
+  .rs-page{border:none;box-shadow:none;margin:0;break-after:page;page-break-after:always}
+  .rs-page:last-child{break-after:auto;page-break-after:auto}}
 </style>
 </head>
 <body>
@@ -381,6 +428,12 @@ tbody td:last-child{border-right:none}
 <div id="userRegPanel" class="card" style="display:none;">
 <div class="flex items-center gap-3"><button class="btn btn-success" onclick="window.openRequestModal()">📝 강의실 사용 요청하기</button><span class="text-sm text-muted">빈 강의실 탭에서 날짜별 현황을 확인하세요</span></div>
 </div>
+<div class="inner-tabs" id="viewTabs">
+<button class="inner-tab active" id="viewTab-month" onclick="window.setView('month')">🗓 월간</button>
+<button class="inner-tab" id="viewTab-week" onclick="window.setView('week')">📆 주간</button>
+<button class="inner-tab" id="viewTab-day" onclick="window.setView('day')">🕘 일간</button>
+<button class="inner-tab" id="viewTab-room" onclick="window.setView('room')">🏫 강의실별</button>
+</div>
 <div class="filter-bar">
 <span class="text-sm text-muted" style="flex-shrink:0;">🔍 검색</span>
 <input type="text" id="searchInput" placeholder="과정명, 강사명, 강의실, 기수..." oninput="window.renderSchedule()">
@@ -388,14 +441,17 @@ tbody td:last-child{border-right:none}
 <select id="filterRoom" onchange="window.renderSchedule()"><option value="">전체 강의실</option></select>
 <select id="filterCohort" onchange="window.renderSchedule()"><option value="">전체 기수</option></select>
 <button class="btn btn-ghost btn-sm" onclick="window.clearFilters()">✕ 초기화</button>
-<button class="btn btn-ghost btn-sm" onclick="window.changeMonth(-1)">◀ 이전 달</button>
-<button class="btn btn-ghost btn-sm" onclick="window.goToCurrentMonth()">📅 오늘로</button>
-<button class="btn btn-ghost btn-sm" onclick="window.changeMonth(1)">다음 달 ▶</button>
+<button class="btn btn-ghost btn-sm" id="prevBtn" onclick="window.shiftView(-1)">◀ 이전 달</button>
+<button class="btn btn-ghost btn-sm" onclick="window.goToToday()">📅 오늘로</button>
+<button class="btn btn-ghost btn-sm" id="nextBtn" onclick="window.shiftView(1)">다음 달 ▶</button>
 <button class="btn btn-ghost btn-sm" onclick="window.printSchedule()">🖨️ 인쇄</button>
-<div class="period-picker ml-auto"><label>조회</label><input type="number" id="viewYear" value="2026" style="width:58px;" onchange="window.renderSchedule()"><select id="viewMonth" onchange="window.renderSchedule()"><option value="1">1월</option><option value="2">2월</option><option value="3">3월</option><option value="4" selected>4월</option><option value="5">5월</option><option value="6">6월</option><option value="7">7월</option><option value="8">8월</option><option value="9">9월</option><option value="10">10월</option><option value="11">11월</option><option value="12">12월</option></select></div>
+<div class="period-picker ml-auto" id="datePicker" style="display:none;"><label>날짜</label><input type="date" id="viewDate" onchange="window.renderSchedule()"></div>
+<div class="period-picker ml-auto" id="monthPicker"><label>조회</label><input type="number" id="viewYear" value="2026" style="width:58px;" onchange="window.renderSchedule()"><select id="viewMonth" onchange="window.renderSchedule()"><option value="1">1월</option><option value="2">2월</option><option value="3">3월</option><option value="4" selected>4월</option><option value="5">5월</option><option value="6">6월</option><option value="7">7월</option><option value="8">8월</option><option value="9">9월</option><option value="10">10월</option><option value="11">11월</option><option value="12">12월</option></select></div>
 <span class="count-badge">표시 <span id="displayCount">0</span> / <span id="totalCount">0</span></span>
 </div>
-<div class="table-wrapper"><table><thead id="scheduleHead"></thead><tbody id="scheduleBody"></tbody></table></div>
+<div class="schedule-caption" id="scheduleCaption"></div>
+<div class="table-wrapper" id="scheduleTableWrap"><table><thead id="scheduleHead"></thead><tbody id="scheduleBody"></tbody></table></div>
+<div id="roomSheets" style="display:none;"></div>
 </div>
 <div id="tab-request" class="tab-pane" style="display:none;">
 <div class="page-header"><div class="page-title">사용 요청 관리<small>강의실 사용 신청 및 승인 현황</small></div></div>
@@ -929,6 +985,7 @@ window.showTab = function(tab){
   document.getElementById('headerTitle').textContent = tabTitles[tab] || tab;
   window.currentTab = tab;
   if(tab === 'statistics') window.updateStatistics();
+  if(tab === 'schedule' && window._view === 'room') window.fitRoomSheets();   // 숨겨져 있을 땐 높이를 잴 수 없어 다시 맞춤
 };
 window.getDates = function(year, month){
   const result = {}; const lastDay = new Date(year, month, 0).getDate();
@@ -948,13 +1005,224 @@ window.goToCurrentMonth = function(){
   const t = new Date(); document.getElementById('viewYear').value = t.getFullYear(); document.getElementById('viewMonth').value = String(t.getMonth()+1); window.renderSchedule();
 };
 window.printSchedule = function(){ window.print(); };
+
+/* ───────── 배정표 보기: 월간(기존) · 주간 · 일간 ─────────
+   주간·일간은 일정 레코드(y·m·dates)를 실제 날짜로 펼쳐 보여주는 조회 화면. 수정·삭제는 월간 보기에서 함 */
+window._view = 'month';
+try{ const v = localStorage.getItem('scheduleView'); if(['month','week','day','room'].includes(v)) window._view = v; }catch(e){}
+const monthLike = v => v === 'month' || v === 'room';   // 강의실별 보기도 월 단위로 조회
+const DAY_KO = ['일','월','화','수','목','금','토'];
+function viewDateObj(){
+  const v = document.getElementById('viewDate').value; const m = v && v.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  return m ? new Date(+m[1], +m[2]-1, +m[3]) : new Date();
+}
+function setViewDate(d){ document.getElementById('viewDate').value = window.localDateStr(d); }
+window.setView = function(view){
+  const prev = window._view; window._view = view;
+  try{ localStorage.setItem('scheduleView', view); }catch(e){}
+  const y = parseInt(document.getElementById('viewYear').value), m = parseInt(document.getElementById('viewMonth').value);
+  if(monthLike(prev) && !monthLike(view)){
+    /* 월간에서 넘어오면 보고 있던 달 안의 날짜로: 오늘이 그 달이면 오늘, 아니면 그 달 1일 */
+    const t = new Date(); setViewDate(t.getFullYear() === y && t.getMonth()+1 === m ? t : new Date(y, m-1, 1));
+  } else if(!monthLike(prev) && monthLike(view)){
+    const d = viewDateObj(); document.getElementById('viewYear').value = d.getFullYear(); document.getElementById('viewMonth').value = String(d.getMonth()+1);
+  }
+  window.renderSchedule();
+};
+window.openDay = function(dateStr){ document.getElementById('viewDate').value = dateStr; window._view = 'day'; try{ localStorage.setItem('scheduleView','day'); }catch(e){} window.renderSchedule(); };
+window.shiftView = function(delta){
+  if(monthLike(window._view)) return window.changeMonth(delta);
+  const d = viewDateObj();
+  d.setDate(d.getDate() + delta * (window._view === 'week' ? 7 : 1));
+  if(window._view === 'day' && d.getDay() === 0) d.setDate(d.getDate() + (delta > 0 ? 1 : -1));   // 일요일은 건너뜀
+  setViewDate(d); window.renderSchedule();
+};
+window.goToToday = function(){ setViewDate(new Date()); window.goToCurrentMonth(); };
+function updateViewControls(){
+  const v = window._view;
+  ['month','week','day','room'].forEach(x => document.getElementById('viewTab-' + x).classList.toggle('active', x === v));
+  document.getElementById('monthPicker').style.display = monthLike(v) ? '' : 'none';
+  document.getElementById('datePicker').style.display = monthLike(v) ? 'none' : '';
+  const roomMode = v === 'room';
+  document.getElementById('scheduleTableWrap').style.display = roomMode ? 'none' : '';
+  document.getElementById('roomSheets').style.display = roomMode ? '' : 'none';
+  document.getElementById('tab-schedule').classList.toggle('room-mode', roomMode);
+  const unit = {month:'달', week:'주', day:'날', room:'달'}[v];
+  document.getElementById('prevBtn').textContent = '◀ 이전 ' + unit;
+  document.getElementById('nextBtn').textContent = '다음 ' + unit + ' ▶';
+  if(!document.getElementById('viewDate').value) setViewDate(new Date());
+}
+/* 검색·사업구분·기수 필터 (강의실 필터는 표시할 행에서 처리) — 월간·주간·일간 공통 */
+function scheduleFilters(){
+  return {search:document.getElementById('searchInput').value.toLowerCase(), bt:document.getElementById('filterBusinessType').value, room:document.getElementById('filterRoom').value, cohort:document.getElementById('filterCohort').value};
+}
+function passFilters(s, f){
+  if(f.search && !((s.cn || '').toLowerCase().includes(f.search) || (s.tn && s.tn.toLowerCase().includes(f.search)) || String(s.r).toLowerCase().includes(f.search) || (s.cohort && s.cohort.toLowerCase().includes(f.search)))) return false;
+  if(f.bt && s.bt !== f.bt) return false;
+  if(f.cohort && s.cohort !== f.cohort) return false;
+  return true;
+}
+/* 표시할 강의실 행: 기본 목록 + (목록에 없는 이름으로 저장된 일정의 강의실) */
+function roomsToShowFor(items, f){
+  if(f.room) return [f.room];
+  const extra = [...new Set(items.filter(s => !window.rooms.includes(s.r)).map(s => s.r))].sort();
+  return window.rooms.concat(extra);
+}
+function makeRoomCell(room){
+  const td = document.createElement('td'); td.className = 'room-cell'; td.textContent = room;
+  const sub = document.createElement('span'); sub.className = 'room-sub';
+  sub.textContent = window.rooms.includes(room) ? roomLabel(room) : '목록에 없는 강의실';
+  if(sub.textContent) td.appendChild(sub);
+  return td;
+}
+/* 특정 날짜에 실제로 열리는 일정 */
+function sessionsOn(d){
+  const y = d.getFullYear(), m = d.getMonth()+1, dt = d.getDate();
+  return window.schedules.filter(s => s.y === y && s.m === m && (s.dates || []).includes(dt));
+}
+function fmtMD(d){ return (d.getMonth()+1) + '/' + d.getDate(); }
+function setCaption(title, sub){ document.getElementById('scheduleCaption').innerHTML = '<span>' + window.escapeHTML(title) + '</span>' + (sub ? '<small>' + window.escapeHTML(sub) + '</small>' : ''); }
+
+window.renderWeek = function(){
+  const f = scheduleFilters();
+  const base = viewDateObj(); const dow = base.getDay();
+  const mon = new Date(base.getFullYear(), base.getMonth(), base.getDate() - (dow === 0 ? 6 : dow - 1));
+  const days = [0,1,2,3,4,5].map(i => new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + i));
+  const todayStr = window.localDateStr(new Date());
+  const perDay = days.map(d => sessionsOn(d));
+  const shown = perDay.map(list => list.filter(s => passFilters(s, f)));
+  const thead = document.getElementById('scheduleHead'), tbody = document.getElementById('scheduleBody');
+  thead.innerHTML = '<tr><th class="room-th room-cell">강의실</th>' + days.map(d => {
+    const ds = window.localDateStr(d);
+    return '<th class="day-link' + (ds === todayStr ? ' col-today' : '') + '" onclick="window.openDay(\'' + ds + '\')" title="이 날 일간 보기">' + DAY_KO[d.getDay()] + '<br><small style="font-weight:400;font-family:\'DM Mono\',monospace;">' + fmtMD(d) + '</small></th>';
+  }).join('') + '</tr>';
+  tbody.innerHTML = '';
+  let count = 0;
+  roomsToShowFor([].concat(...shown), f).forEach(room => {
+    const tr = document.createElement('tr'); tr.appendChild(makeRoomCell(room));
+    days.forEach((d, i) => {
+      const td = document.createElement('td');
+      if(window.localDateStr(d) === todayStr) td.className = 'col-today';
+      const items = shown[i].filter(s => s.r === room).sort((a,b) => String(a.st).localeCompare(String(b.st)));
+      count += items.length;
+      td.innerHTML = items.map(s => '<div class="wcard ' + btClass(s.bt) + '">' + window.getCohortBadgeHTML(s.cohort) + '<div class="scard-time">' + window.escapeHTML(s.st) + '–' + window.escapeHTML(s.et) + '</div><div class="scard-title">' + window.escapeHTML(s.cn) + '</div>' + (s.tn ? '<div class="scard-teacher">👨‍🏫 ' + window.escapeHTML(s.tn) + '</div>' : '') + '</div>').join('');
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+  const sat = days[5];
+  setCaption(mon.getFullYear() + '년 ' + (mon.getMonth()+1) + '월 ' + mon.getDate() + '일(월) ~ ' + (sat.getMonth()+1) + '월 ' + sat.getDate() + '일(토) 주간 배정표', '날짜를 누르면 일간 보기' + (isAdmin() ? ' · 수정·삭제는 월간 보기에서' : ''));
+  document.getElementById('displayCount').textContent = count;
+  document.getElementById('totalCount').textContent = perDay.reduce((n, l) => n + l.length, 0);
+};
+
+const TL_START = 8 * 60, TL_END = 22 * 60;   // 일간 시간축 08:00~22:00
+function toMin(t){ const m = String(t || '').match(/^(\d{1,2}):(\d{2})/); return m ? (+m[1]) * 60 + (+m[2]) : 0; }
+window.renderDay = function(){
+  const f = scheduleFilters();
+  const day = viewDateObj();
+  const all = sessionsOn(day);
+  const shown = all.filter(s => passFilters(s, f));
+  const thead = document.getElementById('scheduleHead'), tbody = document.getElementById('scheduleBody');
+  let scale = '';
+  for(let h = 8; h <= 22; h++) scale += '<span style="left:' + ((h * 60 - TL_START) / (TL_END - TL_START) * 100) + '%;">' + pad2(h) + '</span>';
+  thead.innerHTML = '<tr><th class="room-th room-cell">강의실</th><th class="tl-head"><div class="tl-scale">' + scale + '</div></th></tr>';
+  tbody.innerHTML = '';
+  const span = TL_END - TL_START;
+  roomsToShowFor(shown, f).forEach(room => {
+    const tr = document.createElement('tr'); tr.appendChild(makeRoomCell(room));
+    const td = document.createElement('td'); td.className = 'tl-cell';
+    const items = shown.filter(s => s.r === room).sort((a,b) => toMin(a.st) - toMin(b.st));
+    /* 시간이 겹치는 일정(예전 데이터)은 아래 줄로 내려 겹쳐 그리지 않음 */
+    const laneEnds = []; const placed = items.map(s => {
+      const st = toMin(s.st), et = toMin(s.et);
+      let lane = laneEnds.findIndex(e => e <= st); if(lane < 0){ lane = laneEnds.length; laneEnds.push(0); }
+      laneEnds[lane] = et; return {s:s, st:st, et:et, lane:lane};
+    });
+    const track = document.createElement('div'); track.className = 'tl-track';
+    track.style.height = Math.max(1, laneEnds.length) * 36 + 'px';
+    if(!placed.length) track.innerHTML = '<span class="tl-empty">비어 있음</span>';
+    placed.forEach(p => {
+      const left = Math.max(0, (p.st - TL_START) / span * 100), right = Math.min(100, (p.et - TL_START) / span * 100);
+      const b = document.createElement('div'); b.className = 'tl-block ' + btClass(p.s.bt);
+      b.style.left = left + '%'; b.style.width = Math.max(1, right - left) + '%'; b.style.top = (p.lane * 36 + 2) + 'px';
+      b.title = p.s.st + '–' + p.s.et + ' ' + p.s.cn + (p.s.tn ? ' / ' + p.s.tn : '') + (p.s.cohort ? ' / ' + p.s.cohort : '') + ' / ' + p.s.bt;
+      b.innerHTML = '<span class="tl-time">' + window.escapeHTML(p.s.st) + '–' + window.escapeHTML(p.s.et) + '</span>' + window.escapeHTML(p.s.cn) + (p.s.tn ? ' <span class="tl-tn">· ' + window.escapeHTML(p.s.tn) + '</span>' : '');
+      track.appendChild(b);
+    });
+    td.appendChild(track); tr.appendChild(td); tbody.appendChild(tr);
+  });
+  const usedRooms = new Set(shown.map(s => s.r)).size;
+  setCaption(day.getFullYear() + '년 ' + (day.getMonth()+1) + '월 ' + day.getDate() + '일(' + DAY_KO[day.getDay()] + ') 일간 배정표', (day.getDay() === 0 ? '일요일 · ' : '') + '사용 강의실 ' + usedRooms + '곳 · ' + shown.length + '건' + (isAdmin() ? ' · 수정·삭제는 월간 보기에서' : ''));
+  document.getElementById('displayCount').textContent = shown.length;
+  document.getElementById('totalCount').textContent = all.length;
+};
+
+/* ───────── 강의실별 시간표 (기존 한글 '강의실 시간표' 양식): 강의실마다 오전·오후·야간 × 월~토, 인쇄 시 A4 가로 한 장 ─────────
+   시간대 구분: 시작 12:30 전 = 오전, 12:30~16:59 = 오후, 17:00 이후 = 야간 (기존 시간표의 배치 기준) */
+const RS_SLOTS = [{label:'오전', test:m => m < 750}, {label:'오후', test:m => m >= 750 && m < 1020}, {label:'야간', test:m => m >= 1020}];
+const RS_PAGE_H = 700;
+/* 그 달 그 요일 전체에 열리면 날짜 생략, 일부만이면 (10/30) 또는 (10/12~10/26) */
+function rsDatesNote(s, allDates){
+  const ds = (s.dates || []).slice().sort((a,b) => a-b);
+  if(!ds.length || (allDates && ds.length >= allDates.length)) return '';
+  const md = d => s.m + '/' + d;
+  return ds.length <= 3 ? ds.map(md).join(', ') : md(ds[0]) + '~' + md(ds[ds.length-1]);
+}
+window.renderRoomSheets = function(){
+  const year = parseInt(document.getElementById('viewYear').value), month = parseInt(document.getElementById('viewMonth').value);
+  const f = scheduleFilters();
+  const monthItems = window.schedules.filter(s => s.y === year && s.m === month && passFilters(s, f));
+  const datesMap = window.getDates(year, month);
+  const esc = window.escapeHTML;
+  const rooms = roomsToShowFor(monthItems, f);
+  document.getElementById('roomSheets').innerHTML = rooms.map(room => {
+    const ri = roomInfo.find(r => r.name === room);
+    const kind = ri && ri.label && ri.label !== '스튜디오' && ri.label !== '상담실' ? ri.label : (room === '강당' || room === '심층상담' || room === '온스튜디오' ? '' : '강의실');
+    const items = monthItems.filter(s => s.r === room);
+    let h = '<div class="rs-page"><div class="rs-inner">';
+    h += '<div class="rs-title">' + esc(room + (kind ? ' ' + kind : '') + ' 시간표') + '<small>' + year + '년 ' + month + '월' + (ri && ri.cap ? ' · ' + ri.cap + '석' : '') + '</small></div>';
+    h += '<table class="rs-table"><thead><tr><th class="rs-corner"></th>';
+    for(let d = 1; d <= 6; d++) h += '<th>' + DAY_KO[d] + '<small>' + (datesMap[d] || []).join(' · ') + '</small></th>';
+    h += '</tr></thead><tbody>';
+    RS_SLOTS.forEach(slot => {
+      h += '<tr><th class="rs-slot">' + slot.label + '</th>';
+      for(let d = 1; d <= 6; d++){
+        const list = items.filter(s => s.d === d && slot.test(toMin(s.st))).sort((a,b) => toMin(a.st) - toMin(b.st) || String(a.cn).localeCompare(String(b.cn)));
+        h += '<td>' + list.map(s => {
+          const note = rsDatesNote(s, datesMap[d]);
+          return '<div class="rs-item"><div class="rs-time">' + esc(s.st) + '~' + esc(s.et) + '</div><div class="rs-name">' + esc(s.cn) + '</div>' + (s.tn || note ? '<div class="rs-sub">' + (s.tn ? esc(s.tn) + ' 강사' : '') + (note ? (s.tn ? ' · ' : '') + '(' + esc(note) + ')' : '') + '</div>' : '') + '</div>';
+        }).join('') + '</td>';
+      }
+      h += '</tr>';
+    });
+    h += '</tbody></table>';
+    h += '<div class="rs-foot"><div class="rs-org">서울특별시서부여성발전센터</div><table class="rs-mgr"><thead><tr><th colspan="2">물품관리책임자</th></tr></thead><tbody><tr><th style="width:56px;">호실</th><td>' + esc(room) + '</td></tr><tr><th>정</th><td>&nbsp;</td></tr><tr><th>부</th><td>&nbsp;</td></tr></tbody></table></div>';
+    return h + '</div></div>';
+  }).join('');
+  setCaption(year + '년 ' + month + '월 강의실별 시간표', rooms.length + '개 강의실 · 🖨️ 인쇄하면 강의실마다 A4 가로 한 장' + (isAdmin() ? ' · 수정·삭제는 월간 보기에서' : ''));
+  document.getElementById('displayCount').textContent = monthItems.length;
+  document.getElementById('totalCount').textContent = window.schedules.filter(s => s.y === year && s.m === month).length;
+  window.fitRoomSheets();
+};
+/* 내용이 많아 A4 한 장을 넘는 강의실만 축소 (화면과 인쇄가 같은 크기) */
+window.fitRoomSheets = function(){
+  document.querySelectorAll('#roomSheets .rs-inner').forEach(inner => {
+    inner.style.transform = ''; inner.style.marginLeft = '';
+    const h = inner.scrollHeight;
+    if(h > RS_PAGE_H){ const z = RS_PAGE_H / h; inner.style.transform = 'scale(' + z + ')'; inner.style.marginLeft = (1040 * (1 - z) / 2) + 'px'; }
+  });
+};
+window.addEventListener('beforeprint', () => { if(window._view === 'room') window.fitRoomSheets(); });
+
 window.renderSchedule = function(){
+  updateViewControls();
+  if(window._view === 'room'){ window.renderRoomSheets(); window.updateCohortFilter(); return; }
+  if(window._view === 'week'){ window.renderWeek(); window.updateCohortFilter(); return; }
+  if(window._view === 'day'){ window.renderDay(); window.updateCohortFilter(); return; }
   const year = parseInt(document.getElementById('viewYear').value);
   const month = parseInt(document.getElementById('viewMonth').value);
-  const search = document.getElementById('searchInput').value.toLowerCase();
-  const filterBT = document.getElementById('filterBusinessType').value;
-  const filterR = document.getElementById('filterRoom').value;
-  const filterC = document.getElementById('filterCohort').value;
+  const f = scheduleFilters();
   const datesMap = window.getDates(year, month);
   const dayNames = ['일','월','화','수','목','금','토'];
   const thead = document.getElementById('scheduleHead'); const tbody = document.getElementById('scheduleBody');
@@ -964,21 +1232,13 @@ window.renderSchedule = function(){
   tbody.innerHTML = '';
   let displayCount = 0;
   /* 목록에 없는 강의실 이름(예: 이전 버전의 302호)의 일정도 숨기지 않고 아래에 별도 행으로 표시 */
-  const extraRooms = [...new Set(window.schedules.filter(s => s.y === year && s.m === month && !window.rooms.includes(s.r)).map(s => s.r))].sort();
-  const roomsToShow = filterR ? [filterR] : window.rooms.concat(extraRooms);
-  roomsToShow.forEach(room => {
+  const monthItems = window.schedules.filter(s => s.y === year && s.m === month);
+  roomsToShowFor(monthItems, f).forEach(room => {
     const tr = document.createElement('tr');
-    const tdRoom = document.createElement('td'); tdRoom.className = 'room-cell'; tdRoom.textContent = room;
-    const sub = document.createElement('span'); sub.className = 'room-sub';
-    sub.textContent = window.rooms.includes(room) ? roomLabel(room) : '목록에 없는 강의실';
-    if(sub.textContent) tdRoom.appendChild(sub);
-    tr.appendChild(tdRoom);
+    tr.appendChild(makeRoomCell(room));
     for(let d = 1; d <= 6; d++){
       const td = document.createElement('td');
-      let items = window.schedules.filter(s => s.y === year && s.m === month && s.r === room && s.d === d);
-      if(search) items = items.filter(s => (s.cn || '').toLowerCase().includes(search) || (s.tn && s.tn.toLowerCase().includes(search)) || s.r.toLowerCase().includes(search) || (s.cohort && s.cohort.toLowerCase().includes(search)));
-      if(filterBT) items = items.filter(s => s.bt === filterBT);
-      if(filterC) items = items.filter(s => s.cohort === filterC);
+      let items = monthItems.filter(s => s.r === room && s.d === d && passFilters(s, f));
       items.sort((a,b) => String(a.st).localeCompare(String(b.st)));
       displayCount += items.length;
       items.forEach(item => {
@@ -999,6 +1259,7 @@ window.renderSchedule = function(){
     }
     tbody.appendChild(tr);
   });
+  setCaption(year + '년 ' + month + '월 월간 배정표', '');
   document.getElementById('displayCount').textContent = displayCount;
   document.getElementById('totalCount').textContent = window.schedules.length;
   window.updateCohortFilter();
