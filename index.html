@@ -317,6 +317,10 @@ table.rs-mgr{width:200px;min-width:0;border-collapse:collapse;font-size:11px}
 .rm-table thead th{font-size:12px;color:var(--text-secondary);border-bottom:2px solid var(--border)}
 .rm-table input{width:100%;padding:6px 10px}
 .rm-table tr.rm-changed td{background:var(--warning-light)}
+.multi-fill{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;margin-bottom:12px}
+.multi-fill .form-group label{margin-bottom:4px}
+.session-row.conflict input{border-color:var(--danger);background:var(--danger-light)}
+.session-row .session-msg{grid-column:2;font-size:11px;color:var(--danger);line-height:1.3}
 @media print{body{background:white}.sidebar,.header,.filter-bar,#adminRegPanel,#userRegPanel,#viewTabs,.role-hint{display:none!important}.main{margin:0;padding:0}.card{box-shadow:none;border:none}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}@page{size:A4 landscape;margin:10mm}
   .room-mode #scheduleCaption{display:none!important}
   #roomSheets{display:block!important;overflow:visible}
@@ -569,14 +573,30 @@ table.rs-mgr{width:200px;min-width:0;border-collapse:collapse;font-size:11px}
 </div>
 <div id="req-panel-multi" class="modal-form" style="margin-top:14px;display:none;">
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
-<div class="form-group"><label>🏢 강의실 *</label><select id="reqRoomMulti" style="width:100%;"></select></div>
+<div class="form-group"><label>🏢 강의실 *</label><select id="reqRoomMulti" style="width:100%;" onchange="window.markSessionConflicts()"></select></div>
 <div class="form-group"><label>🔢 총 회차 수</label><select id="reqSessionCount" style="width:100%;" onchange="window.buildSessionRows()"><option value="2">2회차</option><option value="3">3회차</option><option value="4">4회차</option><option value="5">5회차</option><option value="6">6회차</option><option value="7">7회차</option><option value="8">8회차</option><option value="9">9회차</option><option value="10">10회차</option></select></div>
 </div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
-<div class="form-group"><label>⏰ 시작 시간 (공통)</label><input type="time" id="reqMultiStartTime" value="09:00" style="width:100%;"></div>
-<div class="form-group"><label>⏰ 종료 시간 (공통)</label><input type="time" id="reqMultiEndTime" value="18:00" style="width:100%;"></div>
+<div class="form-group"><label>⏰ 시작 시간 (공통)</label><input type="time" id="reqMultiStartTime" value="09:00" style="width:100%;" onchange="window.markSessionConflicts()"></div>
+<div class="form-group"><label>⏰ 종료 시간 (공통)</label><input type="time" id="reqMultiEndTime" value="18:00" style="width:100%;" onchange="window.markSessionConflicts()"></div>
 </div>
-<div class="section-label">회차별 날짜 입력</div>
+<div class="multi-fill">
+<div class="section-label" style="margin-bottom:8px;">📅 날짜 일괄 적용</div>
+<div style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;">
+<div class="form-group" style="margin:0;"><label>1회차 날짜</label><input type="date" id="reqMultiFirst" style="width:160px;"></div>
+<div class="form-group" style="margin:0;"><label>요일 (선택 안 하면 1회차 요일, 매주 1회)</label><div class="checkbox-pills">
+<div class="checkbox-pill"><input type="checkbox" id="md1" name="multiDay" value="1"><label for="md1">월</label></div>
+<div class="checkbox-pill"><input type="checkbox" id="md2" name="multiDay" value="2"><label for="md2">화</label></div>
+<div class="checkbox-pill"><input type="checkbox" id="md3" name="multiDay" value="3"><label for="md3">수</label></div>
+<div class="checkbox-pill"><input type="checkbox" id="md4" name="multiDay" value="4"><label for="md4">목</label></div>
+<div class="checkbox-pill"><input type="checkbox" id="md5" name="multiDay" value="5"><label for="md5">금</label></div>
+<div class="checkbox-pill"><input type="checkbox" id="md6" name="multiDay" value="6"><label for="md6">토</label></div>
+</div></div>
+<button type="button" class="btn btn-primary btn-sm" onclick="window.fillSessionDates()">일괄 적용</button>
+</div>
+<div class="text-sm text-muted" style="margin-top:6px;">회차 수만큼 날짜가 채워집니다. 공휴일은 자동으로 빠지지 않으니 아래 칸에서 직접 고치세요.</div>
+</div>
+<div class="section-label">회차별 날짜 입력 <span id="sessionConflictNote" style="color:var(--danger);text-transform:none;letter-spacing:0;"></span></div>
 <div id="sessionRows" style="display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto;padding-right:4px;"></div>
 </div>
 <div id="req-panel-bulk" class="modal-form" style="margin-top:14px;display:none;">
@@ -895,7 +915,25 @@ function resetSessionState(){
   window.currentRole = null; window.currentUser = null;
   window._loaded = {requests:false, requestContacts:false}; window._purgeDone = false;
 }
+/* 로그인할 때마다 처음 상태로: 배정표 탭 · 월간 · 전체 강의실 · 현재 연월, 검색·필터·요청 입력칸 비움 (다크 모드는 유지) */
+function resetViewState(){
+  window._view = 'month';
+  const t = new Date();
+  document.getElementById('viewYear').value = t.getFullYear(); document.getElementById('viewMonth').value = String(t.getMonth() + 1);
+  document.getElementById('monthViewYear').value = t.getFullYear(); document.getElementById('monthViewMonth').value = String(t.getMonth() + 1);
+  document.getElementById('viewDate').value = window.localDateStr(t);
+  document.getElementById('checkDate').value = window.localDateStr(t);
+  ['searchInput','filterBusinessType','filterRoom','filterCohort','reqSearchInput','reqStatusFilter',
+   'reqRequesterName','reqCourseName','reqRequesterContact','reqInstructorName','reqCohort','reqPurpose','reqMultiFirst','memberEmail'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  document.querySelectorAll('input[name="multiDay"], input[name="chkDay"]').forEach(cb => { cb.checked = false; });
+  document.getElementById('sessionRows').innerHTML = ''; document.getElementById('bulkTableBody').innerHTML = '';
+  document.getElementById('dailyResult').innerHTML = ''; document.getElementById('monthlyResult').innerHTML = '';
+  window.closeRequestModal(); window.closeEditModal();
+  window.showAvailabilityView('daily');
+  window.showTab('schedule');
+}
 function enterApp(role){
+  resetViewState();
   window.currentRole = role === 'admin' ? 'admin' : 'user';
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('appShell').style.display = 'block';
@@ -1027,7 +1065,7 @@ window.printSchedule = function(){ window.print(); };
 /* ───────── 배정표 보기: 월간(기존) · 주간 · 일간 ─────────
    주간·일간은 일정 레코드(y·m·dates)를 실제 날짜로 펼쳐 보여주는 조회 화면. 수정·삭제는 월간 보기에서 함 */
 window._view = 'month';
-try{ const v = localStorage.getItem('scheduleView'); if(['month','week','day','room'].includes(v)) window._view = v; }catch(e){}
+try{ localStorage.removeItem('scheduleView'); }catch(e){}   // 예전 버전이 저장한 보기 설정 정리 (이제 로그인마다 월간으로 시작)
 const monthLike = v => v === 'month' || v === 'room';   // 강의실별 보기도 월 단위로 조회
 const DAY_KO = ['일','월','화','수','목','금','토'];
 function viewDateObj(){
@@ -1037,7 +1075,6 @@ function viewDateObj(){
 function setViewDate(d){ document.getElementById('viewDate').value = window.localDateStr(d); }
 window.setView = function(view){
   const prev = window._view; window._view = view;
-  try{ localStorage.setItem('scheduleView', view); }catch(e){}
   const y = parseInt(document.getElementById('viewYear').value), m = parseInt(document.getElementById('viewMonth').value);
   if(monthLike(prev) && !monthLike(view)){
     /* 월간에서 넘어오면 보고 있던 달 안의 날짜로: 오늘이 그 달이면 오늘, 아니면 그 달 1일 */
@@ -1047,7 +1084,7 @@ window.setView = function(view){
   }
   window.renderSchedule();
 };
-window.openDay = function(dateStr){ document.getElementById('viewDate').value = dateStr; window._view = 'day'; try{ localStorage.setItem('scheduleView','day'); }catch(e){} window.renderSchedule(); };
+window.openDay = function(dateStr){ document.getElementById('viewDate').value = dateStr; window._view = 'day'; window.renderSchedule(); };
 window.shiftView = function(delta){
   if(monthLike(window._view)) return window.changeMonth(delta);
   const d = viewDateObj();
@@ -1334,7 +1371,10 @@ function toSlots(item){
    반환: 겹침 목록 [{room,date,st,et, exCourse,exRoom,exSt,exEt, from}] — 데이터는 읽기만 함 */
 window.findOverlaps = function(candidates, opts){
   opts = opts || {};
-  const pool = window.schedules.filter(s => opts.excludeId == null || s.id !== opts.excludeId).map(s => ({src:s, from:'기존'}))
+  /* 기본 비교 대상은 배정표 일정. opts.against를 주면 그 목록(예: 대기 중 요청)과 비교 */
+  const base = opts.against ? opts.against.map(s => ({src:s, from:opts.againstLabel || '기존'}))
+    : window.schedules.filter(s => opts.excludeId == null || s.id !== opts.excludeId).map(s => ({src:s, from:'기존'}));
+  const pool = base
     .concat((opts.extra || []).map(x => ({src:x.rec, from:x.label || '이번 작업의'})));
   const index = {};
   pool.forEach(p => toSlots(p.src).forEach(sl => {
@@ -1635,10 +1675,54 @@ window.buildSessionRows = function(){
   while(tbody.children.length < count){
     const n = tbody.children.length + 1;
     const row = document.createElement('div'); row.className = 'session-row'; row.style.cssText = 'display:grid;grid-template-columns:40px 1fr;gap:6px;align-items:center;';
-    row.innerHTML = '<span style="font-size:11px;font-weight:700;color:var(--text-muted);text-align:center;">' + n + '회</span><input type="date" class="session-date" style="width:100%;">';
+    row.innerHTML = '<span style="font-size:11px;font-weight:700;color:var(--text-muted);text-align:center;">' + n + '회</span><input type="date" class="session-date" style="width:100%;" onchange="window.markSessionConflicts()">';
     tbody.appendChild(row);
   }
   while(tbody.children.length > count) tbody.removeChild(tbody.lastChild);
+  window.markSessionConflicts();
+};
+/* 1회차 날짜부터 선택한 요일(없으면 1회차 요일 = 매주 1회)에 맞춰 회차 수만큼 날짜를 채움. 일요일은 제외 */
+window.fillSessionDates = function(){
+  const firstEl = document.getElementById('reqMultiFirst');
+  const firstRow = document.querySelector('#sessionRows .session-date');
+  const v = firstEl.value || (firstRow && firstRow.value);
+  const m = v && v.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if(!m){ window.showToast('1회차 날짜를 먼저 고르세요','error'); return; }
+  const first = new Date(+m[1], +m[2]-1, +m[3]);
+  if(first.getDay() === 0){ window.showToast('1회차가 일요일입니다. 다른 날짜를 고르세요','error'); return; }
+  let days = Array.from(document.querySelectorAll('input[name="multiDay"]:checked')).map(cb => +cb.value);
+  if(!days.length) days = [first.getDay()];
+  const count = parseInt(document.getElementById('reqSessionCount').value) || 2;
+  const dates = [window.localDateStr(first)];
+  for(let d = new Date(first), guard = 0; dates.length < count && guard < 400; guard++){
+    d.setDate(d.getDate() + 1);
+    if(d.getDay() !== 0 && days.includes(d.getDay())) dates.push(window.localDateStr(d));
+  }
+  firstEl.value = dates[0];
+  window.buildSessionRows();
+  document.querySelectorAll('#sessionRows .session-date').forEach((inp, i) => { inp.value = dates[i] || ''; });
+  window.markSessionConflicts();
+  const conflicts = document.querySelectorAll('#sessionRows .session-row.conflict').length;
+  window.showToast(dates.length + '회차 날짜를 채웠습니다' + (conflicts ? ' — 겹치는 회차 ' + conflicts + '개를 고쳐 주세요' : ''), conflicts ? 'error' : 'success');
+};
+/* 다회차 각 회차를 배정표와 비교해 겹치면 빨갛게 표시하고 사유를 보여줌 (제출 전 미리 알림) */
+window.markSessionConflicts = function(){
+  const rows = document.querySelectorAll('#sessionRows .session-row'); if(!rows.length) return;
+  const room = document.getElementById('reqRoomMulti').value;
+  const st = document.getElementById('reqMultiStartTime').value, et = document.getElementById('reqMultiEndTime').value;
+  let n = 0;
+  rows.forEach(row => {
+    const inp = row.querySelector('.session-date'); let msg = row.querySelector('.session-msg');
+    const ov = (inp.value && st && et && st < et) ? window.findOverlaps([{room:room, date:inp.value, start_time:st, end_time:et}]) : [];
+    row.classList.toggle('conflict', ov.length > 0);
+    if(ov.length){
+      n++;
+      if(!msg){ msg = document.createElement('div'); msg.className = 'session-msg'; row.appendChild(msg); }
+      msg.textContent = '⛔ ' + ov[0].exSt + '-' + ov[0].exEt + ' "' + ov[0].exCourse + '"과 겹침';
+    } else if(msg) msg.remove();
+  });
+  const note = document.getElementById('sessionConflictNote');
+  if(note) note.textContent = n ? '— 겹치는 회차 ' + n + '개' : '';
 };
 window._bulkRoomSelectHTML = function(){ return window.rooms.map(r => '<option value="' + window.escapeHTML(r) + '">' + window.escapeHTML(r) + '</option>').join(''); };
 window.addBulkRow = function(room, date, st, et){
@@ -1715,6 +1799,19 @@ window.submitRequest = function(){
     });
     if(!items.length){ window.showToast('날짜와 올바른 시간이 입력된 행이 없습니다','error'); return; }
   }
+  /* 배정표 일정과 겹치면 제출 막음. 같은 신청 안의 회차끼리 겹치는 것도 막음 */
+  const reqs = items.map(it => Object.assign({}, it, {course_name:cn}));
+  const overlaps = []; const accepted = [];
+  reqs.forEach(rq => { window.findOverlaps([rq], {extra:accepted}).forEach(o => overlaps.push(o)); accepted.push({rec:rq, label:'같은 신청의'}); });
+  if(overlaps.length){
+    if(tab === 'multi') window.markSessionConflicts();
+    overlapAlert('신청할 수 없습니다. 이미 배정된 일정과 겹칩니다.\n겹치는 날짜·시간을 바꿔서 다시 제출하세요.', overlaps);
+    return;
+  }
+  /* 다른 대기 중 요청과 겹치면 막지 않고 경고만 (아직 확정 전이므로) */
+  const pendingReqs = window.requests.filter(r => r.status === 'pending');
+  const pendingOv = window.findOverlaps(reqs, {against:pendingReqs, againstLabel:'대기 중인 요청'});
+  if(pendingOv.length && !confirm('⚠️ 같은 시간에 대기 중인 다른 요청이 ' + pendingOv.length + '건 있습니다.\n\n' + pendingOv.slice(0,5).map(o => '• ' + overlapLine(o)).join('\n') + (pendingOv.length > 5 ? '\n... 외 ' + (pendingOv.length-5) + '건' : '') + '\n\n관리자가 둘 중 하나만 승인할 수 있습니다. 그래도 제출할까요?')) return;
   const changes = {};
   items.forEach(item => {
     const k = newKey('requests');
