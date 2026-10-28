@@ -305,11 +305,17 @@ table.rs-table{width:100%;min-width:0;border-collapse:collapse;table-layout:fixe
 .rs-time{font-family:'DM Mono',monospace;font-size:10.5px;color:#2f4ac7;font-weight:500}
 .rs-name{font-weight:700;font-size:11.5px;line-height:1.3;word-break:keep-all;overflow-wrap:anywhere}
 .rs-sub{font-size:10.5px;color:#5a6480;line-height:1.3}
-.rs-foot{display:flex;justify-content:space-between;align-items:flex-end;margin-top:12px}
-.rs-org{font-weight:700;color:#1F3864;font-size:13px}
+.rs-foot{display:grid;grid-template-columns:200px 1fr 200px;align-items:end;margin-top:12px}
+.rs-logo{grid-column:2;justify-self:center;height:38px;margin-bottom:6px}
+.rs-foot .rs-mgr{grid-column:3}
 table.rs-mgr{width:200px;min-width:0;border-collapse:collapse;font-size:11px}
 .rs-mgr th,.rs-mgr td{border:1px solid #000!important;padding:2px 6px;text-align:center;min-width:0;position:static;background:#fff;color:#000;font-weight:600}
 .rs-mgr thead th{background:#F2F2F2}
+.rm-table{width:100%;min-width:0;border-collapse:collapse;font-size:13px}
+.rm-table th,.rm-table td{padding:6px 8px;border-bottom:1px solid var(--border);text-align:left;min-width:0;position:static;background:none}
+.rm-table thead th{font-size:12px;color:var(--text-secondary);border-bottom:2px solid var(--border)}
+.rm-table input{width:100%;padding:6px 10px}
+.rm-table tr.rm-changed td{background:var(--warning-light)}
 @media print{body{background:white}.sidebar,.header,.filter-bar,#adminRegPanel,#userRegPanel,#viewTabs,.role-hint{display:none!important}.main{margin:0;padding:0}.card{box-shadow:none;border:none}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}@page{size:A4 landscape;margin:10mm}
   .room-mode #scheduleCaption{display:none!important}
   #roomSheets{display:block!important;overflow:visible}
@@ -511,6 +517,11 @@ table.rs-mgr{width:200px;min-width:0;border-collapse:collapse;font-size:11px}
 <div class="divider"></div>
 <div id="memberList"></div>
 </div>
+<div class="card" id="roomManagerCard">
+<div class="card-title">🏷 물품관리책임자 <span class="text-sm text-muted" style="font-weight:400;">강의실별 시간표 오른쪽 아래 표에 들어갑니다</span></div>
+<div id="roomManagerList"></div>
+<div class="flex items-center gap-2 mt-3"><button class="btn btn-primary" onclick="window.saveRoomManagers()">💾 저장</button><span class="text-sm text-muted" id="roomManagerStatus"></span></div>
+</div>
 <div class="card">
 <div class="card-title">🧾 최근 변경 이력 (최근 100건)</div>
 <div id="auditList"></div>
@@ -631,7 +642,7 @@ window.requests = [];
 window.memberList = [];
 window.auditList = [];
 /* 경로별 원본 데이터(키 → 값). 되돌리기 시 '현재 값' 비교에 사용 */
-window._maps = {schedules:{}, requests:{}, requestContacts:{}, members:{}};
+window._maps = {schedules:{}, requests:{}, requestContacts:{}, members:{}, roomManagers:{}};
 window.currentRole = null;
 window.currentUser = null;
 /* 강의실 목록 — 기존 엑셀 배정표(105기 10월 시트)의 순서·용도·정원과 일치 */
@@ -877,7 +888,7 @@ function listen(path, cb){
 function detachListeners(){ _listeners.forEach(([ref,h]) => ref.off('value', h)); _listeners.length = 0; }
 function resetSessionState(){
   detachListeners();
-  window._maps = {schedules:{}, requests:{}, requestContacts:{}, members:{}};
+  window._maps = {schedules:{}, requests:{}, requestContacts:{}, members:{}, roomManagers:{}};
   window.schedules = []; window.requests = []; window.memberList = []; window.auditList = [];
   window.undoStack = []; window.redoStack = [];
   window.currentRole = null; window.currentUser = null;
@@ -898,6 +909,12 @@ function enterApp(role){
   listen('schedules', val => {
     window._maps.schedules = val || {}; window.schedules = toArray(val);
     window.renderSchedule(); window.updateStatistics(); window.updateCohortFilter(); window.setSyncStatus('synced');
+  });
+  /* 물품관리책임자(강의실별 정·부): 모든 구성원이 읽고(시간표 인쇄), 관리자만 저장 */
+  listen('roomManagers', val => {
+    window._maps.roomManagers = val || {};
+    if(window._view === 'room') window.renderRoomSheets();
+    if(isAdmin()) window.renderRoomManagers();
   });
   listen('requests', val => {
     window._maps.requests = val || {}; window.requests = toArray(val);
@@ -1162,6 +1179,8 @@ window.renderDay = function(){
    시간대 구분: 시작 12:30 전 = 오전, 12:30~16:59 = 오후, 17:00 이후 = 야간 (기존 시간표의 배치 기준) */
 const RS_SLOTS = [{label:'오전', test:m => m < 750}, {label:'오후', test:m => m >= 750 && m < 1020}, {label:'야간', test:m => m >= 1020}];
 const RS_PAGE_H = 700;
+/* 기존 한글 시간표 하단 로고(서울특별시서부여성발전센터) — 파일 하나로 배포되도록 이미지 내장 */
+const RS_LOGO = 'data:image/png;base64,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';
 /* 그 달 그 요일 전체에 열리면 날짜 생략, 일부만이면 (10/30) 또는 (10/12~10/26) */
 function rsDatesNote(s, allDates){
   const ds = (s.dates || []).slice().sort((a,b) => a-b);
@@ -1180,8 +1199,9 @@ window.renderRoomSheets = function(){
     const ri = roomInfo.find(r => r.name === room);
     const kind = ri && ri.label && ri.label !== '스튜디오' && ri.label !== '상담실' ? ri.label : (room === '강당' || room === '심층상담' || room === '온스튜디오' ? '' : '강의실');
     const items = monthItems.filter(s => s.r === room);
+    const mgr = window._maps.roomManagers[managerKey(room)] || {};
     let h = '<div class="rs-page"><div class="rs-inner">';
-    h += '<div class="rs-title">' + esc(room + (kind ? ' ' + kind : '') + ' 시간표') + '<small>' + year + '년 ' + month + '월' + (ri && ri.cap ? ' · ' + ri.cap + '석' : '') + '</small></div>';
+    h += '<div class="rs-title">' + esc(room + (kind ? ' ' + kind : '') + ' 시간표(' + year + '년 ' + month + '월)') + '</div>';
     h += '<table class="rs-table"><thead><tr><th class="rs-corner"></th>';
     for(let d = 1; d <= 6; d++) h += '<th>' + DAY_KO[d] + '<small>' + (datesMap[d] || []).join(' · ') + '</small></th>';
     h += '</tr></thead><tbody>';
@@ -1197,10 +1217,15 @@ window.renderRoomSheets = function(){
       h += '</tr>';
     });
     h += '</tbody></table>';
-    h += '<div class="rs-foot"><div class="rs-org">서울특별시서부여성발전센터</div><table class="rs-mgr"><thead><tr><th colspan="2">물품관리책임자</th></tr></thead><tbody><tr><th style="width:56px;">호실</th><td>' + esc(room) + '</td></tr><tr><th>정</th><td>&nbsp;</td></tr><tr><th>부</th><td>&nbsp;</td></tr></tbody></table></div>';
+    h += '<div class="rs-foot"><img class="rs-logo" src="' + RS_LOGO + '" alt="서울특별시서부여성발전센터"><table class="rs-mgr"><thead><tr><th colspan="2">물품관리책임자</th></tr></thead><tbody><tr><th style="width:56px;">호실</th><td>' + esc(room) + '</td></tr><tr><th>정</th><td>' + (mgr.main ? esc(mgr.main) : '&nbsp;') + '</td></tr><tr><th>부</th><td>' + (mgr.sub ? esc(mgr.sub) : '&nbsp;') + '</td></tr></tbody></table></div>';
     return h + '</div></div>';
   }).join('');
   setCaption(year + '년 ' + month + '월 강의실별 시간표', rooms.length + '개 강의실 · 🖨️ 인쇄하면 강의실마다 A4 가로 한 장' + (isAdmin() ? ' · 수정·삭제는 월간 보기에서' : ''));
+  if(isAdmin()){
+    const b = document.createElement('button'); b.className = 'btn btn-ghost btn-sm'; b.textContent = '🏷 물품관리책임자 입력';
+    b.onclick = () => { window.showTab('members'); document.getElementById('roomManagerCard').scrollIntoView({behavior:'smooth'}); };
+    document.querySelector('#scheduleCaption small').appendChild(document.createTextNode(' ')); document.querySelector('#scheduleCaption small').appendChild(b);
+  }
   document.getElementById('displayCount').textContent = monthItems.length;
   document.getElementById('totalCount').textContent = window.schedules.filter(s => s.y === year && s.m === month).length;
   window.fitRoomSheets();
@@ -1499,7 +1524,7 @@ function downloadFailedRows(header, failed){
 }
 /* 백업에는 연락처(requestContacts)를 넣지 않음 — 개인정보 파일 유출 방지 */
 window.downloadBackup = function(){
-  const blob = new Blob([JSON.stringify({schedules:window.schedules,requests:window.requests,timestamp:new Date().toISOString(),version:APP_VERSION,by:myEmail()},null,2)],{type:'application/json'});
+  const blob = new Blob([JSON.stringify({schedules:window.schedules,requests:window.requests,roomManagers:window._maps.roomManagers,timestamp:new Date().toISOString(),version:APP_VERSION,by:myEmail()},null,2)],{type:'application/json'});
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = '강의실배정_백업_' + window.localDateStr(new Date()) + '.json'; a.click();
   window.showToast('백업 완료 (연락처 제외)');
 };
@@ -1528,6 +1553,15 @@ window.restoreBackup = function(){
         Object.keys(window._maps.requests).forEach(k => { changes['requests/' + k] = null; });
         Object.keys(window._maps.requestContacts).forEach(k => { changes['requestContacts/' + k] = null; });
         goodS.forEach(s => { changes['schedules/' + newKey('schedules')] = schedRec(s); });
+        /* v3.1 이후 백업에 물품관리책임자가 있으면 같이 복원 (없는 옛 백업이면 현재 값 유지) */
+        if(b.roomManagers && typeof b.roomManagers === 'object' && !Array.isArray(b.roomManagers)){
+          Object.keys(window._maps.roomManagers).forEach(k => { changes['roomManagers/' + k] = null; });
+          Object.entries(b.roomManagers).forEach(([k, v]) => {
+            if(!v || typeof v !== 'object') return;
+            const main = String(v.main || '').slice(0,30), sub = String(v.sub || '').slice(0,30);
+            if(main || sub) changes['roomManagers/' + managerKey(k).slice(0,30)] = {main:main, sub:sub, updatedBy:myEmail(), updatedAt:Date.now()};
+          });
+        }
         let contacts = 0;
         goodR.forEach(r => {
           const k = newKey('requests'); const rec = reqRec(r);
@@ -1854,6 +1888,41 @@ window.deleteGroupRequest = function(groupId){
 window.updateRequestBadge = function(){ const cnt = window.requests.filter(r => r.status === 'pending').length; const badge = document.getElementById('navBadge'); if(badge){ badge.textContent = cnt; badge.style.display = (cnt > 0 && isAdmin()) ? '' : 'none'; } };
 
 /* ───────── 구성원·이력 (관리자) ───────── */
+/* ───────── 물품관리책임자 (관리자) ───────── */
+function managerKey(room){ return String(room).trim().replace(/[.#$\[\]\/]/g, '_'); }
+window.renderRoomManagers = function(){
+  const cont = document.getElementById('roomManagerList'); if(!cont) return;
+  const map = window._maps.roomManagers || {}; const esc = window.escapeHTML;
+  /* 입력 중인 값은 다시 그릴 때 지우지 않음 (다른 사람이 저장해 목록이 갱신돼도 유지) */
+  const typing = {}; cont.querySelectorAll('tr[data-room]').forEach(tr => { if(tr.classList.contains('rm-changed')) typing[tr.dataset.room] = {main:tr.querySelector('.rm-main').value, sub:tr.querySelector('.rm-sub').value}; });
+  const rooms = window.rooms.concat(Object.keys(map).filter(k => !window.rooms.map(managerKey).includes(k)));
+  cont.innerHTML = '<table class="rm-table"><thead><tr><th style="width:140px;">호실</th><th>정</th><th>부</th><th style="width:220px;">최종 수정</th></tr></thead><tbody>' + rooms.map(room => {
+    const k = managerKey(room), m = map[k] || {}, t = typing[k];
+    const lb = roomLabel(room);
+    return '<tr data-room="' + esc(k) + '"' + (t ? ' class="rm-changed"' : '') + '><td><strong>' + esc(room) + '</strong>' + (lb ? '<div class="text-sm text-muted">' + esc(lb) + '</div>' : '') + '</td>'
+      + '<td><input type="text" class="rm-main" maxlength="30" value="' + esc(t ? t.main : (m.main || '')) + '" oninput="this.closest(\'tr\').classList.add(\'rm-changed\')"></td>'
+      + '<td><input type="text" class="rm-sub" maxlength="30" value="' + esc(t ? t.sub : (m.sub || '')) + '" oninput="this.closest(\'tr\').classList.add(\'rm-changed\')"></td>'
+      + '<td class="text-sm text-muted">' + (m.updatedBy ? esc(m.updatedBy) + '<br>' + window.localDateStr(new Date(m.updatedAt)) : '') + '</td></tr>';
+  }).join('') + '</tbody></table>';
+};
+/* 바뀐 강의실만 저장. 정·부 둘 다 비우면 항목 삭제 */
+window.saveRoomManagers = function(){
+  const changes = {};
+  document.querySelectorAll('#roomManagerList tr.rm-changed').forEach(tr => {
+    const k = tr.dataset.room, main = tr.querySelector('.rm-main').value.trim(), sub = tr.querySelector('.rm-sub').value.trim();
+    const cur = window._maps.roomManagers[k] || {};
+    if((cur.main || '') === main && (cur.sub || '') === sub) return;
+    changes['roomManagers/' + k] = (main || sub) ? {main:main, sub:sub, updatedBy:myEmail(), updatedAt:Date.now()} : null;
+  });
+  const n = Object.keys(changes).length;
+  if(!n){ window.showToast('바뀐 내용이 없습니다','info'); document.querySelectorAll('#roomManagerList tr.rm-changed').forEach(tr => tr.classList.remove('rm-changed')); return; }
+  window.commit('물품관리책임자 수정 (' + n + '개 강의실)', changes).then(ok => {
+    if(!ok) return;
+    document.querySelectorAll('#roomManagerList tr.rm-changed').forEach(tr => tr.classList.remove('rm-changed'));
+    window.renderRoomManagers();
+    window.showToast(n + '개 강의실 물품관리책임자 저장됨');
+  });
+};
 window.renderMembers = function(){
   const cont = document.getElementById('memberList'); if(!cont) return;
   const esc = window.escapeHTML; const me = emailKey(myEmail());
