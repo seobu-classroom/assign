@@ -666,14 +666,15 @@ window.auditList = [];
 window._maps = {schedules:{}, requests:{}, requestContacts:{}, members:{}, roomManagers:{}};
 window.currentRole = null;
 window.currentUser = null;
-/* 강의실 목록 — 기존 엑셀 배정표(105기 10월 시트)의 순서·용도·정원과 일치 */
+/* 강의실 목록 — 순서는 기존 엑셀 배정표 기준, 용도·정원은 담당자 확인값(2026.10) 반영, 회의실 추가 */
 const roomInfo = [
-  {name:'B101', label:'', cap:12}, {name:'101호', label:'', cap:16}, {name:'102호', label:'', cap:15},
+  {name:'B101', label:'', cap:12}, {name:'101호', label:'일반강의실', cap:20}, {name:'102호', label:'일반강의실', cap:15},
   {name:'201호', label:'정보화실', cap:18}, {name:'202호', label:'헤어디자인', cap:19}, {name:'203호', label:'의상디자인', cap:23},
-  {name:'204호', label:'', cap:5}, {name:'205호', label:'', cap:15}, {name:'206호', label:'정보화실', cap:18},
-  {name:'207호', label:'', cap:15}, {name:'208호', label:'정보화실', cap:15}, {name:'209호', label:'바리스타실', cap:5},
+  {name:'204호', label:'일반강의실', cap:21}, {name:'205호', label:'일반강의실', cap:20}, {name:'206호', label:'정보화실', cap:20},
+  {name:'207호', label:'정보화실', cap:20}, {name:'208호', label:'정보화실', cap:20}, {name:'209호', label:'바리스타실', cap:13},
   {name:'301호', label:'온기주방', cap:31}, {name:'온스튜디오', label:'스튜디오', cap:5}, {name:'303호', label:'직훈전용실', cap:20},
-  {name:'304호', label:'집단상담', cap:6}, {name:'강당', label:'', cap:73}, {name:'심층상담', label:'상담실', cap:4}
+  {name:'304호', label:'집단상담', cap:6}, {name:'강당', label:'', cap:73}, {name:'심층상담', label:'상담실', cap:4},
+  {name:'회의실', label:'', cap:0}
 ];
 window.rooms = roomInfo.map(r => r.name);
 /* 엑셀·이전 버전 표기 → 현재 강의실 이름. 정보화실은 3곳이라 변환하지 않음 */
@@ -1247,7 +1248,7 @@ window.renderRoomSheets = function(){
   const periods = coursePeriods();
   document.getElementById('roomSheets').innerHTML = rooms.map(room => {
     const ri = roomInfo.find(r => r.name === room);
-    const kind = ri && ri.label && ri.label !== '스튜디오' && ri.label !== '상담실' ? ri.label : (room === '강당' || room === '심층상담' || room === '온스튜디오' ? '' : '강의실');
+    const kind = ri && ri.label && ri.label !== '스튜디오' && ri.label !== '상담실' ? ri.label : (room === '강당' || room === '심층상담' || room === '온스튜디오' || room === '회의실' ? '' : '강의실');
     const items = monthItems.filter(s => s.r === room);
     const mgr = window._maps.roomManagers[managerKey(room)] || {};
     let h = '<div class="rs-page"><div class="rs-inner">';
