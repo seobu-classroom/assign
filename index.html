@@ -317,6 +317,7 @@ table.rs-mgr{width:200px;min-width:0;border-collapse:collapse;font-size:11px}
 .rm-table thead th{font-size:12px;color:var(--text-secondary);border-bottom:2px solid var(--border)}
 .rm-table input{width:100%;padding:6px 10px}
 .rm-table tr.rm-changed td{background:var(--warning-light)}
+.team-mode .admin-only{display:none!important}
 .multi-fill{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;margin-bottom:12px}
 .multi-fill .form-group label{margin-bottom:4px}
 .session-row.conflict input{border-color:var(--danger);background:var(--danger-light)}
@@ -378,16 +379,16 @@ table.rs-mgr{width:200px;min-width:0;border-collapse:collapse;font-size:11px}
 <div id="adminHeaderBtns" style="display:none;gap:6px;" class="flex">
 <button class="btn btn-ghost btn-sm" onclick="window.undo()" id="undoBtn" disabled title="내가 한 마지막 작업만 되돌립니다">↶ 되돌리기</button>
 <button class="btn btn-ghost btn-sm" onclick="window.redo()" id="redoBtn" disabled>↷ 다시실행</button>
-<button class="btn btn-ghost btn-sm" onclick="window.exportToExcel()">📊 내보내기</button>
-<button class="btn btn-ghost btn-sm" onclick="window.downloadBackup()">💾 백업</button>
-<button class="btn btn-ghost btn-sm" onclick="window.restoreBackup()">📥 복원</button>
+<button class="btn btn-ghost btn-sm admin-only" onclick="window.exportToExcel()">📊 내보내기</button>
+<button class="btn btn-ghost btn-sm admin-only" onclick="window.downloadBackup()">💾 백업</button>
+<button class="btn btn-ghost btn-sm admin-only" onclick="window.restoreBackup()">📥 복원</button>
 </div>
 </div>
 </header>
 <main class="main">
 <div id="tab-schedule" class="tab-pane">
 <div id="adminRegPanel" class="card" style="display:none;">
-<div class="card-title">✏️ 일정 직접 등록</div>
+<div class="card-title">✏️ 일정 직접 등록 <span class="text-sm text-muted" id="teamRoomsNote" style="font-weight:400;"></span></div>
 <div class="form-row">
 <div class="form-group"><label class="form-label">시작일</label><input type="date" id="startDate" value="2026-04-13"></div>
 <div class="form-group"><label class="form-label">종료일</label><input type="date" id="endDate" value="2026-06-18"></div>
@@ -416,6 +417,7 @@ table.rs-mgr{width:200px;min-width:0;border-collapse:collapse;font-size:11px}
 <div class="form-group"><label class="form-label">🎖 기수 (선택)</label><input type="text" id="cohortNum" placeholder="예: 102기" style="width:90px;"></div>
 <div class="form-group" style="align-self:flex-end;"><button class="btn btn-primary" onclick="window.addSchedule()">➕ 등록</button></div>
 </div>
+<div class="admin-only">
 <div class="divider"></div>
 <div class="section-label">CSV 일괄 업로드</div>
 <div class="form-row">
@@ -423,6 +425,7 @@ table.rs-mgr{width:200px;min-width:0;border-collapse:collapse;font-size:11px}
 <button class="btn btn-success" onclick="window.uploadCSV()">📁 업로드</button>
 <button class="btn btn-ghost" onclick="window.downloadSampleCSV()">📥 샘플</button>
 <button class="btn btn-danger" onclick="window.clearAllSchedules()">🗑️ 전체 초기화</button>
+</div>
 </div>
 <div class="divider"></div>
 <div class="section-label">사업구분 범례</div>
@@ -515,10 +518,10 @@ table.rs-mgr{width:200px;min-width:0;border-collapse:collapse;font-size:11px}
 <div class="card-title">👥 구성원 추가</div>
 <div class="form-row">
 <div class="form-group" style="flex:1;min-width:220px;"><label class="form-label">이메일 (Google 로그인 계정)</label><input type="email" id="memberEmail" placeholder="staff@example.com" style="width:100%;"></div>
-<div class="form-group"><label class="form-label">권한</label><select id="memberRole"><option value="member">일반 (조회·요청)</option><option value="admin">관리자 (등록·승인)</option></select></div>
+<div class="form-group"><label class="form-label">권한</label><select id="memberRole"><option value="member">일반 (조회·요청)</option><option value="admin">관리자 (등록·승인)</option><option value="team:취업팀">취업팀 관리자 (303호·304호)</option><option value="team:관리팀">관리팀 관리자 (회의실·강당)</option></select></div>
 <button class="btn btn-primary" onclick="window.addMember()">➕ 추가</button>
 </div>
-<div class="info-box">관리자는 일정 등록·수정·삭제와 요청 승인, 구성원 관리를 할 수 있습니다. 본인 계정의 권한은 여기서 바꿀 수 없습니다(관리자 잠김 방지).</div>
+<div class="info-box">관리자는 모든 강의실의 일정 등록·수정·삭제와 요청 승인, 구성원 관리를 할 수 있습니다. 팀 관리자(팀당 1명)는 자기 팀 강의실(취업팀: 303호·304호, 관리팀: 회의실·강당)만 일정·요청 승인·연락처를 관리합니다. 본인 계정의 권한은 여기서 바꿀 수 없습니다(관리자 잠김 방지).</div>
 <div class="divider"></div>
 <div id="memberList"></div>
 </div>
@@ -718,6 +721,15 @@ function safeKey(k){ return String(k == null ? '' : k).replace(/[^-\w]/g,''); }
 function emailKey(email){ return String(email || '').toLowerCase().replace(/\./g, ','); }
 function keyToEmail(k){ return String(k).replace(/,/g, '.'); }
 function isAdmin(){ return window.currentRole === 'admin'; }
+/* 팀 관리자: 자기 팀 강의실만 일정·요청·연락처 관리. database.rules.json의 팀·강의실 목록과 반드시 같게 유지 */
+const TEAM_ROOMS = {'취업팀':['303호','304호'], '관리팀':['회의실','강당']};
+window.currentTeam = null;
+function isTeamAdmin(){ return window.currentRole === 'team'; }
+function canEdit(){ return isAdmin() || isTeamAdmin(); }
+function canManageRoom(room){ return isAdmin() || (isTeamAdmin() && (TEAM_ROOMS[window.currentTeam] || []).includes(String(room == null ? '' : room).trim())); }
+function denyRoom(room){ if(canManageRoom(room)) return false; window.showToast(room + '은(는) 담당 강의실이 아니라 변경할 수 없습니다','error'); return true; }
+function isValidRole(role){ return role === 'admin' || role === 'member' || (/^team:/.test(String(role)) && !!TEAM_ROOMS[String(role).slice(5)]); }
+function roleLabel(role){ return role === 'admin' ? '관리자' : /^team:/.test(String(role)) ? String(role).slice(5) + ' 관리자' : '일반'; }
 function myEmail(){ return window.currentUser ? window.currentUser.email : ''; }
 function clone(v){ return v == null ? null : JSON.parse(JSON.stringify(v)); }
 /* 키 순서와 무관한 비교용 직렬화 */
@@ -834,7 +846,7 @@ window.commit = function(action, changes, opts){
   window.setSyncStatus('syncing');
   return database.ref().update(all).then(() => {
     window.setSyncStatus('synced');
-    if(opts.undoable !== false && isAdmin()){
+    if(opts.undoable !== false && canEdit()){
       window.undoStack.push({action:action, before:before, after:clone(changes)});
       if(window.undoStack.length > 50) window.undoStack.shift();
       window.redoStack = [];
@@ -913,8 +925,24 @@ function resetSessionState(){
   window._maps = {schedules:{}, requests:{}, requestContacts:{}, members:{}, roomManagers:{}};
   window.schedules = []; window.requests = []; window.memberList = []; window.auditList = [];
   window.undoStack = []; window.redoStack = [];
-  window.currentRole = null; window.currentUser = null;
-  window._loaded = {requests:false, requestContacts:false}; window._purgeDone = false;
+  window.currentRole = null; window.currentUser = null; window.currentTeam = null;
+  window._loaded = {requests:false, requestContacts:false}; window._purgeDone = false; window._contactFetched = {};
+}
+/* 팀 관리자는 연락처 전체를 읽을 수 없어서, 자기 팀 강의실 요청의 연락처만 한 건씩 가져옴 */
+function fetchTeamContacts(){
+  if(!isTeamAdmin()) return;
+  window.requests.filter(r => canManageRoom(r.room) && !window._contactFetched[r.id]).forEach(r => {
+    window._contactFetched[r.id] = true;
+    database.ref('requestContacts/' + r.id).once('value').then(s => { if(s.val()){ window._maps.requestContacts[r.id] = s.val(); window.renderRequests(); } }).catch(() => {});
+  });
+}
+/* 강의실 선택 목록을 관리 가능한 강의실로 제한 (팀 관리자는 자기 팀 강의실만) */
+function limitRoomOptions(){
+  ['roomSelect','editRoom'].forEach(id => {
+    const el = document.getElementById(id); if(!el) return;
+    el.innerHTML = '';
+    window.rooms.filter(r => canManageRoom(r)).forEach(r => { const o = document.createElement('option'); o.value = r; const lb = roomLabel(r); o.textContent = lb ? r + ' (' + lb + ')' : r; el.appendChild(o); });
+  });
 }
 /* 로그인할 때마다 처음 상태로: 배정표 탭 · 월간 · 전체 강의실 · 현재 연월, 검색·필터·요청 입력칸 비움 (다크 모드는 유지) */
 function resetViewState(){
@@ -935,14 +963,18 @@ function resetViewState(){
 }
 function enterApp(role){
   resetViewState();
-  window.currentRole = role === 'admin' ? 'admin' : 'user';
+  window.currentRole = role === 'admin' ? 'admin' : /^team:/.test(String(role)) ? 'team' : 'user';
+  window.currentTeam = isTeamAdmin() ? String(role).slice(5) : null;
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('appShell').style.display = 'block';
   document.getElementById('userEmail').textContent = myEmail();
-  document.getElementById('roleBadge').textContent = isAdmin() ? '👨‍💼 관리자' : '👤 일반 사용자';
-  document.getElementById('adminRegPanel').style.display = isAdmin() ? 'block' : 'none';
+  document.getElementById('roleBadge').textContent = isAdmin() ? '👨‍💼 관리자' : isTeamAdmin() ? '🏢 ' + window.currentTeam + ' 관리자' : '👤 일반 사용자';
+  document.body.classList.toggle('team-mode', isTeamAdmin());
+  document.getElementById('teamRoomsNote').textContent = isTeamAdmin() ? '(' + window.currentTeam + ' 담당: ' + TEAM_ROOMS[window.currentTeam].join(', ') + ')' : '';
+  limitRoomOptions();
+  document.getElementById('adminRegPanel').style.display = canEdit() ? 'block' : 'none';
   document.getElementById('userRegPanel').style.display = isAdmin() ? 'none' : 'block';
-  document.getElementById('adminHeaderBtns').style.display = isAdmin() ? 'flex' : 'none';
+  document.getElementById('adminHeaderBtns').style.display = canEdit() ? 'flex' : 'none';
   document.getElementById('nav-members').style.display = isAdmin() ? '' : 'none';
   if(!isAdmin() && window.currentTab === 'members') window.showTab('schedule');
   window.setSyncStatus('syncing');
@@ -959,6 +991,7 @@ function enterApp(role){
   listen('requests', val => {
     window._maps.requests = val || {}; window.requests = toArray(val);
     window._loaded.requests = true;
+    fetchTeamContacts();
     window.renderRequests(); window.updateRequestBadge(); window.updateStatistics(); purgeOldContacts();
   });
   if(isAdmin()){
@@ -1012,7 +1045,7 @@ window.init = function(){
     showLoginState('loading');
     database.ref('members/' + emailKey(user.email)).once('value').then(snap => {
       const role = snap.val();
-      if(role !== 'admin' && role !== 'member'){ showLoginState('denied', user.email); return; }
+      if(!isValidRole(role)){ showLoginState('denied', user.email); return; }
       enterApp(role);
     }).catch(() => showLoginState('denied', user.email));
   });
@@ -1167,7 +1200,7 @@ window.renderWeek = function(){
     tbody.appendChild(tr);
   });
   const sat = days[5];
-  setCaption(mon.getFullYear() + '년 ' + (mon.getMonth()+1) + '월 ' + mon.getDate() + '일(월) ~ ' + (sat.getMonth()+1) + '월 ' + sat.getDate() + '일(토) 주간 배정표', '날짜를 누르면 일간 보기' + (isAdmin() ? ' · 수정·삭제는 월간 보기에서' : ''));
+  setCaption(mon.getFullYear() + '년 ' + (mon.getMonth()+1) + '월 ' + mon.getDate() + '일(월) ~ ' + (sat.getMonth()+1) + '월 ' + sat.getDate() + '일(토) 주간 배정표', '날짜를 누르면 일간 보기' + (canEdit() ? ' · 수정·삭제는 월간 보기에서' : ''));
   document.getElementById('displayCount').textContent = count;
   document.getElementById('totalCount').textContent = perDay.reduce((n, l) => n + l.length, 0);
 };
@@ -1209,7 +1242,7 @@ window.renderDay = function(){
     td.appendChild(track); tr.appendChild(td); tbody.appendChild(tr);
   });
   const usedRooms = new Set(shown.map(s => s.r)).size;
-  setCaption(day.getFullYear() + '년 ' + (day.getMonth()+1) + '월 ' + day.getDate() + '일(' + DAY_KO[day.getDay()] + ') 일간 배정표', (day.getDay() === 0 ? '일요일 · ' : '') + '사용 강의실 ' + usedRooms + '곳 · ' + shown.length + '건' + (isAdmin() ? ' · 수정·삭제는 월간 보기에서' : ''));
+  setCaption(day.getFullYear() + '년 ' + (day.getMonth()+1) + '월 ' + day.getDate() + '일(' + DAY_KO[day.getDay()] + ') 일간 배정표', (day.getDay() === 0 ? '일요일 · ' : '') + '사용 강의실 ' + usedRooms + '곳 · ' + shown.length + '건' + (canEdit() ? ' · 수정·삭제는 월간 보기에서' : ''));
   document.getElementById('displayCount').textContent = shown.length;
   document.getElementById('totalCount').textContent = all.length;
 };
@@ -1271,7 +1304,7 @@ window.renderRoomSheets = function(){
     h += '<div class="rs-foot"><img class="rs-logo" src="' + RS_LOGO + '" alt="서울특별시서부여성발전센터"><table class="rs-mgr"><thead><tr><th colspan="2">물품관리책임자</th></tr></thead><tbody><tr><th style="width:56px;">호실</th><td>' + esc(room) + '</td></tr><tr><th>정</th><td>' + (mgr.main ? esc(mgr.main) : '&nbsp;') + '</td></tr><tr><th>부</th><td>' + (mgr.sub ? esc(mgr.sub) : '&nbsp;') + '</td></tr></tbody></table></div>';
     return h + '</div></div>';
   }).join('');
-  setCaption(year + '년 ' + month + '월 강의실별 시간표', rooms.length + '개 강의실 · 🖨️ 인쇄하면 강의실마다 A4 가로 한 장' + (isAdmin() ? ' · 수정·삭제는 월간 보기에서' : ''));
+  setCaption(year + '년 ' + month + '월 강의실별 시간표', rooms.length + '개 강의실 · 🖨️ 인쇄하면 강의실마다 A4 가로 한 장' + (canEdit() ? ' · 수정·삭제는 월간 보기에서' : ''));
   if(isAdmin()){
     const b = document.createElement('button'); b.className = 'btn btn-ghost btn-sm'; b.textContent = '🏷 물품관리책임자 입력';
     b.onclick = () => { window.showTab('members'); document.getElementById('roomManagerCard').scrollIntoView({behavior:'smooth'}); };
@@ -1324,7 +1357,7 @@ window.renderSchedule = function(){
         html += '<div class="scard-time">' + window.escapeHTML(item.st) + '–' + window.escapeHTML(item.et) + '</div><div class="scard-title">' + window.escapeHTML(item.cn) + '</div>';
         if(item.tn) html += '<div class="scard-teacher">👨‍🏫 ' + window.escapeHTML(item.tn) + '</div>';
         html += '<div class="scard-dates">📅 ' + window.escapeHTML((item.dates || []).join(',')) + '일</div>';
-        if(isAdmin()){
+        if(canManageRoom(item.r)){
           const k = safeKey(item.id);
           html += '<div class="scard-actions"><button class="scard-btn edit" onclick="event.stopPropagation();window.openEditModal(\'' + k + '\')" title="수정">✏️</button><button class="scard-btn copy" onclick="event.stopPropagation();window.copySchedule(\'' + k + '\')" title="복사">📋</button><button class="scard-btn del" onclick="event.stopPropagation();window.deleteSchedule(\'' + k + '\')" title="이 카드(이번 달 이 요일)만 삭제">❌</button><button class="scard-btn del" onclick="event.stopPropagation();window.deleteCourseSeries(\'' + k + '\')" title="같은 과정(과정명·기수·강의실·시간 동일) 전체 기간 삭제">🗂</button></div>';
           if(item.updatedBy) div.title = '최종 수정: ' + item.updatedBy;
@@ -1341,7 +1374,7 @@ window.renderSchedule = function(){
   window.updateCohortFilter();
 };
 window.openEditModal = function(id){
-  const s = window.schedules.find(x => x.id === id); if(!s) return;
+  const s = window.schedules.find(x => x.id === id); if(!s || denyRoom(s.r)) return;
   window.currentEditingId = id;
   document.getElementById('editRoom').value = s.r;
   document.getElementById('editYear').value = s.y;
@@ -1400,6 +1433,7 @@ window.saveEdit = function(){
   if(!window.currentEditingId) return;
   const s = window.schedules.find(x => x.id === window.currentEditingId);
   if(!s){ window.showToast('다른 사용자가 이 일정을 삭제했습니다','error'); window.closeEditModal(); return; }
+  if(denyRoom(s.r) || denyRoom(document.getElementById('editRoom').value)) return;
   const datesStr = document.getElementById('editDates').value;
   const dates = datesStr.split(',').map(d => parseInt(d.trim())).filter(d => !isNaN(d) && d >= 1 && d <= 31);
   if(!dates.length){ window.showToast('올바른 날짜를 입력하세요','error'); return; }
@@ -1426,7 +1460,7 @@ window.saveEdit = function(){
   window.commit('일정 수정: ' + cn, {['schedules/' + id]: rec}).then(ok => { if(ok){ window.showToast('일정이 수정되었습니다'); window.closeEditModal(); } });
 };
 window.copySchedule = function(id){
-  const s = window.schedules.find(x => x.id === id); if(!s) return;
+  const s = window.schedules.find(x => x.id === id); if(!s || denyRoom(s.r)) return;
   const rec = schedRec(Object.assign({}, s, {cn:s.cn + ' (복사)'}));
   window.commit('일정 복사: ' + s.cn, {['schedules/' + newKey('schedules')]: rec}).then(ok => { if(ok) window.showToast('일정이 복사되었습니다','info'); });
 };
@@ -1443,6 +1477,7 @@ window.addSchedule = function(){
   const instructorName = document.getElementById('instructorName').value.trim();
   const businessType = document.getElementById('businessType').value;
   const cohortNum = document.getElementById('cohortNum').value.trim();
+  if(denyRoom(room)) return;
   if(!courseName){ window.showToast('과정명을 입력하세요','error'); return; }
   if(!startVal || !endVal || isNaN(startDate.getTime()) || isNaN(endDate.getTime())){ window.showToast('올바른 시작일과 종료일을 입력하세요','error'); return; }
   if(startDate > endDate){ window.showToast('시작일은 종료일보다 늦을 수 없습니다','error'); return; }
@@ -1477,13 +1512,13 @@ window.addSchedule = function(){
   });
 };
 window.deleteSchedule = function(id){
-  const s = window.schedules.find(x => x.id === id); if(!s) return;
+  const s = window.schedules.find(x => x.id === id); if(!s || denyRoom(s.r)) return;
   if(!confirm('🗑️ 이 일정을 삭제하시겠습니까?')) return;
   window.commit('일정 삭제: ' + s.cn, {['schedules/' + id]: null}).then(ok => { if(ok) window.showToast('일정이 삭제되었습니다'); });
 };
 /* 같은 과정 = 과정명·기수·강의실·시간이 모두 같은 일정. 다른 분기에 같은 이름으로 열린 과정은 건드리지 않음 */
 window.deleteCourseSeries = function(id){
-  const base = window.schedules.find(x => x.id === id); if(!base) return;
+  const base = window.schedules.find(x => x.id === id); if(!base || denyRoom(base.r)) return;
   const same = window.schedules.filter(s => s.cn === base.cn && (s.cohort || '') === (base.cohort || '') && s.r === base.r && s.st === base.st && s.et === base.et);
   const months = [...new Set(same.map(s => s.y * 100 + s.m))].sort((a,b) => a-b);
   const fmt = ym => Math.floor(ym/100) + '년 ' + (ym % 100) + '월';
@@ -1882,16 +1917,16 @@ window.renderRequests = function(){
   const groups = {}; const singles = [];
   list.forEach(req => { if(req.group_id){ if(!groups[req.group_id]) groups[req.group_id] = []; groups[req.group_id].push(req); } else singles.push(req); });
   /* 연락처는 관리자 화면에서만 표시 (일반 사용자는 데이터 자체를 받지 않음) */
-  const contactLine = (id, mt) => { if(!isAdmin()) return ''; const c = contactOf(id); if(!c || (!c.email && !c.contact)) return ''; return '<div style="font-size:12px;color:var(--text-muted);margin-top:' + mt + 'px;">' + (c.email ? '📧 ' + esc(c.email) : '') + (c.contact ? ' · 📞 ' + esc(c.contact) : '') + '</div>'; };
+  const contactLine = (id, mt) => { const rq = window._maps.requests[id]; if(!rq || !canManageRoom(rq.room)) return ''; const c = contactOf(id); if(!c || (!c.email && !c.contact)) return ''; return '<div style="font-size:12px;color:var(--text-muted);margin-top:' + mt + 'px;">' + (c.email ? '📧 ' + esc(c.email) : '') + (c.contact ? ' · 📞 ' + esc(c.contact) : '') + '</div>'; };
   let html = '';
   singles.sort((a,b) => String(b.created_at || '').localeCompare(String(a.created_at || ''))).forEach(req => {
     const k = safeKey(req.id);
     const typeTag = req.req_type ? '<span style="font-size:10px;background:var(--accent-light);color:var(--accent);padding:2px 8px;border-radius:10px;font-weight:700;">' + esc(typeLabel[req.req_type] || '단일') + '</span>' : '';
     const rejectHtml = (req.status === 'rejected' && req.reject_reason) ? '<div style="font-size:12px;color:var(--danger);margin-top:4px;">❌ 반려 사유: ' + esc(req.reject_reason) + '</div>' : '';
-    const c = isAdmin() ? contactOf(req.id) : null;
+    const c = canManageRoom(req.room) ? contactOf(req.id) : null;
     const mailBtn = (c && c.email) ? '<div style="display:flex;gap:8px;margin-top:8px;"><button class="btn btn-ghost btn-sm" onclick="window.openRequestMail(\'' + k + '\')">📧 메일 보내기</button></div>' : '';
-    const cancelBtn = (req.status === 'pending' && (isAdmin() || isMine(req))) ? '<button class="btn btn-ghost btn-sm" onclick="window.deleteRequest(\'' + k + '\')">🗑️ 취소</button>' : '';
-    const actions = (req.status === 'pending' && (isAdmin() || cancelBtn)) ? '<div style="display:flex;gap:8px;margin-top:8px;">' + (isAdmin() ? '<button class="btn btn-success btn-sm" onclick="window.approveRequest(\'' + k + '\')">✅ 승인</button><button class="btn btn-danger btn-sm" onclick="window.rejectRequest(\'' + k + '\')">❌ 반려</button>' : '') + cancelBtn + '</div>' : '';
+    const cancelBtn = (req.status === 'pending' && (canManageRoom(req.room) || isMine(req))) ? '<button class="btn btn-ghost btn-sm" onclick="window.deleteRequest(\'' + k + '\')">🗑️ 취소</button>' : '';
+    const actions = (req.status === 'pending' && (canManageRoom(req.room) || cancelBtn)) ? '<div style="display:flex;gap:8px;margin-top:8px;">' + (canManageRoom(req.room) ? '<button class="btn btn-success btn-sm" onclick="window.approveRequest(\'' + k + '\')">✅ 승인</button><button class="btn btn-danger btn-sm" onclick="window.rejectRequest(\'' + k + '\')">❌ 반려</button>' : '') + cancelBtn + '</div>' : '';
     html += '<div class="req-item"><div class="req-header"><div style="display:flex;align-items:center;gap:8px;"><strong>👤 ' + esc(req.requester_name) + (isMine(req) ? ' <span class="text-sm text-muted">(내 요청)</span>' : '') + '</strong>' + typeTag + '</div><span class="req-status status-' + esc(req.status) + '">' + esc(statusLabel[req.status] || req.status) + '</span></div><div class="req-info"><span>🏢 ' + esc(req.room) + '</span><span>📅 ' + esc(req.date) + '</span><span>⏰ ' + esc(req.start_time) + '~' + esc(req.end_time) + '</span><span>📚 ' + esc(req.course_name) + '</span>' + (req.instructor_name ? '<span>👨‍🏫 ' + esc(req.instructor_name) + '</span>' : '') + (req.cohort ? '<span>🎖 ' + esc(req.cohort) + '</span>' : '') + (req.business_type ? '<span>📊 ' + esc(req.business_type) + '</span>' : '') + '</div>' + (req.purpose ? '<div style="font-size:12px;color:var(--text-muted);margin-top:4px;">📝 ' + esc(req.purpose) + '</div>' : '') + contactLine(req.id, 4) + rejectHtml + mailBtn + actions + '</div>';
   });
   Object.entries(groups).sort((a,b) => String(b[1][0].created_at || '').localeCompare(String(a[1][0].created_at || ''))).forEach(([gid,reqs]) => {
@@ -1913,10 +1948,12 @@ window.renderRequests = function(){
     const slotRows = Object.values(slotMap).map(slot => '<div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border-radius:6px;padding:8px 12px;font-size:12.5px;flex-wrap:wrap;gap:4px;"><span>🏢 <strong>' + esc(slot.room) + '</strong> &nbsp;⏰ ' + esc(slot.st) + '~' + esc(slot.et) + ' &nbsp;📅 <strong>' + slot.dates.map(d => esc(d)).join(', ') + '</strong></span><span class="req-status status-' + esc(slot.status) + '" style="font-size:10px;padding:2px 8px;">' + esc(statusLabel[slot.status]) + '</span></div>').join('');
     const groupRejectReasons = [...new Set(reqs.filter(r => r.reject_reason).map(r => r.reject_reason))];
     const groupRejectHtml = groupRejectReasons.length ? '<div style="font-size:12px;color:var(--danger);margin-top:8px;">❌ 반려 사유: ' + esc(groupRejectReasons.join(' / ')) + '</div>' : '';
-    const hasMail = isAdmin() && reqs.some(r => { const c = contactOf(r.id); return c && c.email; });
+    /* 묶음 안의 강의실이 모두 내 담당일 때만 전체 승인·반려 (팀 관리자는 다른 팀 강의실이 섞이면 불가) */
+    const canManageAll = reqs.every(r => canManageRoom(r.room));
+    const hasMail = canManageAll && reqs.some(r => { const c = contactOf(r.id); return c && c.email; });
     const groupMailBtn = hasMail ? '<div style="display:flex;gap:8px;margin-top:10px;"><button class="btn btn-ghost btn-sm" onclick="window.openGroupMail(\'' + g + '\')">📧 메일 보내기</button></div>' : '';
-    const canCancel = isAdmin() || isMine(first);
-    const actions = (anyPending && (isAdmin() || canCancel)) ? '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">' + (isAdmin() ? '<button class="btn btn-success btn-sm" onclick="window.approveGroupRequest(\'' + g + '\')">✅ 전체 승인</button><button class="btn btn-danger btn-sm" onclick="window.rejectGroupRequest(\'' + g + '\')">❌ 전체 반려</button>' : '') + (canCancel ? '<button class="btn btn-ghost btn-sm" onclick="window.deleteGroupRequest(\'' + g + '\')">🗑️ 대기분 취소</button>' : '') + (pendingReqs.length < reqs.length ? '<span style="font-size:11px;color:var(--text-muted);align-self:center;">일부 처리됨</span>' : '') + '</div>' : '';
+    const canCancel = canManageAll || isMine(first);
+    const actions = (anyPending && canCancel) ? '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">' + (canManageAll ? '<button class="btn btn-success btn-sm" onclick="window.approveGroupRequest(\'' + g + '\')">✅ 전체 승인</button><button class="btn btn-danger btn-sm" onclick="window.rejectGroupRequest(\'' + g + '\')">❌ 전체 반려</button>' : '') + (canCancel ? '<button class="btn btn-ghost btn-sm" onclick="window.deleteGroupRequest(\'' + g + '\')">🗑️ 대기분 취소</button>' : '') + (pendingReqs.length < reqs.length ? '<span style="font-size:11px;color:var(--text-muted);align-self:center;">일부 처리됨</span>' : '') + '</div>' : '';
     html += '<div class="req-item" style="border-left:3px solid var(--info);"><div class="req-header"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><strong>👤 ' + esc(first.requester_name) + (isMine(first) ? ' <span class="text-sm text-muted">(내 요청)</span>' : '') + '</strong>' + typeTag + (first.business_type ? '<span style="font-size:10px;background:var(--surface2);border:1px solid var(--border);padding:2px 8px;border-radius:10px;color:var(--text-secondary);">' + esc(first.business_type) + '</span>' : '') + '</div><span class="req-status status-' + esc(groupStatus) + '">' + esc(statusLabel[groupStatus] || groupStatus) + '</span></div><div style="font-size:13.5px;font-weight:700;margin:6px 0 8px;">📚 ' + esc(first.course_name) + (first.instructor_name ? ' &nbsp;👨‍🏫 ' + esc(first.instructor_name) : '') + (first.cohort ? ' &nbsp;🎖 ' + esc(first.cohort) : '') + '</div><div style="display:flex;flex-direction:column;gap:5px;">' + slotRows + '</div>' + (first.purpose ? '<div style="font-size:12px;color:var(--text-muted);margin-top:8px;padding:6px 10px;background:var(--surface2);border-radius:6px;">📝 ' + esc(first.purpose) + '</div>' : '') + contactLine(first.id, 8) + groupRejectHtml + groupMailBtn + actions + '</div>';
   });
   cont.innerHTML = html || '<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">요청이 없습니다</div></div>';
@@ -1951,7 +1988,7 @@ function processedReq(req, status, reason){
   return r;
 }
 window.approveRequest = function(id){
-  const req = window.requests.find(r => r.id === id); if(!req || req.status !== 'pending') return;
+  const req = window.requests.find(r => r.id === id); if(!req || req.status !== 'pending' || denyRoom(req.room)) return;
   const overlaps = window.findOverlaps([req]);
   if(overlaps.length){ overlapAlert('승인할 수 없습니다. 요청은 대기 상태로 남습니다.', overlaps); return; }
   const changes = mergeChanges([req]);
@@ -1960,6 +1997,7 @@ window.approveRequest = function(id){
 };
 window.approveGroupRequest = function(groupId){
   const reqs = window.requests.filter(r => r.group_id === String(groupId) && r.status === 'pending'); if(!reqs.length) return;
+  if(reqs.some(r => denyRoom(r.room))) return;
   /* 배정표 일정 + 같은 묶음 안의 앞선 요청끼리도 검사. 하나라도 겹치면 묶음 전체 승인을 막음 */
   const overlaps = []; const accepted = [];
   reqs.forEach(req => {
@@ -1972,12 +2010,13 @@ window.approveGroupRequest = function(groupId){
   window.commit('그룹 요청 승인: ' + reqs[0].course_name, changes).then(ok => { if(ok) window.showToast(reqs.length + '건 승인'); });
 };
 window.rejectRequest = function(id){
-  const req = window.requests.find(r => r.id === id); if(!req || req.status !== 'pending') return;
+  const req = window.requests.find(r => r.id === id); if(!req || req.status !== 'pending' || denyRoom(req.room)) return;
   const reason = prompt('❌ 반려 사유:'); if(!reason) return;
   window.commit('요청 반려: ' + req.course_name, {['requests/' + id]: processedReq(req, 'rejected', reason)}).then(ok => { if(ok) window.showToast('요청이 반려되었습니다'); });
 };
 window.rejectGroupRequest = function(groupId){
   const reqs = window.requests.filter(r => r.group_id === String(groupId) && r.status === 'pending'); if(!reqs.length) return;
+  if(reqs.some(r => denyRoom(r.room))) return;
   const reason = prompt('❌ 반려 사유 (전체 적용):'); if(!reason) return;
   const changes = {}; reqs.forEach(req => { changes['requests/' + req.id] = processedReq(req, 'rejected', reason); });
   window.commit('그룹 요청 반려: ' + reqs[0].course_name, changes).then(ok => { if(ok) window.showToast('일괄 반려되었습니다'); });
@@ -1985,18 +2024,20 @@ window.rejectGroupRequest = function(groupId){
 window.deleteRequest = function(id){
   const req = window.requests.find(r => r.id === id); if(!req) return;
   if(req.status !== 'pending'){ window.showToast('대기 중 요청만 취소할 수 있습니다','error'); return; }
-  if(!isAdmin() && !isMine(req)){ window.showToast('본인이 낸 요청만 취소할 수 있습니다','error'); return; }
+  if(!canManageRoom(req.room) && !isMine(req)){ window.showToast('본인이 낸 요청만 취소할 수 있습니다','error'); return; }
   if(!confirm('이 요청을 취소(삭제)하시겠습니까?')) return;
-  window.commit('요청 취소: ' + req.course_name, {['requests/' + id]: null, ['requestContacts/' + id]: null}, {undoable:false}).then(ok => { if(ok) window.showToast('요청이 취소되었습니다'); });
+  /* 팀 관리자는 남의 연락처를 지울 권한이 없음 → 요청만 삭제 (남은 연락처는 관리자 접속 시 자동 정리) */
+  const changes = {['requests/' + id]: null}; if(isAdmin() || isMine(req)) changes['requestContacts/' + id] = null;
+  window.commit('요청 취소: ' + req.course_name, changes, {undoable:false}).then(ok => { if(ok) window.showToast('요청이 취소되었습니다'); });
 };
 window.deleteGroupRequest = function(groupId){
-  const pending = window.requests.filter(r => r.group_id === String(groupId) && r.status === 'pending' && (isAdmin() || isMine(r)));
+  const pending = window.requests.filter(r => r.group_id === String(groupId) && r.status === 'pending' && (canManageRoom(r.room) || isMine(r)));
   if(!pending.length){ window.showToast('취소할 대기 요청이 없습니다','error'); return; }
   if(!confirm('대기 중인 ' + pending.length + '건을 취소(삭제)하시겠습니까? 이미 승인된 건은 남습니다.')) return;
-  const changes = {}; pending.forEach(r => { changes['requests/' + r.id] = null; changes['requestContacts/' + r.id] = null; });
+  const changes = {}; pending.forEach(r => { changes['requests/' + r.id] = null; if(isAdmin() || isMine(r)) changes['requestContacts/' + r.id] = null; });
   window.commit('그룹 요청 취소: ' + pending[0].course_name, changes, {undoable:false}).then(ok => { if(ok) window.showToast(pending.length + '건 취소되었습니다'); });
 };
-window.updateRequestBadge = function(){ const cnt = window.requests.filter(r => r.status === 'pending').length; const badge = document.getElementById('navBadge'); if(badge){ badge.textContent = cnt; badge.style.display = (cnt > 0 && isAdmin()) ? '' : 'none'; } };
+window.updateRequestBadge = function(){ const cnt = window.requests.filter(r => r.status === 'pending' && canManageRoom(r.room)).length; const badge = document.getElementById('navBadge'); if(badge){ badge.textContent = cnt; badge.style.display = (cnt > 0 && canEdit()) ? '' : 'none'; } };
 
 /* ───────── 구성원·이력 (관리자) ───────── */
 /* ───────── 물품관리책임자 (관리자) ───────── */
@@ -2037,12 +2078,14 @@ window.saveRoomManagers = function(){
 window.renderMembers = function(){
   const cont = document.getElementById('memberList'); if(!cont) return;
   const esc = window.escapeHTML; const me = emailKey(myEmail());
-  const list = window.memberList.slice().sort((a,b) => (a.role === b.role ? a.email.localeCompare(b.email) : a.role === 'admin' ? -1 : 1));
+  const order = r => r === 'admin' ? 0 : /^team:/.test(r) ? 1 : 2;
+  const list = window.memberList.slice().sort((a,b) => order(a.role) - order(b.role) || String(a.role).localeCompare(String(b.role)) || a.email.localeCompare(b.email));
+  const roleOpts = role => ['member','admin'].concat(Object.keys(TEAM_ROOMS).map(t => 'team:' + t)).map(v => '<option value="' + esc(v) + '"' + (role === v ? ' selected' : '') + '>' + esc(roleLabel(v)) + '</option>').join('');
   if(!list.length){ cont.innerHTML = '<div class="text-muted">등록된 구성원이 없습니다</div>'; return; }
   cont.innerHTML = '<div class="section-label">등록된 구성원 ' + list.length + '명</div>' + list.map(m => {
     const k = esc(m.key); const self = m.key === me;
     return '<div class="member-row"><span class="member-email">' + esc(m.email) + (self ? ' <span class="text-sm text-muted">(나)</span>' : '') + '</span>' +
-      '<select ' + (self ? 'disabled' : '') + ' onchange="window.setMemberRole(this.dataset.key, this.value)" data-key="' + k + '"><option value="member"' + (m.role === 'member' ? ' selected' : '') + '>일반</option><option value="admin"' + (m.role === 'admin' ? ' selected' : '') + '>관리자</option></select>' +
+      '<select ' + (self ? 'disabled' : '') + ' onchange="window.setMemberRole(this.dataset.key, this.value)" data-key="' + k + '">' + roleOpts(m.role) + '</select>' +
       (self ? '' : '<button class="btn btn-ghost btn-sm" data-key="' + k + '" onclick="window.removeMember(this.dataset.key)">삭제</button>') + '</div>';
   }).join('');
 };
@@ -2052,11 +2095,23 @@ window.addMember = function(){
   if(!/^[^\s@#$\[\]\/]+@[^\s@#$\[\]\/]+\.[^\s@#$\[\]\/]+$/.test(email)){ window.showToast('이메일 형식을 확인하세요','error'); return; }
   const key = emailKey(email);
   if(key === emailKey(myEmail())){ window.showToast('본인 계정은 변경할 수 없습니다','error'); return; }
-  window.commit('구성원 ' + (window._maps.members[key] ? '변경' : '추가') + ': ' + email, {['members/' + key]: role}, {undoable:false}).then(ok => { if(ok){ window.showToast(email + ' 등록됨'); document.getElementById('memberEmail').value = ''; } });
+  const changes = teamRoleChanges(key, role); if(!changes) return;
+  window.commit('구성원 ' + (window._maps.members[key] ? '변경' : '추가') + ': ' + email + ' → ' + roleLabel(role), changes, {undoable:false}).then(ok => { if(ok){ window.showToast(email + ' 등록됨'); document.getElementById('memberEmail').value = ''; } });
 };
+/* 팀 관리자는 팀당 1명: 같은 팀 관리자가 이미 있으면 확인 후 그 사람은 일반으로 바꿔 함께 저장 (교체) */
+function teamRoleChanges(key, role){
+  const changes = {['members/' + key]: role};
+  if(/^team:/.test(role)){
+    const prev = window.memberList.filter(m => m.role === role && m.key !== key);
+    if(prev.length && !confirm(roleLabel(role) + '는 1명만 둘 수 있습니다.\n현재 ' + prev.map(m => m.email).join(', ') + ' 님은 일반 직원으로 바뀝니다. 계속할까요?')) return null;
+    prev.forEach(m => { changes['members/' + m.key] = 'member'; });
+  }
+  return changes;
+}
 window.setMemberRole = function(key, role){
-  if(!confirm(keyToEmail(key) + ' 의 권한을 ' + (role === 'admin' ? '관리자' : '일반') + '(으)로 바꿀까요?')){ window.renderMembers(); return; }
-  window.commit('구성원 권한 변경: ' + keyToEmail(key) + ' → ' + role, {['members/' + key]: role}, {undoable:false});
+  if(!confirm(keyToEmail(key) + ' 의 권한을 ' + roleLabel(role) + '(으)로 바꿀까요?')){ window.renderMembers(); return; }
+  const changes = teamRoleChanges(key, role); if(!changes){ window.renderMembers(); return; }
+  window.commit('구성원 권한 변경: ' + keyToEmail(key) + ' → ' + roleLabel(role), changes, {undoable:false});
 };
 window.removeMember = function(key){
   if(!confirm(keyToEmail(key) + ' 을(를) 구성원에서 삭제할까요? 다음 접속부터 사용할 수 없습니다.')) return;
